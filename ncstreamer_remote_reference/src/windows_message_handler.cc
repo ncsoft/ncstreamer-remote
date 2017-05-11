@@ -17,6 +17,10 @@
 namespace {
 HWND static_main_dialog{NULL};
 HWND static_clock_panel{NULL};
+HWND static_status_button{NULL};
+HWND static_start_button{NULL};
+HWND static_stop_button{NULL};
+HWND static_message_panel{NULL};
 
 HFONT static_clock_font{NULL};
 
@@ -74,6 +78,10 @@ HWND CreateMainDialog(
 
   static_main_dialog = dlg;
   static_clock_panel = ::GetDlgItem(dlg, IDC_STATIC_CLOCK);
+  static_status_button = ::GetDlgItem(dlg, IDC_BUTTON_STATUS);
+  static_start_button = ::GetDlgItem(dlg, IDC_BUTTON_START);
+  static_stop_button = ::GetDlgItem(dlg, IDC_BUTTON_STOP);
+  static_message_panel = ::GetDlgItem(dlg, IDC_EDIT_MESSAGE);
 
   static_clock_font = SetUpFont(static_clock_panel, 36);
 
