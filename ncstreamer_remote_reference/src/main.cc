@@ -6,20 +6,14 @@
 #include "Windows.h"  // NOLINT
 
 #include "ncstreamer_remote_reference/src/windows_message_handler.h"
-#include "ncstreamer_remote_reference/src_generated/resource.h"
 
 
 int WINAPI wWinMain(HINSTANCE instance,
                     HINSTANCE /*prev_instance*/,
                     LPTSTR cmd_line,
                     int cmd_show) {
-  HWND dlg = ::CreateDialogParam(
-      instance,
-      MAKEINTRESOURCE(IDD_DIALOG1),
-      NULL,
-      ncstreamer_remote_reference::MainDialogProc,
-      NULL);
-  ::ShowWindow(dlg, cmd_show);
+  HWND dlg = ncstreamer_remote_reference::CreateMainDialog(
+      instance, cmd_show);
 
   int result{-1};
   while (true) {

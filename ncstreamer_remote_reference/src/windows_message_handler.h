@@ -11,6 +11,9 @@
 
 
 namespace ncstreamer_remote_reference {
+HWND CreateMainDialog(
+    HINSTANCE instance, int cmd_show);
+
 INT_PTR CALLBACK MainDialogProc(
     HWND dlg, UINT msg, WPARAM wparam, LPARAM lparam);
 }  // namespace ncstreamer_remote_reference
