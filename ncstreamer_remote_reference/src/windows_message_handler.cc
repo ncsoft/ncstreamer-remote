@@ -5,6 +5,12 @@
 
 #include "ncstreamer_remote_reference/src/windows_message_handler.h"
 
+#include <chrono>  // NOLINT
+#include <ctime>
+#include <iomanip>
+#include <sstream>
+#include <string>
+
 #include "ncstreamer_remote_reference/src_generated/resource.h"
 
 
@@ -35,6 +41,21 @@ HFONT SetUpFont(HWND wnd, int font_size) {
   ::SendMessage(wnd, WM_SETFONT, (WPARAM) font, NULL);
   return font;
 }
+
+
+std::wstring GetCurrentLocalTime() {
+  auto current_tp = std::chrono::system_clock::now();
+  time_t current_tt = std::chrono::system_clock::to_time_t(current_tp);
+  tm *current_tm = std::localtime(&current_tt);
+  auto current_millisec = std::chrono::duration_cast<std::chrono::milliseconds>(
+      current_tp.time_since_epoch()).count() % 1000;
+
+  std::wstringstream ss;
+  ss << std::put_time(current_tm, L"%F %T")
+     << L"." << std::setfill(L'0') << std::setw(3) << current_millisec;
+
+  return ss.str();
+}
 }  // unnamed namespace
 
 
@@ -55,6 +76,12 @@ HWND CreateMainDialog(
   static_clock_panel = ::GetDlgItem(dlg, IDC_STATIC_CLOCK);
 
   static_clock_font = SetUpFont(static_clock_panel, 36);
+
+  ::SetTimer(static_clock_panel, 0, 50 /*milliseconds*/, [](
+      HWND wnd, UINT /*msg*/, UINT_PTR /*event_id*/, DWORD /*tick*/) {
+    std::wstring tm = GetCurrentLocalTime();
+    ::SetWindowText(wnd, tm.c_str());
+  });
 
   ::ShowWindow(dlg, cmd_show);
   return dlg;
