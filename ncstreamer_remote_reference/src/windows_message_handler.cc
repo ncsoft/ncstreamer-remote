@@ -10,6 +10,7 @@
 
 namespace {
 HWND static_main_dialog{NULL};
+HWND static_clock_panel{NULL};
 }  // unnamed namespace
 
 
@@ -27,6 +28,7 @@ HWND CreateMainDialog(
   ::SendMessage(dlg, WM_SETICON, ICON_SMALL, (LPARAM) icon);
 
   static_main_dialog = dlg;
+  static_clock_panel = ::GetDlgItem(dlg, IDC_STATIC_CLOCK);
 
   ::ShowWindow(dlg, cmd_show);
   return dlg;
