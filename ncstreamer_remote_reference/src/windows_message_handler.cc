@@ -23,6 +23,9 @@ HWND CreateMainDialog(
       MainDialogProc,
       NULL);
 
+  HICON icon = ::LoadIcon(instance, MAKEINTRESOURCE(IDI_ICON1));
+  ::SendMessage(dlg, WM_SETICON, ICON_SMALL, (LPARAM) icon);
+
   static_main_dialog = dlg;
 
   ::ShowWindow(dlg, cmd_show);
