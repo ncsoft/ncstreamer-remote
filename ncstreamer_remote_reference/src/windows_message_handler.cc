@@ -60,6 +60,29 @@ std::wstring GetCurrentLocalTime() {
 
   return ss.str();
 }
+
+
+void OnStatusButton() {
+}
+
+
+void OnStartButton() {
+}
+
+
+void OnStopButton() {
+}
+
+
+INT_PTR OnCommand(WPARAM wparam, LPARAM /*lparam*/) {
+  switch (LOWORD(wparam)) {
+    case IDC_BUTTON_STATUS: OnStatusButton(); return TRUE;
+    case IDC_BUTTON_START: OnStartButton(); return TRUE;
+    case IDC_BUTTON_STOP: OnStopButton(); return TRUE;
+    default: break;
+  }
+  return FALSE;
+}
 }  // unnamed namespace
 
 
@@ -106,6 +129,7 @@ void DeleteMainDialog() {
 INT_PTR CALLBACK MainDialogProc(
     HWND dlg, UINT msg, WPARAM wparam, LPARAM lparam) {
   switch (msg) {
+    case WM_COMMAND: return OnCommand(wparam, lparam);
     case WM_CLOSE: DeleteMainDialog(); return TRUE;
     case WM_DESTROY: ::PostQuitMessage(/*exit code*/ 0); return TRUE;
     default: break;
