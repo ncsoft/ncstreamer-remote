@@ -53,7 +53,8 @@ NcStreamerRemote::NcStreamerRemote(uint16_t remote_port)
       remote_threads_{},
       remote_log_{},
       remote_connection_{},
-      current_error_handler_{} {
+      current_error_handler_{},
+      current_status_response_handler_{} {
   remote_log_.open("remote_server.log");
   remote_.set_access_channels(ws::log::alevel::all);
   remote_.set_access_channels(ws::log::elevel::all);
@@ -139,7 +140,10 @@ void NcStreamerRemote::OnRemoteMessage(
   using MessageHandler = std::function<void(
       const boost::property_tree::ptree &/*response*/)>;
   static const std::unordered_map<ncstreamer::RemoteMessage::MessageType,
-                                  MessageHandler> kMessageHandlers{};
+                                  MessageHandler> kMessageHandlers{
+      {ncstreamer::RemoteMessage::MessageType::kStreamingStatusResponse,
+       std::bind(&NcStreamerRemote::OnRemoteStatusResponse,
+           this, std::placeholders::_1)}};
 
   auto i = kMessageHandlers.find(msg_type);
   if (i == kMessageHandlers.end()) {
@@ -148,6 +152,64 @@ void NcStreamerRemote::OnRemoteMessage(
     return;
   }
   i->second(response);
+}
+
+
+void NcStreamerRemote::OnRemoteStatusResponse(
+    const boost::property_tree::ptree &response) {
+  std::string status{};
+  std::string source_title{};
+  try {
+    status = response.get<std::string>("status");
+    source_title = response.get<std::string>("source_title");
+  } catch (const std::exception &/*e*/) {
+    status.clear();
+    source_title.clear();
+  }
+
+  if (status.empty() == true) {
+    // TODO(khpark): log error.
+    return;
+  }
+
+  if (!current_status_response_handler_) {
+    // TODO(khpark): log error.
+    return;
+  }
+
+  static std::wstring_convert<std::codecvt_utf8_utf16<wchar_t>> converter;
+  current_status_response_handler_(
+      converter.from_bytes(status),
+      converter.from_bytes(source_title));
+}
+
+
+void NcStreamerRemote::RequestStatus(
+    const ErrorHandler &error_handler,
+    const StatusResponseHandler &status_response_handler) {
+  if (!remote_connection_.lock()) {
+    // TODO(khpark): log error.
+    return;
+  }
+
+  std::stringstream msg;
+  {
+    boost::property_tree::ptree tree;
+    tree.put("type", static_cast<int>(
+        ncstreamer::RemoteMessage::MessageType::kStreamingStatusRequest));
+    boost::property_tree::write_json(msg, tree, false);
+  }
+
+  ws::lib::error_code ec;
+  remote_.send(
+      remote_connection_, msg.str(), websocketpp::frame::opcode::text, ec);
+  if (ec) {
+    // TODO(khpark): log error.
+    return;
+  }
+
+  current_error_handler_ = error_handler;
+  current_status_response_handler_ = status_response_handler;
 }
 
 

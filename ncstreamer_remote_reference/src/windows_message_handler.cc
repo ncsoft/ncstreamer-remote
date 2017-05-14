@@ -18,6 +18,12 @@
 
 
 namespace {
+enum {
+  WM_USER__REMOTE_RESPONSE_FAIL = WM_USER + 1234,
+  WM_USER__REMOTE_RESPONSE_STATUS,
+};
+
+
 HWND static_main_dialog{NULL};
 HWND static_clock_panel{NULL};
 HWND static_status_button{NULL};
@@ -66,6 +72,22 @@ std::wstring GetCurrentLocalTime() {
 
 
 void OnStatusButton() {
+  ncstreamer_remote::NcStreamerRemote::Get()->RequestStatus([](
+      const std::wstring &err_msg) {
+    ::PostMessage(
+        static_main_dialog,
+        WM_USER__REMOTE_RESPONSE_FAIL,
+        (WPARAM) nullptr,
+        (LPARAM) new std::wstring{err_msg});
+  }, [](const std::wstring &status,
+        const std::wstring &source_title) {
+    ::PostMessage(
+        static_main_dialog,
+        WM_USER__REMOTE_RESPONSE_STATUS,
+        (WPARAM) nullptr,
+        (LPARAM) new std::tuple<std::wstring, std::wstring>{
+            status, source_title});
+  });
 }
 
 
@@ -74,6 +96,32 @@ void OnStartButton() {
 
 
 void OnStopButton() {
+}
+
+
+void OnRemoteResponseFail(LPARAM lparam) {
+  std::unique_ptr<std::wstring> err_msg{
+      reinterpret_cast<std::wstring *>(lparam)};
+
+  ::EnableWindow(static_status_button, FALSE);
+  ::EnableWindow(static_start_button, FALSE);
+  ::EnableWindow(static_stop_button, FALSE);
+
+  ::SetWindowText(static_message_panel, err_msg->c_str());
+}
+
+
+void OnRemoteResponseStatus(LPARAM lparam) {
+  std::unique_ptr<std::tuple<std::wstring, std::wstring>> params{
+      reinterpret_cast<std::tuple<std::wstring, std::wstring> *>(lparam)};
+  const auto &status = std::get<0>(*params);
+  const auto &source_title = std::get<1>(*params);
+
+  std::wstringstream ss;
+  ss << L"status: " << status << L"\r\n"
+     << L"source: " << source_title << L"\r\n";
+
+  ::SetWindowText(static_message_panel, ss.str().c_str());
 }
 
 
@@ -137,6 +185,10 @@ INT_PTR CALLBACK MainDialogProc(
     HWND dlg, UINT msg, WPARAM wparam, LPARAM lparam) {
   switch (msg) {
     case WM_COMMAND: return OnCommand(wparam, lparam);
+    case WM_USER__REMOTE_RESPONSE_FAIL:
+        OnRemoteResponseFail(lparam); return TRUE;
+    case WM_USER__REMOTE_RESPONSE_STATUS:
+        OnRemoteResponseStatus(lparam); return TRUE;
     case WM_CLOSE: DeleteMainDialog(); return TRUE;
     case WM_DESTROY: ::PostQuitMessage(/*exit code*/ 0); return TRUE;
     default: break;
