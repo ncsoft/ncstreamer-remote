@@ -1,0 +1,72 @@
+/**
+ * Copyright (C) 2017 NCSOFT Corporation
+ */
+
+
+#ifndef NCSTREAMER_REMOTE_DLL_SRC_NCSTREAMER_REMOTE_H_
+#define NCSTREAMER_REMOTE_DLL_SRC_NCSTREAMER_REMOTE_H_
+
+
+#include <fstream>
+#include <functional>
+#include <string>
+#include <thread>  // NOLINT
+#include <vector>
+
+#include "boost/asio/io_service.hpp"
+#include "boost/property_tree/ptree.hpp"
+
+#ifdef _MSC_VER
+#pragma warning(disable: 4267)
+#endif
+#include "websocketpp/client.hpp"
+#include "websocketpp/config/asio_no_tls_client.hpp"
+#ifdef _MSC_VER
+#pragma warning(default: 4267)
+#endif
+
+
+namespace ncstreamer_remote {
+namespace ws = websocketpp;
+
+
+class NcStreamerRemote {
+ public:
+  using ErrorHandler = std::function<void(
+      const std::wstring &err_msg)>;
+
+  static void SetUp(uint16_t remote_port);
+  static void SetUpDefault();
+
+  static void ShutDown();
+  static NcStreamerRemote *Get();
+
+ private:
+  using AsioClient = ws::config::asio_client;
+
+  explicit NcStreamerRemote(uint16_t remote_port);
+  virtual ~NcStreamerRemote();
+
+  void OnRemoteFail(ws::connection_hdl connection);
+  void OnRemoteOpen(ws::connection_hdl connection);
+  void OnRemoteClose(ws::connection_hdl connection);
+  void OnRemoteMessage(
+      ws::connection_hdl connection,
+      ws::connection<AsioClient>::message_ptr msg);
+
+  static NcStreamerRemote *static_instance;
+
+  boost::asio::io_service io_service_;
+  boost::asio::io_service::work io_service_work_;
+  ws::client<AsioClient> remote_;
+  std::vector<std::thread> remote_threads_;
+  std::ofstream remote_log_;
+
+  ws::connection_hdl remote_connection_;
+
+  ErrorHandler current_error_handler_;
+};
+}  // namespace ncstreamer_remote
+
+
+#endif  // NCSTREAMER_REMOTE_DLL_SRC_NCSTREAMER_REMOTE_H_

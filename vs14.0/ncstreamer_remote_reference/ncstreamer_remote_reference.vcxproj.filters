@@ -15,6 +15,9 @@
     <ClCompile Include="..\..\ncstreamer_remote_reference\src\windows_message_handler.cc">
       <Filter>src</Filter>
     </ClCompile>
+    <ClCompile Include="..\..\ncstreamer_remote_dll\src\ncstreamer_remote.cc">
+      <Filter>src</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="..\..\ncstreamer_remote_reference\src_generated\ncstreamer_remote_reference.rc">
@@ -26,6 +29,12 @@
       <Filter>src_generated</Filter>
     </ClInclude>
     <ClInclude Include="..\..\ncstreamer_remote_reference\src\windows_message_handler.h">
+      <Filter>src</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\ncstreamer_remote_dll\src\ncstreamer_remote.h">
+      <Filter>src</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\ncstreamer_remote_dll\src\ncstreamer_remote_message_types.h">
       <Filter>src</Filter>
     </ClInclude>
   </ItemGroup>

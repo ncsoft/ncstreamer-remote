@@ -8,9 +8,12 @@
 #include <chrono>  // NOLINT
 #include <ctime>
 #include <iomanip>
+#include <memory>
 #include <sstream>
 #include <string>
+#include <tuple>
 
+#include "ncstreamer_remote_dll/src/ncstreamer_remote.h"
 #include "ncstreamer_remote_reference/src_generated/resource.h"
 
 
@@ -114,12 +117,16 @@ HWND CreateMainDialog(
     ::SetWindowText(wnd, tm.c_str());
   });
 
+  ncstreamer_remote::NcStreamerRemote::SetUpDefault();
+
   ::ShowWindow(dlg, cmd_show);
   return dlg;
 }
 
 
 void DeleteMainDialog() {
+  ncstreamer_remote::NcStreamerRemote::ShutDown();
+
   ::DeleteObject(static_clock_font);
 
   ::DestroyWindow(static_main_dialog);

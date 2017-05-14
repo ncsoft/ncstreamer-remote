@@ -16,6 +16,7 @@ h1. Source code repositories
 
 * GitHub
  ** Google Style Guide: https://github.com/google/styleguide
+ ** WebSocket++: https://github.com/zaphoyd/websocketpp
 
  
 h1. Steps for setup
@@ -34,3 +35,9 @@ h2. Steps to build ncstreamer_remote.dll
 # Clone all source files into local dev machine.
  ** Clone ncstreamer-remote repository into local machine.
   *** Ex: D:\dev\ncstreamer_remote\
+
+# Set up WebSocket++ dev environment.
+ ## Clone WebSocket++ from GitHub(and check out 0.7.0 tag).
+  *** Ex: D:\dev\lib\websocketpp\
+ ## Create OS env variable 'WEBSOCKETPP_ROOT'.
+  *** WEBSOCKETPP_ROOT=D:\dev\lib\websocketpp\
