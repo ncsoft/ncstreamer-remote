@@ -8,6 +8,11 @@
 #include "ncstreamer_remote_reference/src_generated/resource.h"
 
 
+namespace {
+HWND static_main_dialog{NULL};
+}  // unnamed namespace
+
+
 namespace ncstreamer_remote_reference {
 HWND CreateMainDialog(
     HINSTANCE instance, int cmd_show) {
@@ -17,15 +22,23 @@ HWND CreateMainDialog(
       NULL,
       MainDialogProc,
       NULL);
+
+  static_main_dialog = dlg;
+
   ::ShowWindow(dlg, cmd_show);
   return dlg;
+}
+
+
+void DeleteMainDialog() {
+  ::DestroyWindow(static_main_dialog);
 }
 
 
 INT_PTR CALLBACK MainDialogProc(
     HWND dlg, UINT msg, WPARAM wparam, LPARAM lparam) {
   switch (msg) {
-    case WM_CLOSE: ::DestroyWindow(dlg); return TRUE;
+    case WM_CLOSE: DeleteMainDialog(); return TRUE;
     case WM_DESTROY: ::PostQuitMessage(/*exit code*/ 0); return TRUE;
     default: break;
   }
