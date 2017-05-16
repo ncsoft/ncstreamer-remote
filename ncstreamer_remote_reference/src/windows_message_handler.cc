@@ -5,8 +5,13 @@
 
 #include "ncstreamer_remote_reference/src/windows_message_handler.h"
 
+#if _MSC_VER >= 1900
 #include <chrono>  // NOLINT
 namespace Chrono = std::chrono;
+#else
+#include "boost/chrono/include.hpp"
+namespace Chrono = boost::chrono;
+#endif  // _MSC_VER > 1900
 
 #include <ctime>
 #include <iomanip>
