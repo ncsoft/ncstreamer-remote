@@ -7,6 +7,13 @@
 #define NCSTREAMER_REMOTE_DLL_SRC_NCSTREAMER_REMOTE_H_
 
 
+#ifdef NCSTREAMER_REMOTE_DLL_EXPORTS
+#define NCSTREAMER_REMOTE_DLL_API __declspec(dllexport)
+#else
+#define NCSTREAMER_REMOTE_DLL_API __declspec(dllimport)
+#endif
+
+
 #include <fstream>
 #include <functional>
 #include <string>
@@ -39,13 +46,13 @@ class NcStreamerRemote {
       const std::wstring &status,
       const std::wstring &source_title)>;
 
-  static void SetUp(uint16_t remote_port);
-  static void SetUpDefault();
+  static NCSTREAMER_REMOTE_DLL_API void SetUp(uint16_t remote_port);
+  static NCSTREAMER_REMOTE_DLL_API void SetUpDefault();
 
-  static void ShutDown();
-  static NcStreamerRemote *Get();
+  static NCSTREAMER_REMOTE_DLL_API void ShutDown();
+  static NCSTREAMER_REMOTE_DLL_API NcStreamerRemote *Get();
 
-  void RequestStatus(
+  void NCSTREAMER_REMOTE_DLL_API RequestStatus(
       const ErrorHandler &error_handler,
       const StatusResponseHandler &status_response_handler);
 
