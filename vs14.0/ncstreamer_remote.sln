@@ -3,7 +3,12 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 14
 VisualStudioVersion = 14.0.25420.1
 MinimumVisualStudioVersion = 10.0.40219.1
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "ncstreamer_remote_dll", "ncstreamer_remote_dll\ncstreamer_remote_dll.vcxproj", "{6931B2A3-F799-41CA-8075-FA5252B33F3B}"
+EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "ncstreamer_remote_reference", "ncstreamer_remote_reference\ncstreamer_remote_reference.vcxproj", "{FEB28B10-F625-43B3-AD88-6CA3D1A9BAFE}"
+	ProjectSection(ProjectDependencies) = postProject
+		{6931B2A3-F799-41CA-8075-FA5252B33F3B} = {6931B2A3-F799-41CA-8075-FA5252B33F3B}
+	EndProjectSection
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -21,6 +26,14 @@ Global
 		{FEB28B10-F625-43B3-AD88-6CA3D1A9BAFE}.MTd|x64.Build.0 = MTd|x64
 		{FEB28B10-F625-43B3-AD88-6CA3D1A9BAFE}.MTd|x86.ActiveCfg = MTd|Win32
 		{FEB28B10-F625-43B3-AD88-6CA3D1A9BAFE}.MTd|x86.Build.0 = MTd|Win32
+		{6931B2A3-F799-41CA-8075-FA5252B33F3B}.MT|x64.ActiveCfg = MT|x64
+		{6931B2A3-F799-41CA-8075-FA5252B33F3B}.MT|x64.Build.0 = MT|x64
+		{6931B2A3-F799-41CA-8075-FA5252B33F3B}.MT|x86.ActiveCfg = MT|Win32
+		{6931B2A3-F799-41CA-8075-FA5252B33F3B}.MT|x86.Build.0 = MT|Win32
+		{6931B2A3-F799-41CA-8075-FA5252B33F3B}.MTd|x64.ActiveCfg = MTd|x64
+		{6931B2A3-F799-41CA-8075-FA5252B33F3B}.MTd|x64.Build.0 = MTd|x64
+		{6931B2A3-F799-41CA-8075-FA5252B33F3B}.MTd|x86.ActiveCfg = MTd|Win32
+		{6931B2A3-F799-41CA-8075-FA5252B33F3B}.MTd|x86.Build.0 = MTd|Win32
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
