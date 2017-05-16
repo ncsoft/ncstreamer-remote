@@ -66,7 +66,7 @@ std::wstring GetCurrentLocalTime() {
       current_tp.time_since_epoch()).count() % 1000;
 
   std::wstringstream ss;
-  ss << std::put_time(current_tm, L"%F %T")
+  ss << std::put_time(current_tm, L"%Y-%m-%d %H:%M:%S")
      << L"." << std::setfill(L'0') << std::setw(3) << current_millisec;
 
   return ss.str();
