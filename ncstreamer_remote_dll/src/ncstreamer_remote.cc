@@ -126,7 +126,8 @@ void NcStreamerRemote::OnRemoteMessage(
     ws::connection_hdl connection,
     ws::connection<AsioClient>::message_ptr msg) {
   boost::property_tree::ptree response;
-  auto msg_type{ncstreamer::RemoteMessage::MessageType::kUndefined};
+  ncstreamer::RemoteMessage::MessageType msg_type{
+      ncstreamer::RemoteMessage::MessageType::kUndefined};
 
   std::stringstream ss{msg->get_payload()};
   try {

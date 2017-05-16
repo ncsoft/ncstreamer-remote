@@ -5,3 +5,13 @@ vs14.0/.vs/
 vs14.0/*/*.vcxproj.user
 vs14.0/*/build/
 *.aps
+
+# vs12.0 (Visual Studio 2013)
+vs12.0/*.VC.db
+vs12.0/*.VC.opendb
+vs12.0/.vs/
+vs12.0/*/*.vcxproj.user
+vs12.0/*/build/
+vs12.0/*.suo
+vs12.0/*.sdf
+vs12.0/*.opensdf
