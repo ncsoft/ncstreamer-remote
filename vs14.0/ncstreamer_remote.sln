@@ -7,20 +7,20 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "ncstreamer_remote_reference
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
-		Debug|x64 = Debug|x64
-		Debug|x86 = Debug|x86
-		Release|x64 = Release|x64
-		Release|x86 = Release|x86
+		MT|x64 = MT|x64
+		MT|x86 = MT|x86
+		MTd|x64 = MTd|x64
+		MTd|x86 = MTd|x86
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
-		{FEB28B10-F625-43B3-AD88-6CA3D1A9BAFE}.Debug|x64.ActiveCfg = Debug|x64
-		{FEB28B10-F625-43B3-AD88-6CA3D1A9BAFE}.Debug|x64.Build.0 = Debug|x64
-		{FEB28B10-F625-43B3-AD88-6CA3D1A9BAFE}.Debug|x86.ActiveCfg = Debug|Win32
-		{FEB28B10-F625-43B3-AD88-6CA3D1A9BAFE}.Debug|x86.Build.0 = Debug|Win32
-		{FEB28B10-F625-43B3-AD88-6CA3D1A9BAFE}.Release|x64.ActiveCfg = Release|x64
-		{FEB28B10-F625-43B3-AD88-6CA3D1A9BAFE}.Release|x64.Build.0 = Release|x64
-		{FEB28B10-F625-43B3-AD88-6CA3D1A9BAFE}.Release|x86.ActiveCfg = Release|Win32
-		{FEB28B10-F625-43B3-AD88-6CA3D1A9BAFE}.Release|x86.Build.0 = Release|Win32
+		{FEB28B10-F625-43B3-AD88-6CA3D1A9BAFE}.MT|x64.ActiveCfg = MT|x64
+		{FEB28B10-F625-43B3-AD88-6CA3D1A9BAFE}.MT|x64.Build.0 = MT|x64
+		{FEB28B10-F625-43B3-AD88-6CA3D1A9BAFE}.MT|x86.ActiveCfg = MT|Win32
+		{FEB28B10-F625-43B3-AD88-6CA3D1A9BAFE}.MT|x86.Build.0 = MT|Win32
+		{FEB28B10-F625-43B3-AD88-6CA3D1A9BAFE}.MTd|x64.ActiveCfg = MTd|x64
+		{FEB28B10-F625-43B3-AD88-6CA3D1A9BAFE}.MTd|x64.Build.0 = MTd|x64
+		{FEB28B10-F625-43B3-AD88-6CA3D1A9BAFE}.MTd|x86.ActiveCfg = MTd|Win32
+		{FEB28B10-F625-43B3-AD88-6CA3D1A9BAFE}.MTd|x86.Build.0 = MTd|Win32
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
