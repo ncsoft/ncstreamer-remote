@@ -1,0 +1,3 @@
+[attr]utf16 diff merge -crlf
+*.rc utf16
+resource.h utf16

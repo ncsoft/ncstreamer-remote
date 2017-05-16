@@ -1,0 +1,41 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="src">
+      <UniqueIdentifier>{4061e944-3f4b-470b-a640-c3beb4e030de}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src_generated">
+      <UniqueIdentifier>{68d15868-182c-4f54-a8ef-6cde38769329}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="..\..\ncstreamer_remote_reference\src\main.cc">
+      <Filter>src</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\ncstreamer_remote_reference\src\windows_message_handler.cc">
+      <Filter>src</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\ncstreamer_remote_dll\src\ncstreamer_remote.cc">
+      <Filter>src</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ResourceCompile Include="..\..\ncstreamer_remote_reference\src_generated\ncstreamer_remote_reference.rc">
+      <Filter>src_generated</Filter>
+    </ResourceCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="..\..\ncstreamer_remote_reference\src_generated\resource.h">
+      <Filter>src_generated</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\ncstreamer_remote_reference\src\windows_message_handler.h">
+      <Filter>src</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\ncstreamer_remote_dll\src\ncstreamer_remote.h">
+      <Filter>src</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\ncstreamer_remote_dll\src\ncstreamer_remote_message_types.h">
+      <Filter>src</Filter>
+    </ClInclude>
+  </ItemGroup>
+</Project>

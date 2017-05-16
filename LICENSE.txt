@@ -1,1 +1,5 @@
 Copyright (C) 2017 NCSOFT Corporation. All rights reserved.
+
+* WebSocket++
+** license_files/websocketpp/COPYING
+*** from: https://raw.githubusercontent.com/zaphoyd/websocketpp/0.7.0/COPYING
