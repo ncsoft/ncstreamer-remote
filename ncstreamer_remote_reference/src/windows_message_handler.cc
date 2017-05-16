@@ -6,6 +6,8 @@
 #include "ncstreamer_remote_reference/src/windows_message_handler.h"
 
 #include <chrono>  // NOLINT
+namespace Chrono = std::chrono;
+
 #include <ctime>
 #include <iomanip>
 #include <memory>
@@ -57,10 +59,10 @@ HFONT SetUpFont(HWND wnd, int font_size) {
 
 
 std::wstring GetCurrentLocalTime() {
-  auto current_tp = std::chrono::system_clock::now();
-  time_t current_tt = std::chrono::system_clock::to_time_t(current_tp);
+  auto current_tp = Chrono::system_clock::now();
+  time_t current_tt = Chrono::system_clock::to_time_t(current_tp);
   tm *current_tm = std::localtime(&current_tt);
-  auto current_millisec = std::chrono::duration_cast<std::chrono::milliseconds>(
+  auto current_millisec = Chrono::duration_cast<Chrono::milliseconds>(
       current_tp.time_since_epoch()).count() % 1000;
 
   std::wstringstream ss;
