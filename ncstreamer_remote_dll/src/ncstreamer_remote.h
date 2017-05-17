@@ -87,6 +87,7 @@ class NcStreamerRemote {
 
   ws::connection_hdl remote_connection_;
 
+  bool status_request_pending_;
   ErrorHandler current_error_handler_;
   StatusResponseHandler current_status_response_handler_;
 };

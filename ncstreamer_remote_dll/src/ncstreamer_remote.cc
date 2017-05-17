@@ -54,6 +54,7 @@ NcStreamerRemote::NcStreamerRemote(uint16_t remote_port)
       remote_threads_{},
       remote_log_{},
       remote_connection_{},
+      status_request_pending_{false},
       current_error_handler_{},
       current_status_response_handler_{} {
   remote_log_.open("remote_server.log");
@@ -79,8 +80,6 @@ NcStreamerRemote::NcStreamerRemote(uint16_t remote_port)
   remote_.set_message_handler(ws::lib::bind(
       &NcStreamerRemote::OnRemoteMessage, this,
           placeholders::_1, placeholders::_2));
-
-  Connect();
 
   static const std::size_t kRemoteThreadsSize{1};  // just one enough.
   for (std::size_t i = 0; i < kRemoteThreadsSize; ++i) {
@@ -119,6 +118,11 @@ void NcStreamerRemote::OnRemoteFail(ws::connection_hdl connection) {
 
 void NcStreamerRemote::OnRemoteOpen(ws::connection_hdl connection) {
   remote_connection_ = connection;
+
+  if (status_request_pending_) {
+    SendStatusRequest();
+    status_request_pending_ = false;
+  }
 }
 
 
@@ -196,11 +200,13 @@ void NcStreamerRemote::RequestStatus(
   current_status_response_handler_ = status_response_handler;
 
   if (!remote_connection_.lock()) {
-    // TODO(khpark): log error.
+    status_request_pending_ = true;
+    Connect();
     return;
   }
 
   SendStatusRequest();
+  status_request_pending_ = false;
 }
 
 
