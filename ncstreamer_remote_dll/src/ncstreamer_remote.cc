@@ -83,7 +83,9 @@ NcStreamerRemote::NcStreamerRemote(uint16_t remote_port)
   ws::lib::error_code ec;
   remote_.init_asio(&io_service_, ec);
   if (ec) {
-    // TODO(khpark): log error.
+    std::stringstream ss;
+    ss << "remote_.init_asio: " << ec.message();
+    LogError(ss.str());
     assert(false);
     return;
   }
@@ -122,7 +124,9 @@ void NcStreamerRemote::Connect() {
   auto connection = remote_.get_connection(
     remote_uri_, ec);
   if (ec) {
-    // TODO(khpark): log error.
+    std::stringstream ss;
+    ss << "remote_.get_connection: " << ec.message();
+    LogError(ss.str());
     return;
   }
   remote_.connect(connection);
@@ -142,13 +146,22 @@ void NcStreamerRemote::SendStatusRequest() {
   remote_.send(
       remote_connection_, msg.str(), websocketpp::frame::opcode::text, ec);
   if (ec) {
-    // TODO(khpark): log error.
+    std::stringstream ss;
+    ss << "remote_.send: " << ec.message();
+    LogError(ss.str());
     return;
   }
 }
 
 
 void NcStreamerRemote::OnRemoteFail(ws::connection_hdl connection) {
+  std::string err_msg{"NcStreamerRemote::OnRemoteFail"};
+  LogError(err_msg);
+
+  if (current_error_handler_) {
+    static std::wstring_convert<std::codecvt_utf8_utf16<wchar_t>> converter;
+    current_error_handler_(converter.from_bytes(err_msg));
+  }
 }
 
 
@@ -163,6 +176,13 @@ void NcStreamerRemote::OnRemoteOpen(ws::connection_hdl connection) {
 
 
 void NcStreamerRemote::OnRemoteClose(ws::connection_hdl connection) {
+  std::string err_msg{"NcStreamerRemote::OnRemoteClose"};
+  LogError(err_msg);
+
+  if (current_error_handler_) {
+    static std::wstring_convert<std::codecvt_utf8_utf16<wchar_t>> converter;
+    current_error_handler_(converter.from_bytes(err_msg));
+  }
 }
 
 
@@ -192,7 +212,9 @@ void NcStreamerRemote::OnRemoteMessage(
 
   auto i = kMessageHandlers.find(msg_type);
   if (i == kMessageHandlers.end()) {
-    // TBD
+    std::stringstream ss;
+    ss << "unknown message type: " << static_cast<int>(msg_type);
+    LogError(ss.str());
     assert(false);
     return;
   }
@@ -213,12 +235,12 @@ void NcStreamerRemote::OnRemoteStatusResponse(
   }
 
   if (status.empty() == true) {
-    // TODO(khpark): log error.
+    LogError("status.empty()");
     return;
   }
 
   if (!current_status_response_handler_) {
-    // TODO(khpark): log error.
+    LogError("!current_status_response_handler_");
     return;
   }
 
@@ -226,6 +248,11 @@ void NcStreamerRemote::OnRemoteStatusResponse(
   current_status_response_handler_(
       converter.from_bytes(status),
       converter.from_bytes(source_title));
+}
+
+
+void NcStreamerRemote::LogError(const std::string &err_msg) {
+  remote_.get_elog().write(ws::log::elevel::rerror, err_msg);
 }
 
 

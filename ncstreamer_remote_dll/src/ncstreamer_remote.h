@@ -75,6 +75,8 @@ class NcStreamerRemote {
   void OnRemoteStatusResponse(
       const boost::property_tree::ptree &response);
 
+  void LogError(const std::string &err_msg);
+
   static NcStreamerRemote *static_instance;
 
   boost::asio::io_service io_service_;
