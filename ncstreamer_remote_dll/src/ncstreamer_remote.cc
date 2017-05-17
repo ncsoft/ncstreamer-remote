@@ -80,15 +80,7 @@ NcStreamerRemote::NcStreamerRemote(uint16_t remote_port)
       &NcStreamerRemote::OnRemoteMessage, this,
           placeholders::_1, placeholders::_2));
 
-  ws::lib::error_code conn_ec;
-  auto connection = remote_.get_connection(
-      remote_uri_, conn_ec);
-  if (conn_ec) {
-    // TODO(khpark): log error.
-    return;
-  }
-
-  remote_.connect(connection);
+  Connect();
 
   static const std::size_t kRemoteThreadsSize{1};  // just one enough.
   for (std::size_t i = 0; i < kRemoteThreadsSize; ++i) {
@@ -106,6 +98,18 @@ NcStreamerRemote::~NcStreamerRemote() {
       t.join();
     }
   }
+}
+
+
+void NcStreamerRemote::Connect() {
+  ws::lib::error_code ec;
+  auto connection = remote_.get_connection(
+    remote_uri_, ec);
+  if (ec) {
+    // TODO(khpark): log error.
+    return;
+  }
+  remote_.connect(connection);
 }
 
 

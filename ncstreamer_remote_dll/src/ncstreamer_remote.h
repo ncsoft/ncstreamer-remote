@@ -62,6 +62,8 @@ class NcStreamerRemote {
   explicit NcStreamerRemote(uint16_t remote_port);
   virtual ~NcStreamerRemote();
 
+  void Connect();
+
   void OnRemoteFail(ws::connection_hdl connection);
   void OnRemoteOpen(ws::connection_hdl connection);
   void OnRemoteClose(ws::connection_hdl connection);
