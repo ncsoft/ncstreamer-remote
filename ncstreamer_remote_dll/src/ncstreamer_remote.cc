@@ -63,6 +63,18 @@ void NcStreamerRemote::RequestStatus(
 }
 
 
+void NcStreamerRemote::RequestExit() {
+  if (!remote_connection_.lock()) {
+    exit_request_pending_ = true;
+    Connect();
+    return;
+  }
+
+  SendExitRequest();
+  exit_request_pending_ = false;
+}
+
+
 NcStreamerRemote::NcStreamerRemote(uint16_t remote_port)
     : remote_uri_{new ws::uri{false, "localhost", remote_port, ""}},
       io_service_{},
@@ -72,6 +84,7 @@ NcStreamerRemote::NcStreamerRemote(uint16_t remote_port)
       remote_log_{},
       remote_connection_{},
       status_request_pending_{false},
+      exit_request_pending_{false},
       current_error_handler_{},
       current_status_response_handler_{} {
   remote_log_.open("ncstreamer_remote.log");
@@ -154,6 +167,27 @@ void NcStreamerRemote::SendStatusRequest() {
 }
 
 
+void NcStreamerRemote::SendExitRequest() {
+  std::stringstream msg;
+  {
+    boost::property_tree::ptree tree;
+    tree.put("type", static_cast<int>(
+        ncstreamer::RemoteMessage::MessageType::kNcStreamerExitRequest));
+    boost::property_tree::write_json(msg, tree, false);
+  }
+
+  ws::lib::error_code ec;
+  remote_.send(
+      remote_connection_, msg.str(), websocketpp::frame::opcode::text, ec);
+  if (ec) {
+    std::stringstream ss;
+    ss << "remote_.send: " << ec.message();
+    LogError(ss.str());
+    return;
+  }
+}
+
+
 void NcStreamerRemote::OnRemoteFail(ws::connection_hdl connection) {
   std::string err_msg{"NcStreamerRemote::OnRemoteFail"};
   LogError(err_msg);
@@ -171,6 +205,10 @@ void NcStreamerRemote::OnRemoteOpen(ws::connection_hdl connection) {
   if (status_request_pending_) {
     SendStatusRequest();
     status_request_pending_ = false;
+  }
+  if (exit_request_pending_) {
+    SendExitRequest();
+    exit_request_pending_ = false;
   }
 }
 
