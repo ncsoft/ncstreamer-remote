@@ -47,7 +47,8 @@ NcStreamerRemote *NcStreamerRemote::Get() {
 
 
 NcStreamerRemote::NcStreamerRemote(uint16_t remote_port)
-    : io_service_{},
+    : remote_uri_{new ws::uri{false, "localhost", remote_port, ""}},
+      io_service_{},
       io_service_work_{io_service_},
       remote_{},
       remote_threads_{},
@@ -79,10 +80,9 @@ NcStreamerRemote::NcStreamerRemote(uint16_t remote_port)
       &NcStreamerRemote::OnRemoteMessage, this,
           placeholders::_1, placeholders::_2));
 
-  ws::uri_ptr remote_uri{new ws::uri{false, "localhost", remote_port, ""}};
   ws::lib::error_code conn_ec;
   auto connection = remote_.get_connection(
-      remote_uri, conn_ec);
+      remote_uri_, conn_ec);
   if (conn_ec) {
     // TODO(khpark): log error.
     return;

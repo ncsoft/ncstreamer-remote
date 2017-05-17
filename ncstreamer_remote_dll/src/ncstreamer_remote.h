@@ -80,6 +80,8 @@ class NcStreamerRemote {
   std::vector<std::thread> remote_threads_;
   std::ofstream remote_log_;
 
+  ws::uri_ptr remote_uri_;
+
   ws::connection_hdl remote_connection_;
 
   ErrorHandler current_error_handler_;
