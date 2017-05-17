@@ -80,9 +80,9 @@ NcStreamerRemote::NcStreamerRemote(uint16_t remote_port)
   remote_.get_alog().set_ostream(&remote_log_);
   remote_.get_elog().set_ostream(&remote_log_);
 
-  ws::lib::error_code init_ec;
-  remote_.init_asio(&io_service_, init_ec);
-  if (init_ec) {
+  ws::lib::error_code ec;
+  remote_.init_asio(&io_service_, ec);
+  if (ec) {
     // TODO(khpark): log error.
     assert(false);
     return;
