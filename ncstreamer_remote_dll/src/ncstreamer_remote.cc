@@ -200,6 +200,11 @@ void NcStreamerRemote::RequestStatus(
     return;
   }
 
+  SendStatusRequest();
+}
+
+
+void NcStreamerRemote::SendStatusRequest() {
   std::stringstream msg;
   {
     boost::property_tree::ptree tree;

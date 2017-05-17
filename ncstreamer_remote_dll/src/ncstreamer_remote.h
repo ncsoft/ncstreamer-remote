@@ -63,6 +63,7 @@ class NcStreamerRemote {
   virtual ~NcStreamerRemote();
 
   void Connect();
+  void SendStatusRequest();
 
   void OnRemoteFail(ws::connection_hdl connection);
   void OnRemoteOpen(ws::connection_hdl connection);
