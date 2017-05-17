@@ -188,6 +188,9 @@ void NcStreamerRemote::OnRemoteStatusResponse(
 void NcStreamerRemote::RequestStatus(
     const ErrorHandler &error_handler,
     const StatusResponseHandler &status_response_handler) {
+  current_error_handler_ = error_handler;
+  current_status_response_handler_ = status_response_handler;
+
   if (!remote_connection_.lock()) {
     // TODO(khpark): log error.
     return;
@@ -208,9 +211,6 @@ void NcStreamerRemote::RequestStatus(
     // TODO(khpark): log error.
     return;
   }
-
-  current_error_handler_ = error_handler;
-  current_status_response_handler_ = status_response_handler;
 }
 
 
