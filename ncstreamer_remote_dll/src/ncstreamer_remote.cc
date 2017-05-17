@@ -46,6 +46,23 @@ NcStreamerRemote *NcStreamerRemote::Get() {
 }
 
 
+void NcStreamerRemote::RequestStatus(
+    const ErrorHandler &error_handler,
+    const StatusResponseHandler &status_response_handler) {
+  current_error_handler_ = error_handler;
+  current_status_response_handler_ = status_response_handler;
+
+  if (!remote_connection_.lock()) {
+    status_request_pending_ = true;
+    Connect();
+    return;
+  }
+
+  SendStatusRequest();
+  status_request_pending_ = false;
+}
+
+
 NcStreamerRemote::NcStreamerRemote(uint16_t remote_port)
     : remote_uri_{new ws::uri{false, "localhost", remote_port, ""}},
       io_service_{},
@@ -109,6 +126,25 @@ void NcStreamerRemote::Connect() {
     return;
   }
   remote_.connect(connection);
+}
+
+
+void NcStreamerRemote::SendStatusRequest() {
+  std::stringstream msg;
+  {
+    boost::property_tree::ptree tree;
+    tree.put("type", static_cast<int>(
+        ncstreamer::RemoteMessage::MessageType::kStreamingStatusRequest));
+    boost::property_tree::write_json(msg, tree, false);
+  }
+
+  ws::lib::error_code ec;
+  remote_.send(
+      remote_connection_, msg.str(), websocketpp::frame::opcode::text, ec);
+  if (ec) {
+    // TODO(khpark): log error.
+    return;
+  }
 }
 
 
@@ -190,42 +226,6 @@ void NcStreamerRemote::OnRemoteStatusResponse(
   current_status_response_handler_(
       converter.from_bytes(status),
       converter.from_bytes(source_title));
-}
-
-
-void NcStreamerRemote::RequestStatus(
-    const ErrorHandler &error_handler,
-    const StatusResponseHandler &status_response_handler) {
-  current_error_handler_ = error_handler;
-  current_status_response_handler_ = status_response_handler;
-
-  if (!remote_connection_.lock()) {
-    status_request_pending_ = true;
-    Connect();
-    return;
-  }
-
-  SendStatusRequest();
-  status_request_pending_ = false;
-}
-
-
-void NcStreamerRemote::SendStatusRequest() {
-  std::stringstream msg;
-  {
-    boost::property_tree::ptree tree;
-    tree.put("type", static_cast<int>(
-        ncstreamer::RemoteMessage::MessageType::kStreamingStatusRequest));
-    boost::property_tree::write_json(msg, tree, false);
-  }
-
-  ws::lib::error_code ec;
-  remote_.send(
-      remote_connection_, msg.str(), websocketpp::frame::opcode::text, ec);
-  if (ec) {
-    // TODO(khpark): log error.
-    return;
-  }
 }
 
 
