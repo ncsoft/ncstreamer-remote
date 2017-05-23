@@ -322,8 +322,13 @@ void NcStreamerRemote::HandleError(
     const ErrorHandler &error_handler) {
   std::stringstream ss;
   ss << err_type << ": " << ec.message();
+  HandleError(ss.str(), error_handler);
+}
 
-  const auto &err_msg = ss.str();
+
+void NcStreamerRemote::HandleError(
+    const std::string &err_msg,
+    const ErrorHandler &error_handler) {
   LogError(err_msg);
 
   if (error_handler) {
