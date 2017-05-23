@@ -61,11 +61,15 @@ class NcStreamerRemote {
 
  private:
   using AsioClient = ws::config::asio_client;
+  using ConnectHandler = std::function<void()>;
 
   explicit NcStreamerRemote(uint16_t remote_port);
   virtual ~NcStreamerRemote();
 
-  void Connect(const ErrorHandler &error_handler);
+  void Connect(
+    const ErrorHandler &error_handler,
+    const ConnectHandler &connect_handler);
+
   void SendStatusRequest();
   void SendExitRequest();
 
@@ -93,10 +97,10 @@ class NcStreamerRemote {
 
   ws::connection_hdl remote_connection_;
 
-  bool status_request_pending_;
-  bool exit_request_pending_;
   ErrorHandler current_error_handler_;
   StatusResponseHandler current_status_response_handler_;
+
+  ConnectHandler current_connect_handler_;
 };
 }  // namespace ncstreamer_remote
 

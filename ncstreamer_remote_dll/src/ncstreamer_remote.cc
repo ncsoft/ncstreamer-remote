@@ -53,13 +53,13 @@ void NcStreamerRemote::RequestStatus(
   current_status_response_handler_ = status_response_handler;
 
   if (!remote_connection_.lock()) {
-    status_request_pending_ = true;
-    Connect(error_handler);
+    Connect(error_handler, [this]() {
+      SendStatusRequest();
+    });
     return;
   }
 
   SendStatusRequest();
-  status_request_pending_ = false;
 }
 
 
@@ -68,13 +68,13 @@ void NcStreamerRemote::RequestExit(
   current_error_handler_ = error_handler;
 
   if (!remote_connection_.lock()) {
-    exit_request_pending_ = true;
-    Connect(error_handler);
+    Connect(error_handler, [this]() {
+      SendExitRequest();
+    });
     return;
   }
 
   SendExitRequest();
-  exit_request_pending_ = false;
 }
 
 
@@ -86,10 +86,9 @@ NcStreamerRemote::NcStreamerRemote(uint16_t remote_port)
       remote_threads_{},
       remote_log_{},
       remote_connection_{},
-      status_request_pending_{false},
-      exit_request_pending_{false},
       current_error_handler_{},
-      current_status_response_handler_{} {
+      current_status_response_handler_{},
+      current_connect_handler_{} {
   remote_log_.open("ncstreamer_remote.log");
   remote_.set_access_channels(ws::log::alevel::all);
   remote_.set_access_channels(ws::log::elevel::all);
@@ -136,7 +135,8 @@ NcStreamerRemote::~NcStreamerRemote() {
 
 
 void NcStreamerRemote::Connect(
-    const ErrorHandler &error_handler) {
+    const ErrorHandler &error_handler,
+    const ConnectHandler &connect_handler) {
   ws::lib::error_code ec;
   auto connection = remote_.get_connection(remote_uri_, ec);
   if (ec) {
@@ -150,6 +150,8 @@ void NcStreamerRemote::Connect(
     error_handler(converter.from_bytes(err_msg));
     return;
   }
+
+  current_connect_handler_ = connect_handler;
   remote_.connect(connection);
 }
 
@@ -213,15 +215,7 @@ void NcStreamerRemote::OnRemoteFail(ws::connection_hdl connection) {
 
 void NcStreamerRemote::OnRemoteOpen(ws::connection_hdl connection) {
   remote_connection_ = connection;
-
-  if (status_request_pending_) {
-    SendStatusRequest();
-    status_request_pending_ = false;
-  }
-  if (exit_request_pending_) {
-    SendExitRequest();
-    exit_request_pending_ = false;
-  }
+  current_connect_handler_();
 }
 
 
