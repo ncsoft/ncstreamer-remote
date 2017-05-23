@@ -14,6 +14,7 @@
 #endif
 
 
+#include <atomic>
 #include <fstream>
 #include <functional>
 #include <string>
@@ -96,6 +97,8 @@ class NcStreamerRemote {
   ws::uri_ptr remote_uri_;
 
   ws::connection_hdl remote_connection_;
+
+  std::atomic_bool busy_;
 
   ErrorHandler current_error_handler_;
   StatusResponseHandler current_status_response_handler_;

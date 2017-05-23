@@ -49,6 +49,12 @@ NcStreamerRemote *NcStreamerRemote::Get() {
 void NcStreamerRemote::RequestStatus(
     const ErrorHandler &error_handler,
     const StatusResponseHandler &status_response_handler) {
+  if (busy_ == true) {
+    error_handler(L"busy");
+    return;
+  }
+  busy_ = true;
+
   current_error_handler_ = error_handler;
   current_status_response_handler_ = status_response_handler;
 
@@ -65,6 +71,12 @@ void NcStreamerRemote::RequestStatus(
 
 void NcStreamerRemote::RequestExit(
     const ErrorHandler &error_handler) {
+  if (busy_ == true) {
+    error_handler(L"busy");
+    return;
+  }
+  busy_ = true;
+
   current_error_handler_ = error_handler;
 
   if (!remote_connection_.lock()) {
@@ -86,6 +98,7 @@ NcStreamerRemote::NcStreamerRemote(uint16_t remote_port)
       remote_threads_{},
       remote_log_{},
       remote_connection_{},
+      busy_{false},
       current_error_handler_{},
       current_status_response_handler_{},
       current_connect_handler_{} {
@@ -148,6 +161,7 @@ void NcStreamerRemote::Connect(
 
     static std::wstring_convert<std::codecvt_utf8_utf16<wchar_t>> converter;
     error_handler(converter.from_bytes(err_msg));
+    busy_ = false;
     return;
   }
 
@@ -174,6 +188,7 @@ void NcStreamerRemote::SendStatusRequest() {
 
     const auto &err_msg = ss.str();
     LogError(err_msg);
+    busy_ = false;
     return;
   }
 }
@@ -197,6 +212,7 @@ void NcStreamerRemote::SendExitRequest() {
 
     const auto &err_msg = ss.str();
     LogError(err_msg);
+    busy_ = false;
     return;
   }
 }
@@ -205,6 +221,8 @@ void NcStreamerRemote::SendExitRequest() {
 void NcStreamerRemote::OnRemoteFail(ws::connection_hdl connection) {
   std::string err_msg{"NcStreamerRemote::OnRemoteFail"};
   LogError(err_msg);
+
+  busy_ = false;
 
   if (current_error_handler_) {
     static std::wstring_convert<std::codecvt_utf8_utf16<wchar_t>> converter;
@@ -223,6 +241,8 @@ void NcStreamerRemote::OnRemoteClose(ws::connection_hdl connection) {
   std::string err_msg{"NcStreamerRemote::OnRemoteClose"};
   LogError(err_msg);
 
+  busy_ = false;
+
   if (current_error_handler_) {
     static std::wstring_convert<std::codecvt_utf8_utf16<wchar_t>> converter;
     current_error_handler_(converter.from_bytes(err_msg));
@@ -233,6 +253,8 @@ void NcStreamerRemote::OnRemoteClose(ws::connection_hdl connection) {
 void NcStreamerRemote::OnRemoteMessage(
     ws::connection_hdl connection,
     ws::connection<AsioClient>::message_ptr msg) {
+  busy_ = false;
+
   boost::property_tree::ptree response;
   ncstreamer::RemoteMessage::MessageType msg_type{
       ncstreamer::RemoteMessage::MessageType::kUndefined};
