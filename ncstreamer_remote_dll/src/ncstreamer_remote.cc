@@ -134,8 +134,7 @@ NcStreamerRemote::~NcStreamerRemote() {
 
 void NcStreamerRemote::Connect() {
   ws::lib::error_code ec;
-  auto connection = remote_.get_connection(
-    remote_uri_, ec);
+  auto connection = remote_.get_connection(remote_uri_, ec);
   if (ec) {
     std::stringstream ss;
     ss << "remote_.get_connection: " << ec.message();
