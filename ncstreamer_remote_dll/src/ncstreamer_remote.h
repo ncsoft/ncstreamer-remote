@@ -85,11 +85,9 @@ class NcStreamerRemote {
 
   void HandleError(
       const std::string &err_type,
-      const ws::lib::error_code &ec,
-      const ErrorHandler &error_handler);
+      const ws::lib::error_code &ec);
   void HandleError(
-      const std::string &err_msg,
-      const ErrorHandler &error_handler);
+      const std::string &err_msg);
 
   void LogError(const std::string &err_msg);
 
