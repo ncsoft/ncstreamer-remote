@@ -59,7 +59,7 @@ void NcStreamerRemote::RequestStatus(
   current_status_response_handler_ = status_response_handler;
 
   if (!remote_connection_.lock()) {
-    Connect(error_handler, [this]() {
+    Connect([this]() {
       SendStatusRequest();
     });
     return;
@@ -80,7 +80,7 @@ void NcStreamerRemote::RequestExit(
   current_error_handler_ = error_handler;
 
   if (!remote_connection_.lock()) {
-    Connect(error_handler, [this]() {
+    Connect([this]() {
       SendExitRequest();
     });
     return;
@@ -146,12 +146,11 @@ NcStreamerRemote::~NcStreamerRemote() {
 
 
 void NcStreamerRemote::Connect(
-    const ErrorHandler &error_handler,
     const ConnectHandler &connect_handler) {
   ws::lib::error_code ec;
   auto connection = remote_.get_connection(remote_uri_, ec);
   if (ec) {
-    HandleError("remote connect", ec, error_handler);
+    HandleError("remote connect", ec, current_error_handler_);
     busy_ = false;
     return;
   }

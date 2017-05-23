@@ -68,7 +68,6 @@ class NcStreamerRemote {
   virtual ~NcStreamerRemote();
 
   void Connect(
-    const ErrorHandler &error_handler,
     const ConnectHandler &connect_handler);
 
   void SendStatusRequest();
