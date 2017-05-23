@@ -41,6 +41,11 @@ HWND static_message_panel{NULL};
 HFONT static_clock_font{NULL};
 
 
+void SetMessage(const std::wstring &msg) {
+  ::SetWindowText(static_message_panel, msg.c_str());
+}
+
+
 HFONT SetUpFont(HWND wnd, int font_size) {
   HFONT font = ::CreateFont(
       font_size,
@@ -119,7 +124,7 @@ void OnRemoteResponseFail(LPARAM lparam) {
   ::EnableWindow(static_start_button, FALSE);
   ::EnableWindow(static_stop_button, FALSE);
 
-  ::SetWindowText(static_message_panel, err_msg->c_str());
+  SetMessage(*err_msg);
 }
 
 
@@ -133,7 +138,7 @@ void OnRemoteResponseStatus(LPARAM lparam) {
   ss << L"status: " << status << L"\r\n"
      << L"source: " << source_title << L"\r\n";
 
-  ::SetWindowText(static_message_panel, ss.str().c_str());
+  SetMessage(ss.str());
 }
 
 
