@@ -139,7 +139,9 @@ void NcStreamerRemote::Connect() {
   if (ec) {
     std::stringstream ss;
     ss << "remote_.get_connection: " << ec.message();
-    LogError(ss.str());
+
+    const auto &err_msg = ss.str();
+    LogError(err_msg);
     return;
   }
   remote_.connect(connection);
@@ -161,7 +163,9 @@ void NcStreamerRemote::SendStatusRequest() {
   if (ec) {
     std::stringstream ss;
     ss << "remote_.send: " << ec.message();
-    LogError(ss.str());
+
+    const auto &err_msg = ss.str();
+    LogError(err_msg);
     return;
   }
 }
@@ -182,7 +186,9 @@ void NcStreamerRemote::SendExitRequest() {
   if (ec) {
     std::stringstream ss;
     ss << "remote_.send: " << ec.message();
-    LogError(ss.str());
+
+    const auto &err_msg = ss.str();
+    LogError(err_msg);
     return;
   }
 }
