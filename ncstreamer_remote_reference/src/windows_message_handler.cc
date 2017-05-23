@@ -118,7 +118,14 @@ void OnStopButton() {
 void OnExitButton() {
   SetMessage(L"OnExitButton");
 
-  ncstreamer_remote::NcStreamerRemote::Get()->RequestExit();
+  ncstreamer_remote::NcStreamerRemote::Get()->RequestExit([](
+      const std::wstring &err_msg) {
+    ::PostMessage(
+        static_main_dialog,
+        WM_USER__REMOTE_RESPONSE_FAIL,
+        (WPARAM) nullptr,
+        (LPARAM) new std::wstring{err_msg});
+  });
 }
 
 

@@ -56,7 +56,8 @@ class NcStreamerRemote {
       const ErrorHandler &error_handler,
       const StatusResponseHandler &status_response_handler);
 
-  void NCSTREAMER_REMOTE_DLL_API RequestExit();
+  void NCSTREAMER_REMOTE_DLL_API RequestExit(
+      const ErrorHandler &error_handler);
 
  private:
   using AsioClient = ws::config::asio_client;

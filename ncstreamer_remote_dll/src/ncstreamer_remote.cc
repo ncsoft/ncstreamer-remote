@@ -63,12 +63,13 @@ void NcStreamerRemote::RequestStatus(
 }
 
 
-void NcStreamerRemote::RequestExit() {
+void NcStreamerRemote::RequestExit(
+    const ErrorHandler &error_handler) {
+  current_error_handler_ = error_handler;
+
   if (!remote_connection_.lock()) {
     exit_request_pending_ = true;
-    Connect([](const std::wstring &err_msg) {
-      // TBD
-    });
+    Connect(error_handler);
     return;
   }
 
