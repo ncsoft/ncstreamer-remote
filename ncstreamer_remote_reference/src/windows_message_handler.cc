@@ -84,6 +84,8 @@ std::wstring GetCurrentLocalTime() {
 
 
 void OnStatusButton() {
+  SetMessage(L"OnStatusButton");
+
   ncstreamer_remote::NcStreamerRemote::Get()->RequestStatus([](
       const std::wstring &err_msg) {
     ::PostMessage(
@@ -104,14 +106,18 @@ void OnStatusButton() {
 
 
 void OnStartButton() {
+  SetMessage(L"OnStartButton");
 }
 
 
 void OnStopButton() {
+  SetMessage(L"OnStopButton");
 }
 
 
 void OnExitButton() {
+  SetMessage(L"OnExitButton");
+
   ncstreamer_remote::NcStreamerRemote::Get()->RequestExit();
 }
 
