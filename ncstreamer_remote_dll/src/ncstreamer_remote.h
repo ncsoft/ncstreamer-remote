@@ -84,6 +84,10 @@ class NcStreamerRemote {
   void OnRemoteStatusResponse(
       const boost::property_tree::ptree &response);
 
+  void HandleConnectError(
+      const ws::lib::error_code &ec,
+      const ErrorHandler &error_handler);
+
   void LogError(const std::string &err_msg);
 
   static NcStreamerRemote *static_instance;

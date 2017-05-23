@@ -153,14 +153,7 @@ void NcStreamerRemote::Connect(
   ws::lib::error_code ec;
   auto connection = remote_.get_connection(remote_uri_, ec);
   if (ec) {
-    std::stringstream ss;
-    ss << "remote_.get_connection: " << ec.message();
-
-    const auto &err_msg = ss.str();
-    LogError(err_msg);
-
-    static std::wstring_convert<std::codecvt_utf8_utf16<wchar_t>> converter;
-    error_handler(converter.from_bytes(err_msg));
+    HandleConnectError(ec, error_handler);
     busy_ = false;
     return;
   }
@@ -320,6 +313,20 @@ void NcStreamerRemote::OnRemoteStatusResponse(
   current_status_response_handler_(
       converter.from_bytes(status),
       converter.from_bytes(source_title));
+}
+
+
+void NcStreamerRemote::HandleConnectError(
+    const ws::lib::error_code &ec,
+    const ErrorHandler &error_handler) {
+  std::stringstream ss;
+  ss << "remote_.get_connection: " << ec.message();
+
+  const auto &err_msg = ss.str();
+  LogError(err_msg);
+
+  static std::wstring_convert<std::codecvt_utf8_utf16<wchar_t>> converter;
+  error_handler(converter.from_bytes(err_msg));
 }
 
 
