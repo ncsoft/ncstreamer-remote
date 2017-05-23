@@ -188,6 +188,9 @@ void NcStreamerRemote::SendStatusRequest() {
 
     const auto &err_msg = ss.str();
     LogError(err_msg);
+
+    static std::wstring_convert<std::codecvt_utf8_utf16<wchar_t>> converter;
+    current_error_handler_(converter.from_bytes(err_msg));
     busy_ = false;
     return;
   }
@@ -212,6 +215,9 @@ void NcStreamerRemote::SendExitRequest() {
 
     const auto &err_msg = ss.str();
     LogError(err_msg);
+
+    static std::wstring_convert<std::codecvt_utf8_utf16<wchar_t>> converter;
+    current_error_handler_(converter.from_bytes(err_msg));
     busy_ = false;
     return;
   }
