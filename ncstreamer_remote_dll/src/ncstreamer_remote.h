@@ -64,7 +64,7 @@ class NcStreamerRemote {
   explicit NcStreamerRemote(uint16_t remote_port);
   virtual ~NcStreamerRemote();
 
-  void Connect();
+  void Connect(const ErrorHandler &error_handler);
   void SendStatusRequest();
   void SendExitRequest();
 

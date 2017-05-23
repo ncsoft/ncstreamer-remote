@@ -54,7 +54,7 @@ void NcStreamerRemote::RequestStatus(
 
   if (!remote_connection_.lock()) {
     status_request_pending_ = true;
-    Connect();
+    Connect(error_handler);
     return;
   }
 
@@ -66,7 +66,9 @@ void NcStreamerRemote::RequestStatus(
 void NcStreamerRemote::RequestExit() {
   if (!remote_connection_.lock()) {
     exit_request_pending_ = true;
-    Connect();
+    Connect([](const std::wstring &err_msg) {
+      // TBD
+    });
     return;
   }
 
@@ -132,7 +134,8 @@ NcStreamerRemote::~NcStreamerRemote() {
 }
 
 
-void NcStreamerRemote::Connect() {
+void NcStreamerRemote::Connect(
+    const ErrorHandler &error_handler) {
   ws::lib::error_code ec;
   auto connection = remote_.get_connection(remote_uri_, ec);
   if (ec) {
@@ -141,6 +144,9 @@ void NcStreamerRemote::Connect() {
 
     const auto &err_msg = ss.str();
     LogError(err_msg);
+
+    static std::wstring_convert<std::codecvt_utf8_utf16<wchar_t>> converter;
+    error_handler(converter.from_bytes(err_msg));
     return;
   }
   remote_.connect(connection);
