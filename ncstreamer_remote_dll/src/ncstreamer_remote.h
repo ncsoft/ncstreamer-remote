@@ -47,6 +47,9 @@ class NcStreamerRemote {
       const std::wstring &status,
       const std::wstring &source_title)>;
 
+  using StartResponseHandler = std::function<void(
+      bool success)>;
+
   static NCSTREAMER_REMOTE_DLL_API void SetUp(uint16_t remote_port);
   static NCSTREAMER_REMOTE_DLL_API void SetUpDefault();
 
@@ -56,6 +59,11 @@ class NcStreamerRemote {
   void NCSTREAMER_REMOTE_DLL_API RequestStatus(
       const ErrorHandler &error_handler,
       const StatusResponseHandler &status_response_handler);
+
+  void NCSTREAMER_REMOTE_DLL_API RequestStart(
+      const std::wstring &title,
+      const ErrorHandler &error_handler,
+      const StartResponseHandler &start_response_handler);
 
   void NCSTREAMER_REMOTE_DLL_API RequestExit(
       const ErrorHandler &error_handler);
@@ -71,6 +79,7 @@ class NcStreamerRemote {
     const ConnectHandler &connect_handler);
 
   void SendStatusRequest();
+  void SendStartRequest(const std::wstring &title);
   void SendExitRequest();
 
   void OnRemoteFail(ws::connection_hdl connection);
@@ -80,6 +89,8 @@ class NcStreamerRemote {
       ws::connection<AsioClient>::message_ptr msg);
 
   void OnRemoteStatusResponse(
+      const boost::property_tree::ptree &response);
+  void OnRemoteStartResponse(
       const boost::property_tree::ptree &response);
 
   void HandleError(
@@ -106,6 +117,7 @@ class NcStreamerRemote {
 
   ErrorHandler current_error_handler_;
   StatusResponseHandler current_status_response_handler_;
+  StartResponseHandler current_start_response_handler_;
 };
 }  // namespace ncstreamer_remote
 
