@@ -56,11 +56,17 @@ class NcStreamerRemote {
       const ErrorHandler &error_handler,
       const StatusResponseHandler &status_response_handler);
 
+  void NCSTREAMER_REMOTE_DLL_API RequestExit();
+
  private:
   using AsioClient = ws::config::asio_client;
 
   explicit NcStreamerRemote(uint16_t remote_port);
   virtual ~NcStreamerRemote();
+
+  void Connect();
+  void SendStatusRequest();
+  void SendExitRequest();
 
   void OnRemoteFail(ws::connection_hdl connection);
   void OnRemoteOpen(ws::connection_hdl connection);
@@ -72,6 +78,8 @@ class NcStreamerRemote {
   void OnRemoteStatusResponse(
       const boost::property_tree::ptree &response);
 
+  void LogError(const std::string &err_msg);
+
   static NcStreamerRemote *static_instance;
 
   boost::asio::io_service io_service_;
@@ -80,8 +88,12 @@ class NcStreamerRemote {
   std::vector<std::thread> remote_threads_;
   std::ofstream remote_log_;
 
+  ws::uri_ptr remote_uri_;
+
   ws::connection_hdl remote_connection_;
 
+  bool status_request_pending_;
+  bool exit_request_pending_;
   ErrorHandler current_error_handler_;
   StatusResponseHandler current_status_response_handler_;
 };

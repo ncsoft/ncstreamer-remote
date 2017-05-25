@@ -106,6 +106,11 @@ void OnStopButton() {
 }
 
 
+void OnExitButton() {
+  ncstreamer_remote::NcStreamerRemote::Get()->RequestExit();
+}
+
+
 void OnRemoteResponseFail(LPARAM lparam) {
   std::unique_ptr<std::wstring> err_msg{
       reinterpret_cast<std::wstring *>(lparam)};
@@ -137,6 +142,7 @@ INT_PTR OnCommand(WPARAM wparam, LPARAM /*lparam*/) {
     case IDC_BUTTON_STATUS: OnStatusButton(); return TRUE;
     case IDC_BUTTON_START: OnStartButton(); return TRUE;
     case IDC_BUTTON_STOP: OnStopButton(); return TRUE;
+    case IDC_BUTTON_EXIT: OnExitButton(); return TRUE;
     default: break;
   }
   return FALSE;
