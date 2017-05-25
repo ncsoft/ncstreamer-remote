@@ -100,8 +100,7 @@ NcStreamerRemote::NcStreamerRemote(uint16_t remote_port)
       remote_connection_{},
       busy_{false},
       current_error_handler_{},
-      current_status_response_handler_{},
-      current_connect_handler_{} {
+      current_status_response_handler_{} {
   remote_log_.open("ncstreamer_remote.log");
   remote_.set_access_channels(ws::log::alevel::all);
   remote_.set_access_channels(ws::log::elevel::all);
@@ -153,12 +152,11 @@ void NcStreamerRemote::Connect(
     return;
   }
 
-  current_connect_handler_ = connect_handler;
   remote_.connect(connection);
-  connection->set_open_handler([this](
+  connection->set_open_handler([this, connect_handler](
       ws::connection_hdl connection) {
     remote_connection_ = connection;
-    current_connect_handler_();
+    connect_handler();
   });
 }
 

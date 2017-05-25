@@ -106,8 +106,6 @@ class NcStreamerRemote {
 
   ErrorHandler current_error_handler_;
   StatusResponseHandler current_status_response_handler_;
-
-  ConnectHandler current_connect_handler_;
 };
 }  // namespace ncstreamer_remote
 
