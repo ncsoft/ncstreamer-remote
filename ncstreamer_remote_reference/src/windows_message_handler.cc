@@ -28,6 +28,7 @@ namespace {
 enum {
   WM_USER__REMOTE_RESPONSE_FAIL = WM_USER + 1234,
   WM_USER__REMOTE_RESPONSE_STATUS,
+  WM_USER__REMOTE_RESPONSE_START,
 };
 
 
@@ -39,6 +40,11 @@ HWND static_stop_button{NULL};
 HWND static_message_panel{NULL};
 
 HFONT static_clock_font{NULL};
+
+
+void SetMessage(const std::wstring &msg) {
+  ::SetWindowText(static_message_panel, msg.c_str());
+}
 
 
 HFONT SetUpFont(HWND wnd, int font_size) {
@@ -78,7 +84,17 @@ std::wstring GetCurrentLocalTime() {
 }
 
 
+std::wstring GetTitle(HWND wnd) {
+  static const int kBufSize{MAX_PATH};
+  wchar_t buf[kBufSize];
+  ::GetWindowText(wnd, buf, kBufSize);
+  return std::wstring{buf};
+}
+
+
 void OnStatusButton() {
+  SetMessage(L"OnStatusButton");
+
   ncstreamer_remote::NcStreamerRemote::Get()->RequestStatus([](
       const std::wstring &err_msg) {
     ::PostMessage(
@@ -99,15 +115,42 @@ void OnStatusButton() {
 
 
 void OnStartButton() {
+  SetMessage(L"OnStartButton");
+
+  const std::wstring &this_title = GetTitle(static_main_dialog);
+  ncstreamer_remote::NcStreamerRemote::Get()->RequestStart(
+      this_title, [](const std::wstring &err_msg) {
+    ::PostMessage(
+        static_main_dialog,
+        WM_USER__REMOTE_RESPONSE_FAIL,
+        (WPARAM) nullptr,
+        (LPARAM) new std::wstring{err_msg});
+  }, [](bool success) {
+    ::PostMessage(
+        static_main_dialog,
+        WM_USER__REMOTE_RESPONSE_START,
+        (WPARAM) nullptr,
+        (LPARAM) new std::tuple<bool>{success});
+  });
 }
 
 
 void OnStopButton() {
+  SetMessage(L"OnStopButton");
 }
 
 
 void OnExitButton() {
-  ncstreamer_remote::NcStreamerRemote::Get()->RequestExit();
+  SetMessage(L"OnExitButton");
+
+  ncstreamer_remote::NcStreamerRemote::Get()->RequestExit([](
+      const std::wstring &err_msg) {
+    ::PostMessage(
+        static_main_dialog,
+        WM_USER__REMOTE_RESPONSE_FAIL,
+        (WPARAM) nullptr,
+        (LPARAM) new std::wstring{err_msg});
+  });
 }
 
 
@@ -119,7 +162,7 @@ void OnRemoteResponseFail(LPARAM lparam) {
   ::EnableWindow(static_start_button, FALSE);
   ::EnableWindow(static_stop_button, FALSE);
 
-  ::SetWindowText(static_message_panel, err_msg->c_str());
+  SetMessage(*err_msg);
 }
 
 
@@ -132,6 +175,18 @@ void OnRemoteResponseStatus(LPARAM lparam) {
   std::wstringstream ss;
   ss << L"status: " << status << L"\r\n"
      << L"source: " << source_title << L"\r\n";
+
+  SetMessage(ss.str());
+}
+
+
+void OnRemoteResponseStart(LPARAM lparam) {
+  std::unique_ptr<std::tuple<bool>> params{
+      reinterpret_cast<std::tuple<bool> *>(lparam)};
+  const bool &success = std::get<0>(*params);
+
+  std::wstringstream ss;
+  ss << L"start success: " << success << L"\r\n";
 
   ::SetWindowText(static_message_panel, ss.str().c_str());
 }
@@ -202,6 +257,8 @@ INT_PTR CALLBACK MainDialogProc(
         OnRemoteResponseFail(lparam); return TRUE;
     case WM_USER__REMOTE_RESPONSE_STATUS:
         OnRemoteResponseStatus(lparam); return TRUE;
+    case WM_USER__REMOTE_RESPONSE_START:
+        OnRemoteResponseStart(lparam); return TRUE;
     case WM_CLOSE: DeleteMainDialog(); return TRUE;
     case WM_DESTROY: ::PostQuitMessage(/*exit code*/ 0); return TRUE;
     default: break;

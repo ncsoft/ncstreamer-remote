@@ -14,6 +14,7 @@
 #endif
 
 
+#include <atomic>
 #include <fstream>
 #include <functional>
 #include <string>
@@ -46,6 +47,9 @@ class NcStreamerRemote {
       const std::wstring &status,
       const std::wstring &source_title)>;
 
+  using StartResponseHandler = std::function<void(
+      bool success)>;
+
   static NCSTREAMER_REMOTE_DLL_API void SetUp(uint16_t remote_port);
   static NCSTREAMER_REMOTE_DLL_API void SetUpDefault();
 
@@ -56,20 +60,29 @@ class NcStreamerRemote {
       const ErrorHandler &error_handler,
       const StatusResponseHandler &status_response_handler);
 
-  void NCSTREAMER_REMOTE_DLL_API RequestExit();
+  void NCSTREAMER_REMOTE_DLL_API RequestStart(
+      const std::wstring &title,
+      const ErrorHandler &error_handler,
+      const StartResponseHandler &start_response_handler);
+
+  void NCSTREAMER_REMOTE_DLL_API RequestExit(
+      const ErrorHandler &error_handler);
 
  private:
   using AsioClient = ws::config::asio_client;
+  using ConnectHandler = std::function<void()>;
 
   explicit NcStreamerRemote(uint16_t remote_port);
   virtual ~NcStreamerRemote();
 
-  void Connect();
+  void Connect(
+    const ConnectHandler &connect_handler);
+
   void SendStatusRequest();
+  void SendStartRequest(const std::wstring &title);
   void SendExitRequest();
 
   void OnRemoteFail(ws::connection_hdl connection);
-  void OnRemoteOpen(ws::connection_hdl connection);
   void OnRemoteClose(ws::connection_hdl connection);
   void OnRemoteMessage(
       ws::connection_hdl connection,
@@ -77,6 +90,14 @@ class NcStreamerRemote {
 
   void OnRemoteStatusResponse(
       const boost::property_tree::ptree &response);
+  void OnRemoteStartResponse(
+      const boost::property_tree::ptree &response);
+
+  void HandleError(
+      const std::string &err_type,
+      const ws::lib::error_code &ec);
+  void HandleError(
+      const std::string &err_msg);
 
   void LogError(const std::string &err_msg);
 
@@ -92,10 +113,11 @@ class NcStreamerRemote {
 
   ws::connection_hdl remote_connection_;
 
-  bool status_request_pending_;
-  bool exit_request_pending_;
+  std::atomic_bool busy_;
+
   ErrorHandler current_error_handler_;
   StatusResponseHandler current_status_response_handler_;
+  StartResponseHandler current_start_response_handler_;
 };
 }  // namespace ncstreamer_remote
 
