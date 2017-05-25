@@ -50,6 +50,9 @@ class NcStreamerRemote {
   using StartResponseHandler = std::function<void(
       bool success)>;
 
+  using StopResponseHandler = std::function<void(
+      bool success)>;
+
   static NCSTREAMER_REMOTE_DLL_API void SetUp(uint16_t remote_port);
   static NCSTREAMER_REMOTE_DLL_API void SetUpDefault();
 
@@ -64,6 +67,11 @@ class NcStreamerRemote {
       const std::wstring &title,
       const ErrorHandler &error_handler,
       const StartResponseHandler &start_response_handler);
+
+  void NCSTREAMER_REMOTE_DLL_API RequestStop(
+      const std::wstring &title,
+      const ErrorHandler &error_handler,
+      const StopResponseHandler &stop_response_handler);
 
   void NCSTREAMER_REMOTE_DLL_API RequestExit(
       const ErrorHandler &error_handler);
@@ -80,6 +88,7 @@ class NcStreamerRemote {
 
   void SendStatusRequest();
   void SendStartRequest(const std::wstring &title);
+  void SendStopRequest(const std::wstring &title);
   void SendExitRequest();
 
   void OnRemoteFail(ws::connection_hdl connection);
@@ -91,6 +100,8 @@ class NcStreamerRemote {
   void OnRemoteStatusResponse(
       const boost::property_tree::ptree &response);
   void OnRemoteStartResponse(
+      const boost::property_tree::ptree &response);
+  void OnRemoteStopResponse(
       const boost::property_tree::ptree &response);
 
   void HandleError(
@@ -118,6 +129,7 @@ class NcStreamerRemote {
   ErrorHandler current_error_handler_;
   StatusResponseHandler current_status_response_handler_;
   StartResponseHandler current_start_response_handler_;
+  StopResponseHandler current_stop_response_handler_;
 };
 }  // namespace ncstreamer_remote
 
