@@ -118,8 +118,6 @@ NcStreamerRemote::NcStreamerRemote(uint16_t remote_port)
 
   remote_.set_fail_handler(ws::lib::bind(
       &NcStreamerRemote::OnRemoteFail, this, placeholders::_1));
-  remote_.set_open_handler(ws::lib::bind(
-      &NcStreamerRemote::OnRemoteOpen, this, placeholders::_1));
   remote_.set_close_handler(ws::lib::bind(
       &NcStreamerRemote::OnRemoteClose, this, placeholders::_1));
   remote_.set_message_handler(ws::lib::bind(
@@ -157,6 +155,8 @@ void NcStreamerRemote::Connect(
 
   current_connect_handler_ = connect_handler;
   remote_.connect(connection);
+  connection->set_open_handler(ws::lib::bind(
+      &NcStreamerRemote::OnRemoteOpen, this, placeholders::_1));
 }
 
 
