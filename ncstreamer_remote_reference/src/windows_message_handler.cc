@@ -158,10 +158,6 @@ void OnRemoteResponseFail(LPARAM lparam) {
   std::unique_ptr<std::wstring> err_msg{
       reinterpret_cast<std::wstring *>(lparam)};
 
-  ::EnableWindow(static_status_button, FALSE);
-  ::EnableWindow(static_start_button, FALSE);
-  ::EnableWindow(static_stop_button, FALSE);
-
   SetMessage(*err_msg);
 }
 
