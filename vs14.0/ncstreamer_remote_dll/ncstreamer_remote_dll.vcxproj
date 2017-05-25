@@ -112,6 +112,9 @@
     <PreBuildEvent>
       <Command>build_tools/cpplint/cpplint_directory.bat "$(GOOGLE_STYLEGUIDE_PATH)/cpplint" $(SolutionDir)../$(ProjectName)/src</Command>
     </PreBuildEvent>
+    <PostBuildEvent>
+      <Command>copy $(OutDir)ncstreamer_remote_dll-$(PlatformArchitecture).dll $(SolutionDir)ncstreamer_remote_reference\build\$(Configuration)\$(Platform)\</Command>
+    </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='MTd|x64'">
     <ClCompile>
