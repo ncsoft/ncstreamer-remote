@@ -155,8 +155,11 @@ void NcStreamerRemote::Connect(
 
   current_connect_handler_ = connect_handler;
   remote_.connect(connection);
-  connection->set_open_handler(ws::lib::bind(
-      &NcStreamerRemote::OnRemoteOpen, this, placeholders::_1));
+  connection->set_open_handler([this](
+      ws::connection_hdl connection) {
+    remote_connection_ = connection;
+    current_connect_handler_();
+  });
 }
 
 
@@ -203,12 +206,6 @@ void NcStreamerRemote::SendExitRequest() {
 void NcStreamerRemote::OnRemoteFail(ws::connection_hdl connection) {
   HandleError("on remote fail");
   busy_ = false;
-}
-
-
-void NcStreamerRemote::OnRemoteOpen(ws::connection_hdl connection) {
-  remote_connection_ = connection;
-  current_connect_handler_();
 }
 
 

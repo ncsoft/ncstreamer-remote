@@ -74,7 +74,6 @@ class NcStreamerRemote {
   void SendExitRequest();
 
   void OnRemoteFail(ws::connection_hdl connection);
-  void OnRemoteOpen(ws::connection_hdl connection);
   void OnRemoteClose(ws::connection_hdl connection);
   void OnRemoteMessage(
       ws::connection_hdl connection,
