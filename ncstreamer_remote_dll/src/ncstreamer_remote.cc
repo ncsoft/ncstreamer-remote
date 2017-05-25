@@ -146,11 +146,13 @@ NcStreamerRemote::NcStreamerRemote(uint16_t remote_port)
       remote_threads_{},
       remote_log_{},
       remote_connection_{},
-      busy_{false},
+      busy_{},
       current_error_handler_{},
       current_status_response_handler_{},
       current_start_response_handler_{},
       current_stop_response_handler_{} {
+  busy_ = false;
+
   remote_log_.open("ncstreamer_remote.log");
   remote_.set_access_channels(ws::log::alevel::all);
   remote_.set_access_channels(ws::log::elevel::all);
