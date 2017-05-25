@@ -251,12 +251,14 @@ void NcStreamerRemote::SendExitRequest() {
 
 void NcStreamerRemote::OnRemoteFail(ws::connection_hdl connection) {
   HandleError("on remote fail");
+  remote_connection_.reset();
   busy_ = false;
 }
 
 
 void NcStreamerRemote::OnRemoteClose(ws::connection_hdl connection) {
   HandleError("on remote close");
+  remote_connection_.reset();
   busy_ = false;
 }
 
