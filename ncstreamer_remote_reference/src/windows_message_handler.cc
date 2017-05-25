@@ -29,6 +29,7 @@ enum {
   WM_USER__REMOTE_RESPONSE_FAIL = WM_USER + 1234,
   WM_USER__REMOTE_RESPONSE_STATUS,
   WM_USER__REMOTE_RESPONSE_START,
+  WM_USER__REMOTE_RESPONSE_STOP,
 };
 
 
@@ -137,6 +138,22 @@ void OnStartButton() {
 
 void OnStopButton() {
   SetMessage(L"OnStopButton");
+
+  const std::wstring &this_title = GetTitle(static_main_dialog);
+  ncstreamer_remote::NcStreamerRemote::Get()->RequestStop(
+      this_title, [](const std::wstring &err_msg) {
+    ::PostMessage(
+        static_main_dialog,
+        WM_USER__REMOTE_RESPONSE_FAIL,
+        (WPARAM) nullptr,
+        (LPARAM) new std::wstring{err_msg});
+  }, [](bool success) {
+    ::PostMessage(
+        static_main_dialog,
+        WM_USER__REMOTE_RESPONSE_STOP,
+        (WPARAM) nullptr,
+        (LPARAM) new std::tuple<bool>{success});
+  });
 }
 
 
@@ -157,10 +174,6 @@ void OnExitButton() {
 void OnRemoteResponseFail(LPARAM lparam) {
   std::unique_ptr<std::wstring> err_msg{
       reinterpret_cast<std::wstring *>(lparam)};
-
-  ::EnableWindow(static_status_button, FALSE);
-  ::EnableWindow(static_start_button, FALSE);
-  ::EnableWindow(static_stop_button, FALSE);
 
   SetMessage(*err_msg);
 }
@@ -187,6 +200,18 @@ void OnRemoteResponseStart(LPARAM lparam) {
 
   std::wstringstream ss;
   ss << L"start success: " << success << L"\r\n";
+
+  ::SetWindowText(static_message_panel, ss.str().c_str());
+}
+
+
+void OnRemoteResponseStop(LPARAM lparam) {
+  std::unique_ptr<std::tuple<bool>> params{
+      reinterpret_cast<std::tuple<bool> *>(lparam)};
+  const bool &success = std::get<0>(*params);
+
+  std::wstringstream ss;
+  ss << L"stop success: " << success << L"\r\n";
 
   ::SetWindowText(static_message_panel, ss.str().c_str());
 }
@@ -259,6 +284,8 @@ INT_PTR CALLBACK MainDialogProc(
         OnRemoteResponseStatus(lparam); return TRUE;
     case WM_USER__REMOTE_RESPONSE_START:
         OnRemoteResponseStart(lparam); return TRUE;
+    case WM_USER__REMOTE_RESPONSE_STOP:
+        OnRemoteResponseStop(lparam); return TRUE;
     case WM_CLOSE: DeleteMainDialog(); return TRUE;
     case WM_DESTROY: ::PostQuitMessage(/*exit code*/ 0); return TRUE;
     default: break;
