@@ -45,7 +45,9 @@ class NcStreamerRemote {
 
   using StatusResponseHandler = std::function<void(
       const std::wstring &status,
-      const std::wstring &source_title)>;
+      const std::wstring &source_title,
+      const std::wstring &user_name,
+      const std::wstring &quality)>;
 
   using StartResponseHandler = std::function<void(
       bool success)>;

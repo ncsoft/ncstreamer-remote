@@ -35,7 +35,9 @@ enum {
 
 using StatusTuple = std::tuple<
     std::wstring /*status*/,
-    std::wstring /*source_title*/>;
+    std::wstring /*source_title*/,
+    std::wstring /*user_name*/,
+    std::wstring /*quality*/>;
 
 
 HWND static_main_dialog{NULL};
@@ -109,13 +111,15 @@ void OnStatusButton() {
         (WPARAM) nullptr,
         (LPARAM) new std::wstring{err_msg});
   }, [](const std::wstring &status,
-        const std::wstring &source_title) {
+        const std::wstring &source_title,
+        const std::wstring &user_name,
+        const std::wstring &quality) {
     ::PostMessage(
         static_main_dialog,
         WM_USER__REMOTE_RESPONSE_STATUS,
         (WPARAM) nullptr,
         (LPARAM) new StatusTuple{
-                status, source_title});
+                status, source_title, user_name, quality});
   });
 }
 
@@ -189,10 +193,14 @@ void OnRemoteResponseStatus(LPARAM lparam) {
       reinterpret_cast<StatusTuple *>(lparam)};
   const auto &status = std::get<0>(*params);
   const auto &source_title = std::get<1>(*params);
+  const auto &user_name = std::get<2>(*params);
+  const auto &quality = std::get<3>(*params);
 
   std::wstringstream ss;
   ss << L"status: " << status << L"\r\n"
-     << L"source_title: " << source_title << L"\r\n";
+     << L"source_title: " << source_title << L"\r\n"
+     << L"user_name: " << user_name << L"\r\n"
+     << L"quality: " << quality << L"\r\n";
 
   SetMessage(ss.str());
 }

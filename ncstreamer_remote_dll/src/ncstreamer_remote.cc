@@ -360,9 +360,13 @@ void NcStreamerRemote::OnRemoteStatusResponse(
     const boost::property_tree::ptree &response) {
   std::string status{};
   std::string source_title{};
+  std::string user_name{};
+  std::string quality{};
   try {
     status = response.get<std::string>("status");
     source_title = response.get<std::string>("sourceTitle");
+    user_name = response.get<std::string>("userName");
+    quality = response.get<std::string>("quality");
   } catch (const std::exception &/*e*/) {
     status.clear();
     source_title.clear();
@@ -370,6 +374,10 @@ void NcStreamerRemote::OnRemoteStatusResponse(
 
   if (status.empty() == true) {
     LogError("status.empty()");
+    return;
+  }
+  if (quality.empty() == true) {
+    LogError("quality.empty()");
     return;
   }
 
@@ -381,7 +389,9 @@ void NcStreamerRemote::OnRemoteStatusResponse(
   static std::wstring_convert<std::codecvt_utf8_utf16<wchar_t>> converter;
   current_status_response_handler_(
       converter.from_bytes(status),
-      converter.from_bytes(source_title));
+      converter.from_bytes(source_title),
+      converter.from_bytes(user_name),
+      converter.from_bytes(quality));
 }
 
 
