@@ -117,6 +117,30 @@ void NcStreamerRemote::RequestStop(
 }
 
 
+void NcStreamerRemote::RequestQualityUpdate(
+    const std::wstring &quality,
+    const ErrorHandler &error_handler,
+    const SuccessHandler &quality_update_response_handler) {
+  if (busy_ == true) {
+    error_handler(L"busy");
+    return;
+  }
+  busy_ = true;
+
+  current_error_handler_ = error_handler;
+  current_quality_update_response_handler_ = quality_update_response_handler;
+
+  if (!remote_connection_.lock()) {
+    Connect([this, quality]() {
+      SendQualityUpdateRequest(quality);
+    });
+    return;
+  }
+
+  SendQualityUpdateRequest(quality);
+}
+
+
 void NcStreamerRemote::RequestExit(
     const ErrorHandler &error_handler) {
   if (busy_ == true) {
@@ -150,7 +174,8 @@ NcStreamerRemote::NcStreamerRemote(uint16_t remote_port)
       current_error_handler_{},
       current_status_response_handler_{},
       current_start_response_handler_{},
-      current_stop_response_handler_{} {
+      current_stop_response_handler_{},
+      current_quality_update_response_handler_{} {
   busy_ = false;
 
   remote_log_.open("ncstreamer_remote.log");
@@ -279,6 +304,29 @@ void NcStreamerRemote::SendStopRequest(const std::wstring &title) {
 }
 
 
+void NcStreamerRemote::SendQualityUpdateRequest(const std::wstring &quality) {
+  std::stringstream msg;
+  {
+    std::wstring_convert<std::codecvt_utf8_utf16<wchar_t>> converter;
+
+    boost::property_tree::ptree tree;
+    tree.put("type", static_cast<int>(
+        ncstreamer::RemoteMessage::MessageType::kSettingsQualityUpdateRequest));
+    tree.put("quality", converter.to_bytes(quality));
+    boost::property_tree::write_json(msg, tree, false);
+  }
+
+  ws::lib::error_code ec;
+  remote_.send(
+      remote_connection_, msg.str(), websocketpp::frame::opcode::text, ec);
+  if (ec) {
+    HandleError("remote send", ec);
+    busy_ = false;
+    return;
+  }
+}
+
+
 void NcStreamerRemote::SendExitRequest() {
   std::stringstream msg;
   {
@@ -343,6 +391,9 @@ void NcStreamerRemote::OnRemoteMessage(
            this, std::placeholders::_1)},
       {ncstreamer::RemoteMessage::MessageType::kStreamingStopResponse,
        std::bind(&NcStreamerRemote::OnRemoteStopResponse,
+           this, std::placeholders::_1)},
+      {ncstreamer::RemoteMessage::MessageType::kSettingsQualityUpdateResponse,
+       std::bind(&NcStreamerRemote::OnRemoteQualityUpdateResponse,
            this, std::placeholders::_1)}};
 
   auto i = kMessageHandlers.find(msg_type);
@@ -439,6 +490,30 @@ void NcStreamerRemote::OnRemoteStopResponse(
     current_error_handler_(converter.from_bytes(error));
   } else {
     current_stop_response_handler_(true);
+  }
+}
+
+
+void NcStreamerRemote::OnRemoteQualityUpdateResponse(
+    const boost::property_tree::ptree &response) {
+  bool exception_occurred{false};
+  std::string error{};
+  try {
+    error = response.get<std::string>("error");
+  } catch (const std::exception &/*e*/) {
+    exception_occurred = true;
+  }
+
+  if (exception_occurred == true) {
+    LogError("stop response broken");
+    return;
+  }
+
+  if (error.empty() == false) {
+    static std::wstring_convert<std::codecvt_utf8_utf16<wchar_t>> converter;
+    current_error_handler_(converter.from_bytes(error));
+  } else {
+    current_quality_update_response_handler_(true);
   }
 }
 
