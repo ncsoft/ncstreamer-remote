@@ -7,7 +7,7 @@ h1. Prerequisite
  ** To build ncstreamer_remote.dll, ncstreamer_remote_reference.exe .
 * Boost library
  ** Create OS environment variable 'BOOST_ROOT' with Boost library path on the local dev machine.
-  *** Ex: BOOST_PATH=D:\dev\lib\boost_1_64_0\
+  *** Ex: BOOST_ROOT=D:\dev\lib\boost_1_64_0\
 * Python 2.7.x
  ** To execute cpplint.py .
 
