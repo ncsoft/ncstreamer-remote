@@ -362,7 +362,7 @@ void NcStreamerRemote::OnRemoteStatusResponse(
   std::string source_title{};
   try {
     status = response.get<std::string>("status");
-    source_title = response.get<std::string>("source_title");
+    source_title = response.get<std::string>("sourceTitle");
   } catch (const std::exception &/*e*/) {
     status.clear();
     source_title.clear();
