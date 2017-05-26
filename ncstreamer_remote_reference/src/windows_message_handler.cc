@@ -33,6 +33,11 @@ enum {
 };
 
 
+using StatusTuple = std::tuple<
+    std::wstring /*status*/,
+    std::wstring /*source_title*/>;
+
+
 HWND static_main_dialog{NULL};
 HWND static_clock_panel{NULL};
 HWND static_status_button{NULL};
@@ -109,8 +114,8 @@ void OnStatusButton() {
         static_main_dialog,
         WM_USER__REMOTE_RESPONSE_STATUS,
         (WPARAM) nullptr,
-        (LPARAM) new std::tuple<std::wstring, std::wstring>{
-            status, source_title});
+        (LPARAM) new StatusTuple{
+                status, source_title});
   });
 }
 
@@ -180,14 +185,14 @@ void OnRemoteResponseFail(LPARAM lparam) {
 
 
 void OnRemoteResponseStatus(LPARAM lparam) {
-  std::unique_ptr<std::tuple<std::wstring, std::wstring>> params{
-      reinterpret_cast<std::tuple<std::wstring, std::wstring> *>(lparam)};
+  std::unique_ptr<StatusTuple> params{
+      reinterpret_cast<StatusTuple *>(lparam)};
   const auto &status = std::get<0>(*params);
   const auto &source_title = std::get<1>(*params);
 
   std::wstringstream ss;
   ss << L"status: " << status << L"\r\n"
-     << L"source_title: " << source_title << L"\r\n"
+     << L"source_title: " << source_title << L"\r\n";
 
   SetMessage(ss.str());
 }
