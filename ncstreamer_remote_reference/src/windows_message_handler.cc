@@ -187,7 +187,7 @@ void OnRemoteResponseStatus(LPARAM lparam) {
 
   std::wstringstream ss;
   ss << L"status: " << status << L"\r\n"
-     << L"source: " << source_title << L"\r\n";
+     << L"source_title: " << source_title << L"\r\n"
 
   SetMessage(ss.str());
 }
