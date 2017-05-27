@@ -71,23 +71,23 @@
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='MTd|Win32'">
     <LinkIncremental>true</LinkIncremental>
-    <OutDir>$(ProjectDir)build\$(Configuration)\$(Platform)\</OutDir>
-    <IntDir>$(ProjectDir)build\temp\$(Configuration)\$(Platform)\</IntDir>
+    <OutDir>$(ProjectDir)build\vc_$(PlatformToolset)\</OutDir>
+    <IntDir>$(ProjectDir)build\temp\vc_$(PlatformToolset)\$(Configuration)\$(Platform)\</IntDir>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='MTd|x64'">
     <LinkIncremental>true</LinkIncremental>
-    <OutDir>$(ProjectDir)build\$(Configuration)\$(Platform)\</OutDir>
-    <IntDir>$(ProjectDir)build\temp\$(Configuration)\$(Platform)\</IntDir>
+    <OutDir>$(ProjectDir)build\vc_$(PlatformToolset)\</OutDir>
+    <IntDir>$(ProjectDir)build\temp\vc_$(PlatformToolset)\$(Configuration)\$(Platform)\</IntDir>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='MT|Win32'">
     <LinkIncremental>false</LinkIncremental>
-    <OutDir>$(ProjectDir)build\$(Configuration)\$(Platform)\</OutDir>
-    <IntDir>$(ProjectDir)build\temp\$(Configuration)\$(Platform)\</IntDir>
+    <OutDir>$(ProjectDir)build\vc_$(PlatformToolset)\</OutDir>
+    <IntDir>$(ProjectDir)build\temp\vc_$(PlatformToolset)\$(Configuration)\$(Platform)\</IntDir>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='MT|x64'">
     <LinkIncremental>false</LinkIncremental>
-    <OutDir>$(ProjectDir)build\$(Configuration)\$(Platform)\</OutDir>
-    <IntDir>$(ProjectDir)build\temp\$(Configuration)\$(Platform)\</IntDir>
+    <OutDir>$(ProjectDir)build\vc_$(PlatformToolset)\</OutDir>
+    <IntDir>$(ProjectDir)build\temp\vc_$(PlatformToolset)\$(Configuration)\$(Platform)\</IntDir>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='MTd|Win32'">
     <ClCompile>
@@ -104,14 +104,14 @@
       <SubSystem>Windows</SubSystem>
       <GenerateMTdInformation>true</GenerateMTdInformation>
       <AdditionalLibraryDirectories>$(BOOST_ROOT)lib$(PlatformArchitecture)-msvc-$(VisualStudioVersion);%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
-      <AdditionalDependencies>$(SolutionDir)ncstreamer_remote_dll\build\$(Configuration)\$(Platform)\ncstreamer_remote_dll-$(PlatformArchitecture).lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>$(SolutionDir)ncstreamer_remote_dll\build\vc_$(PlatformToolset)\ncstreamer_remote_dll-$(PlatformArchitecture)-$(Configuration).lib;%(AdditionalDependencies)</AdditionalDependencies>
       <GenerateDebugInformation>true</GenerateDebugInformation>
     </Link>
     <PreBuildEvent>
       <Command>build_tools/cpplint/cpplint_directory.bat "$(GOOGLE_STYLEGUIDE_PATH)/cpplint" $(SolutionDir)../$(ProjectName)/src</Command>
     </PreBuildEvent>
     <PostBuildEvent>
-      <Command>copy $(SolutionDir)ncstreamer_remote_dll\build\$(Configuration)\$(Platform)\ncstreamer_remote_dll-$(PlatformArchitecture).dll $(OutDir)</Command>
+      <Command>copy $(SolutionDir)ncstreamer_remote_dll\build\vc_$(PlatformToolset)\ncstreamer_remote_dll-$(PlatformArchitecture)-$(Configuration).dll $(OutDir)</Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='MTd|x64'">
@@ -129,14 +129,14 @@
       <SubSystem>Windows</SubSystem>
       <GenerateMTdInformation>true</GenerateMTdInformation>
       <AdditionalLibraryDirectories>$(BOOST_ROOT)lib$(PlatformArchitecture)-msvc-$(VisualStudioVersion);%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
-      <AdditionalDependencies>$(SolutionDir)ncstreamer_remote_dll\build\$(Configuration)\$(Platform)\ncstreamer_remote_dll-$(PlatformArchitecture).lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>$(SolutionDir)ncstreamer_remote_dll\build\vc_$(PlatformToolset)\ncstreamer_remote_dll-$(PlatformArchitecture)-$(Configuration).lib;%(AdditionalDependencies)</AdditionalDependencies>
       <GenerateDebugInformation>true</GenerateDebugInformation>
     </Link>
     <PreBuildEvent>
       <Command>build_tools/cpplint/cpplint_directory.bat "$(GOOGLE_STYLEGUIDE_PATH)/cpplint" $(SolutionDir)../$(ProjectName)/src</Command>
     </PreBuildEvent>
     <PostBuildEvent>
-      <Command>copy $(SolutionDir)ncstreamer_remote_dll\build\$(Configuration)\$(Platform)\ncstreamer_remote_dll-$(PlatformArchitecture).dll $(OutDir)</Command>
+      <Command>copy $(SolutionDir)ncstreamer_remote_dll\build\vc_$(PlatformToolset)\ncstreamer_remote_dll-$(PlatformArchitecture)-$(Configuration).dll $(OutDir)</Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='MT|Win32'">
@@ -158,14 +158,14 @@
       <OptimizeReferences>true</OptimizeReferences>
       <GenerateMTdInformation>true</GenerateMTdInformation>
       <AdditionalLibraryDirectories>$(BOOST_ROOT)lib$(PlatformArchitecture)-msvc-$(VisualStudioVersion);%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
-      <AdditionalDependencies>$(SolutionDir)ncstreamer_remote_dll\build\$(Configuration)\$(Platform)\ncstreamer_remote_dll-$(PlatformArchitecture).lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>$(SolutionDir)ncstreamer_remote_dll\build\vc_$(PlatformToolset)\ncstreamer_remote_dll-$(PlatformArchitecture)-$(Configuration).lib;%(AdditionalDependencies)</AdditionalDependencies>
       <GenerateDebugInformation>true</GenerateDebugInformation>
     </Link>
     <PreBuildEvent>
       <Command>build_tools/cpplint/cpplint_directory.bat "$(GOOGLE_STYLEGUIDE_PATH)/cpplint" $(SolutionDir)../$(ProjectName)/src</Command>
     </PreBuildEvent>
     <PostBuildEvent>
-      <Command>copy $(SolutionDir)ncstreamer_remote_dll\build\$(Configuration)\$(Platform)\ncstreamer_remote_dll-$(PlatformArchitecture).dll $(OutDir)</Command>
+      <Command>copy $(SolutionDir)ncstreamer_remote_dll\build\vc_$(PlatformToolset)\ncstreamer_remote_dll-$(PlatformArchitecture)-$(Configuration).dll $(OutDir)</Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='MT|x64'">
@@ -187,14 +187,14 @@
       <OptimizeReferences>true</OptimizeReferences>
       <GenerateMTdInformation>true</GenerateMTdInformation>
       <AdditionalLibraryDirectories>$(BOOST_ROOT)lib$(PlatformArchitecture)-msvc-$(VisualStudioVersion);%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
-      <AdditionalDependencies>$(SolutionDir)ncstreamer_remote_dll\build\$(Configuration)\$(Platform)\ncstreamer_remote_dll-$(PlatformArchitecture).lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>$(SolutionDir)ncstreamer_remote_dll\build\vc_$(PlatformToolset)\ncstreamer_remote_dll-$(PlatformArchitecture)-$(Configuration).lib;%(AdditionalDependencies)</AdditionalDependencies>
       <GenerateDebugInformation>true</GenerateDebugInformation>
     </Link>
     <PreBuildEvent>
       <Command>build_tools/cpplint/cpplint_directory.bat "$(GOOGLE_STYLEGUIDE_PATH)/cpplint" $(SolutionDir)../$(ProjectName)/src</Command>
     </PreBuildEvent>
     <PostBuildEvent>
-      <Command>copy $(SolutionDir)ncstreamer_remote_dll\build\$(Configuration)\$(Platform)\ncstreamer_remote_dll-$(PlatformArchitecture).dll $(OutDir)</Command>
+      <Command>copy $(SolutionDir)ncstreamer_remote_dll\build\vc_$(PlatformToolset)\ncstreamer_remote_dll-$(PlatformArchitecture)-$(Configuration).dll $(OutDir)</Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup>
