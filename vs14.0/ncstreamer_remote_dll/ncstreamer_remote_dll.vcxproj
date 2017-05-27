@@ -71,27 +71,27 @@
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='MTd|Win32'">
     <LinkIncremental>true</LinkIncremental>
-    <OutDir>$(ProjectDir)build\$(Configuration)\$(Platform)\</OutDir>
-    <IntDir>$(ProjectDir)build\temp\$(Configuration)\$(Platform)\</IntDir>
-    <TargetName>$(ProjectName)-$(PlatformArchitecture)</TargetName>
+    <OutDir>$(ProjectDir)build\vc_$(PlatformToolset)\</OutDir>
+    <IntDir>$(ProjectDir)build\temp\vc_$(PlatformToolset)\$(Configuration)\$(Platform)\</IntDir>
+    <TargetName>$(ProjectName)-$(PlatformArchitecture)-$(Configuration)</TargetName>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='MTd|x64'">
     <LinkIncremental>true</LinkIncremental>
-    <OutDir>$(ProjectDir)build\$(Configuration)\$(Platform)\</OutDir>
-    <IntDir>$(ProjectDir)build\temp\$(Configuration)\$(Platform)\</IntDir>
-    <TargetName>$(ProjectName)-$(PlatformArchitecture)</TargetName>
+    <OutDir>$(ProjectDir)build\vc_$(PlatformToolset)\</OutDir>
+    <IntDir>$(ProjectDir)build\temp\vc_$(PlatformToolset)\$(Configuration)\$(Platform)\</IntDir>
+    <TargetName>$(ProjectName)-$(PlatformArchitecture)-$(Configuration)</TargetName>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='MT|Win32'">
     <LinkIncremental>false</LinkIncremental>
-    <OutDir>$(ProjectDir)build\$(Configuration)\$(Platform)\</OutDir>
-    <IntDir>$(ProjectDir)build\temp\$(Configuration)\$(Platform)\</IntDir>
-    <TargetName>$(ProjectName)-$(PlatformArchitecture)</TargetName>
+    <OutDir>$(ProjectDir)build\vc_$(PlatformToolset)\</OutDir>
+    <IntDir>$(ProjectDir)build\temp\vc_$(PlatformToolset)\$(Configuration)\$(Platform)\</IntDir>
+    <TargetName>$(ProjectName)-$(PlatformArchitecture)-$(Configuration)</TargetName>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='MT|x64'">
     <LinkIncremental>false</LinkIncremental>
-    <OutDir>$(ProjectDir)build\$(Configuration)\$(Platform)\</OutDir>
-    <IntDir>$(ProjectDir)build\temp\$(Configuration)\$(Platform)\</IntDir>
-    <TargetName>$(ProjectName)-$(PlatformArchitecture)</TargetName>
+    <OutDir>$(ProjectDir)build\vc_$(PlatformToolset)\</OutDir>
+    <IntDir>$(ProjectDir)build\temp\vc_$(PlatformToolset)\$(Configuration)\$(Platform)\</IntDir>
+    <TargetName>$(ProjectName)-$(PlatformArchitecture)-$(Configuration)</TargetName>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='MTd|Win32'">
     <ClCompile>
