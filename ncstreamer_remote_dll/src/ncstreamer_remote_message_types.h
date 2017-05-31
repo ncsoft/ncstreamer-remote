@@ -8,6 +8,9 @@
 
 
 namespace ncstreamer {
+static const wchar_t *const kNcStreamerWindowTitle{L"NCStreaming"};
+
+
 class RemoteMessage {
  public:
   enum class MessageType {

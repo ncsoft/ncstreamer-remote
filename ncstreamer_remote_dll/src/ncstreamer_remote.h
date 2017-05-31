@@ -94,6 +94,8 @@ class NcStreamerRemote {
   explicit NcStreamerRemote(uint16_t remote_port);
   virtual ~NcStreamerRemote();
 
+  bool ExistsNcStreamer();
+
   void Connect(
     const ConnectHandler &connect_handler);
 

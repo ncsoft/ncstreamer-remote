@@ -13,6 +13,8 @@
 
 #include "boost/property_tree/json_parser.hpp"
 
+#include "Windows.h"  // NOLINT
+
 #include "ncstreamer_remote_dll/src/ncstreamer_remote_message_types.h"
 
 
@@ -219,8 +221,20 @@ NcStreamerRemote::~NcStreamerRemote() {
 }
 
 
+bool NcStreamerRemote::ExistsNcStreamer() {
+  HWND wnd = ::FindWindow(nullptr, ncstreamer::kNcStreamerWindowTitle);
+  return (wnd != NULL);
+}
+
+
 void NcStreamerRemote::Connect(
     const ConnectHandler &connect_handler) {
+  if (ExistsNcStreamer() == false) {
+    HandleError("no ncstreamer");
+    busy_ = false;
+    return;
+  }
+
   ws::lib::error_code ec;
   auto connection = remote_.get_connection(remote_uri_, ec);
   if (ec) {
