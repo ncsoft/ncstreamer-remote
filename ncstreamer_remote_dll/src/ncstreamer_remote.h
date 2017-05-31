@@ -46,6 +46,7 @@ class NcStreamerRemote {
   using SuccessHandler = std::function<void(
       bool success)>;
 
+  /// @param status One of ['standby', 'setup', 'starting', 'onAir', 'stopping']
   using StatusResponseHandler = std::function<void(
       const std::wstring &status,
       const std::wstring &source_title,
