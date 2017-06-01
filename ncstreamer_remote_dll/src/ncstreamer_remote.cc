@@ -231,7 +231,6 @@ void NcStreamerRemote::Connect(
     const ConnectHandler &connect_handler) {
   if (ExistsNcStreamer() == false) {
     HandleError("no ncstreamer");
-    busy_ = false;
     return;
   }
 
@@ -239,7 +238,6 @@ void NcStreamerRemote::Connect(
   auto connection = remote_.get_connection(remote_uri_, ec);
   if (ec) {
     HandleError("remote connect", ec);
-    busy_ = false;
     return;
   }
 
@@ -266,7 +264,6 @@ void NcStreamerRemote::SendStatusRequest() {
       remote_connection_, msg.str(), websocketpp::frame::opcode::text, ec);
   if (ec) {
     HandleError("remote send", ec);
-    busy_ = false;
     return;
   }
 }
@@ -289,7 +286,6 @@ void NcStreamerRemote::SendStartRequest(const std::wstring &title) {
       remote_connection_, msg.str(), websocketpp::frame::opcode::text, ec);
   if (ec) {
     HandleError("remote send", ec);
-    busy_ = false;
     return;
   }
 }
@@ -312,7 +308,6 @@ void NcStreamerRemote::SendStopRequest(const std::wstring &title) {
       remote_connection_, msg.str(), websocketpp::frame::opcode::text, ec);
   if (ec) {
     HandleError("remote send", ec);
-    busy_ = false;
     return;
   }
 }
@@ -335,7 +330,6 @@ void NcStreamerRemote::SendQualityUpdateRequest(const std::wstring &quality) {
       remote_connection_, msg.str(), websocketpp::frame::opcode::text, ec);
   if (ec) {
     HandleError("remote send", ec);
-    busy_ = false;
     return;
   }
 }
@@ -355,7 +349,6 @@ void NcStreamerRemote::SendExitRequest() {
       remote_connection_, msg.str(), websocketpp::frame::opcode::text, ec);
   if (ec) {
     HandleError("remote send", ec);
-    busy_ = false;
     return;
   }
 }
@@ -364,14 +357,12 @@ void NcStreamerRemote::SendExitRequest() {
 void NcStreamerRemote::OnRemoteFail(ws::connection_hdl connection) {
   HandleError("on remote fail");
   remote_connection_.reset();
-  busy_ = false;
 }
 
 
 void NcStreamerRemote::OnRemoteClose(ws::connection_hdl connection) {
   HandleError("on remote close");
   remote_connection_.reset();
-  busy_ = false;
 }
 
 
@@ -549,6 +540,7 @@ void NcStreamerRemote::HandleError(
     static std::wstring_convert<std::codecvt_utf8_utf16<wchar_t>> converter;
     current_error_handler_(converter.from_bytes(err_msg));
   }
+  busy_ = false;
 }
 
 
