@@ -355,14 +355,14 @@ void NcStreamerRemote::SendExitRequest() {
 
 
 void NcStreamerRemote::OnRemoteFail(ws::connection_hdl connection) {
-  HandleError("on remote fail");
   remote_connection_.reset();
+  HandleError("on remote fail");
 }
 
 
 void NcStreamerRemote::OnRemoteClose(ws::connection_hdl connection) {
-  HandleError("on remote close");
   remote_connection_.reset();
+  HandleError("on remote close");
 }
 
 
@@ -534,13 +534,13 @@ void NcStreamerRemote::HandleError(
 
 void NcStreamerRemote::HandleError(
     const std::string &err_msg) {
+  busy_ = false;
   LogError(err_msg);
 
   if (current_error_handler_) {
     static std::wstring_convert<std::codecvt_utf8_utf16<wchar_t>> converter;
     current_error_handler_(converter.from_bytes(err_msg));
   }
-  busy_ = false;
 }
 
 
