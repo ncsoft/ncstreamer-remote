@@ -544,6 +544,11 @@ void NcStreamerRemote::HandleError(
 }
 
 
+void NcStreamerRemote::LogWarning(const std::string &warn_msg) {
+  remote_.get_elog().write(ws::log::elevel::warn, warn_msg);
+}
+
+
 void NcStreamerRemote::LogError(const std::string &err_msg) {
   remote_.get_elog().write(ws::log::elevel::rerror, err_msg);
 }

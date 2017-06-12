@@ -126,6 +126,7 @@ class NcStreamerRemote {
   void HandleError(
       const std::string &err_msg);
 
+  void LogWarning(const std::string &warn_msg);
   void LogError(const std::string &err_msg);
 
   static NcStreamerRemote *static_instance;
