@@ -403,9 +403,8 @@ void NcStreamerRemote::OnRemoteMessage(
 
   auto i = kMessageHandlers.find(msg_type);
   if (i == kMessageHandlers.end()) {
-    HandleError(
+    LogWarning(
         "unknown message type: " + std::to_string(static_cast<int>(msg_type)));
-    assert(false);
     return;
   }
   i->second(response);
