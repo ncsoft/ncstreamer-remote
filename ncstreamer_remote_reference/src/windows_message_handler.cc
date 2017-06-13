@@ -11,7 +11,7 @@ namespace Chrono = std::chrono;
 #else
 #include "boost/chrono/include.hpp"
 namespace Chrono = boost::chrono;
-#endif  // _MSC_VER > 1900
+#endif  // _MSC_VER >= 1900
 
 #include <ctime>
 #include <iomanip>
