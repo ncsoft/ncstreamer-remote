@@ -525,20 +525,35 @@ void NcStreamerRemote::OnRemoteQualityUpdateResponse(
 void NcStreamerRemote::HandleError(
     const std::string &err_type,
     const ws::lib::error_code &ec) {
+  HandleError(err_type, ec, current_error_handler_);
+}
+
+
+void NcStreamerRemote::HandleError(
+    const std::string &err_type,
+    const ws::lib::error_code &ec,
+    const ErrorHandler &err_handler) {
   std::stringstream ss;
   ss << err_type << ": " << ec.message();
-  HandleError(ss.str());
+  HandleError(ss.str(), err_handler);
 }
 
 
 void NcStreamerRemote::HandleError(
     const std::string &err_msg) {
+  HandleError(err_msg, current_error_handler_);
+}
+
+
+void NcStreamerRemote::HandleError(
+    const std::string &err_msg,
+    const ErrorHandler &err_handler) {
   busy_ = false;
   LogError(err_msg);
 
-  if (current_error_handler_) {
+  if (err_handler) {
     static std::wstring_convert<std::codecvt_utf8_utf16<wchar_t>> converter;
-    current_error_handler_(converter.from_bytes(err_msg));
+    err_handler(converter.from_bytes(err_msg));
   }
 }
 
