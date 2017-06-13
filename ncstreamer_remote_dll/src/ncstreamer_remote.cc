@@ -228,14 +228,14 @@ bool NcStreamerRemote::ExistsNcStreamer() {
 
 
 void NcStreamerRemote::Connect(
-    const ConnectHandler &connect_handler) {
-  Connect(current_error_handler_, connect_handler);
+    const OpenHandler &open_handler) {
+  Connect(current_error_handler_, open_handler);
 }
 
 
 void NcStreamerRemote::Connect(
     const ErrorHandler &error_handler,
-    const ConnectHandler &connect_handler) {
+    const OpenHandler &open_handler) {
   if (ExistsNcStreamer() == false) {
     HandleError("no ncstreamer", error_handler);
     return;
@@ -249,10 +249,10 @@ void NcStreamerRemote::Connect(
   }
 
   remote_.connect(connection);
-  connection->set_open_handler([this, connect_handler](
+  connection->set_open_handler([this, open_handler](
       websocketpp::connection_hdl connection) {
     remote_connection_ = connection;
-    connect_handler();
+    open_handler();
   });
 }
 

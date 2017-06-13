@@ -86,7 +86,7 @@ class NcStreamerRemote {
 
  private:
   using AsioClient = websocketpp::config::asio_client;
-  using ConnectHandler = std::function<void()>;
+  using OpenHandler = std::function<void()>;
 
   explicit NcStreamerRemote(uint16_t remote_port);
   virtual ~NcStreamerRemote();
@@ -95,10 +95,10 @@ class NcStreamerRemote {
 
   void Connect(
     const ErrorHandler &error_handler,
-    const ConnectHandler &connect_handler);
+    const OpenHandler &open_handler);
 
   void Connect(
-    const ConnectHandler &connect_handler);
+    const OpenHandler &open_handler);
 
   void SendStatusRequest();
   void SendStartRequest(const std::wstring &title);
