@@ -530,7 +530,13 @@ void NcStreamerRemote::OnRemoteQualityUpdateResponse(
 void NcStreamerRemote::HandleDisconnect(
     const std::string &disconnect_type) {
   remote_connection_.reset();
-  HandleError(disconnect_type);
+  busy_ = false;
+  LogError(disconnect_type);
+
+  if (current_error_handler_) {
+    static std::wstring_convert<std::codecvt_utf8_utf16<wchar_t>> converter;
+    current_error_handler_(converter.from_bytes(disconnect_type));
+  }
 }
 
 
