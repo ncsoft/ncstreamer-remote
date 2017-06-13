@@ -46,6 +46,9 @@ namespace Chrono = boost::chrono;
 namespace ncstreamer_remote {
 class NcStreamerRemote {
  public:
+  using ConnectHandler = std::function<void()>;
+  using DisconnectHandler = std::function<void()>;
+
   using ErrorHandler = std::function<void(
       const std::wstring &err_msg)>;
 
@@ -70,6 +73,12 @@ class NcStreamerRemote {
 
   static NCSTREAMER_REMOTE_DLL_API void ShutDown();
   static NCSTREAMER_REMOTE_DLL_API NcStreamerRemote *Get();
+
+  void NCSTREAMER_REMOTE_DLL_API RegisterConnectHandler(
+      const ConnectHandler &connect_handler);
+
+  void NCSTREAMER_REMOTE_DLL_API RegisterDisconnectHandler(
+      const DisconnectHandler &disconnect_handler);
 
   void NCSTREAMER_REMOTE_DLL_API RequestStatus(
       const ErrorHandler &error_handler,
@@ -165,6 +174,9 @@ class NcStreamerRemote {
   SteadyTimer timer_to_keep_connected_;
 
   std::atomic_bool busy_;
+
+  ConnectHandler connect_handler_;
+  DisconnectHandler disconnect_handler_;
 
   ErrorHandler current_error_handler_;
   StatusResponseHandler current_status_response_handler_;

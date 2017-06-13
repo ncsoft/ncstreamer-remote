@@ -26,6 +26,8 @@ namespace Chrono = boost::chrono;
 
 namespace {
 enum {
+  WM_USER__REMOTE_CONNECTED = WM_USER + 1001,
+  WM_USER__REMOTE_DISCONNECTED,
   WM_USER__REMOTE_RESPONSE_FAIL = WM_USER + 1234,
   WM_USER__REMOTE_RESPONSE_STATUS,
   WM_USER__REMOTE_RESPONSE_START,
@@ -180,6 +182,16 @@ void OnExitButton() {
 }
 
 
+void OnRemoteConnected(LPARAM /*lparam*/) {
+  SetMessage(L"Remote connected.");
+}
+
+
+void OnRemoteDisconnected(LPARAM /*lparam*/) {
+  SetMessage(L"Remote disconnected.");
+}
+
+
 void OnRemoteResponseFail(LPARAM lparam) {
   std::unique_ptr<std::wstring> err_msg{
       reinterpret_cast<std::wstring *>(lparam)};
@@ -272,6 +284,20 @@ HWND CreateMainDialog(
   });
 
   ncstreamer_remote::NcStreamerRemote::SetUpDefault();
+  ncstreamer_remote::NcStreamerRemote::Get()->RegisterConnectHandler([]() {
+    ::PostMessage(
+        static_main_dialog,
+        WM_USER__REMOTE_CONNECTED,
+        (WPARAM) nullptr,
+        (LPARAM) nullptr);
+  });
+  ncstreamer_remote::NcStreamerRemote::Get()->RegisterDisconnectHandler([]() {
+    ::PostMessage(
+        static_main_dialog,
+        WM_USER__REMOTE_DISCONNECTED,
+        (WPARAM) nullptr,
+        (LPARAM) nullptr);
+  });
 
   ::ShowWindow(dlg, cmd_show);
   return dlg;
@@ -291,6 +317,10 @@ INT_PTR CALLBACK MainDialogProc(
     HWND dlg, UINT msg, WPARAM wparam, LPARAM lparam) {
   switch (msg) {
     case WM_COMMAND: return OnCommand(wparam, lparam);
+    case WM_USER__REMOTE_CONNECTED:
+        OnRemoteConnected(lparam); return TRUE;
+    case WM_USER__REMOTE_DISCONNECTED:
+        OnRemoteDisconnected(lparam); return TRUE;
     case WM_USER__REMOTE_RESPONSE_FAIL:
         OnRemoteResponseFail(lparam); return TRUE;
     case WM_USER__REMOTE_RESPONSE_STATUS:

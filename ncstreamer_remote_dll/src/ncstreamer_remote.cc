@@ -48,6 +48,18 @@ NcStreamerRemote *NcStreamerRemote::Get() {
 }
 
 
+void NcStreamerRemote::RegisterConnectHandler(
+    const ConnectHandler &connect_handler) {
+  connect_handler_ = connect_handler;
+}
+
+
+void NcStreamerRemote::RegisterDisconnectHandler(
+    const DisconnectHandler &disconnect_handler) {
+  disconnect_handler_ = disconnect_handler;
+}
+
+
 void NcStreamerRemote::RequestStatus(
     const ErrorHandler &error_handler,
     const StatusResponseHandler &status_response_handler) {
@@ -174,6 +186,8 @@ NcStreamerRemote::NcStreamerRemote(uint16_t remote_port)
       remote_connection_{},
       timer_to_keep_connected_{io_service_},
       busy_{},
+      connect_handler_{},
+      disconnect_handler_{},
       current_error_handler_{},
       current_status_response_handler_{},
       current_start_response_handler_{},
@@ -244,7 +258,10 @@ void NcStreamerRemote::KeepConnected() {
       }
       KeepConnected();
     });
-  }, []() {
+  }, [this]() {
+    if (connect_handler_) {
+      connect_handler_();
+    }
   });
 }
 
@@ -555,9 +572,8 @@ void NcStreamerRemote::HandleDisconnect(
   busy_ = false;
   LogWarning(disconnect_type);
 
-  if (current_error_handler_) {
-    static std::wstring_convert<std::codecvt_utf8_utf16<wchar_t>> converter;
-    current_error_handler_(converter.from_bytes(disconnect_type));
+  if (disconnect_handler_) {
+    disconnect_handler_();
   }
 
   KeepConnected();
