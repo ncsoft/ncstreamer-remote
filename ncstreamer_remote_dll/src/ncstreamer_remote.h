@@ -22,6 +22,7 @@
 #include <vector>
 
 #include "boost/asio/io_service.hpp"
+#include "boost/asio/steady_timer.hpp"
 #include "boost/property_tree/ptree.hpp"
 
 #ifdef _MSC_VER
@@ -32,6 +33,14 @@
 #ifdef _MSC_VER
 #pragma warning(default: 4267)
 #endif
+
+#if _MSC_VER >= 1900
+#include <chrono>  // NOLINT
+namespace Chrono = std::chrono;
+#else
+#include "boost/chrono/include.hpp"
+namespace Chrono = boost::chrono;
+#endif  // _MSC_VER >= 1900
 
 
 namespace ncstreamer_remote {
@@ -85,6 +94,7 @@ class NcStreamerRemote {
       const ErrorHandler &error_handler);
 
  private:
+  using SteadyTimer = boost::asio::basic_waitable_timer<Chrono::steady_clock>;
   using AsioClient = websocketpp::config::asio_client;
   using OpenHandler = std::function<void()>;
 
@@ -92,6 +102,8 @@ class NcStreamerRemote {
   virtual ~NcStreamerRemote();
 
   bool ExistsNcStreamer();
+
+  void KeepConnected();
 
   void Connect(
     const ErrorHandler &error_handler,
@@ -150,6 +162,7 @@ class NcStreamerRemote {
   websocketpp::uri_ptr remote_uri_;
 
   websocketpp::connection_hdl remote_connection_;
+  SteadyTimer timer_to_keep_connected_;
 
   std::atomic_bool busy_;
 

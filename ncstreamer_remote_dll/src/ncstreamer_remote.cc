@@ -172,6 +172,7 @@ NcStreamerRemote::NcStreamerRemote(uint16_t remote_port)
       remote_threads_{},
       remote_log_{},
       remote_connection_{},
+      timer_to_keep_connected_{io_service_},
       busy_{},
       current_error_handler_{},
       current_status_response_handler_{},
@@ -208,6 +209,8 @@ NcStreamerRemote::NcStreamerRemote(uint16_t remote_port)
       remote_.run();
     });
   }
+
+  KeepConnected();
 }
 
 
@@ -224,6 +227,25 @@ NcStreamerRemote::~NcStreamerRemote() {
 bool NcStreamerRemote::ExistsNcStreamer() {
   HWND wnd = ::FindWindow(nullptr, ncstreamer::kNcStreamerWindowTitle);
   return (wnd != NULL);
+}
+
+
+void NcStreamerRemote::KeepConnected() {
+  if (remote_connection_.lock()) {
+    return;
+  }
+
+  Connect([this](const std::wstring &err_msg) {
+    timer_to_keep_connected_.expires_from_now(Chrono::seconds{1});
+    timer_to_keep_connected_.async_wait([this](
+        const boost::system::error_code &ec) {
+      if (ec) {
+        return;
+      }
+      KeepConnected();
+    });
+  }, []() {
+  });
 }
 
 
@@ -537,6 +559,8 @@ void NcStreamerRemote::HandleDisconnect(
     static std::wstring_convert<std::codecvt_utf8_utf16<wchar_t>> converter;
     current_error_handler_(converter.from_bytes(disconnect_type));
   }
+
+  KeepConnected();
 }
 
 
