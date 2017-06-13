@@ -362,14 +362,12 @@ void NcStreamerRemote::SendExitRequest() {
 
 
 void NcStreamerRemote::OnRemoteFail(websocketpp::connection_hdl connection) {
-  remote_connection_.reset();
-  HandleError("on remote fail");
+  HandleDisconnect("on remote fail");
 }
 
 
 void NcStreamerRemote::OnRemoteClose(websocketpp::connection_hdl connection) {
-  remote_connection_.reset();
-  HandleError("on remote close");
+  HandleDisconnect("on remote close");
 }
 
 
@@ -526,6 +524,13 @@ void NcStreamerRemote::OnRemoteQualityUpdateResponse(
   } else {
     current_quality_update_response_handler_(true);
   }
+}
+
+
+void NcStreamerRemote::HandleDisconnect(
+    const std::string &disconnect_type) {
+  remote_connection_.reset();
+  HandleError(disconnect_type);
 }
 
 

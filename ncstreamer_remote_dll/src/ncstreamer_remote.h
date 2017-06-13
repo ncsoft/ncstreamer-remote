@@ -121,6 +121,8 @@ class NcStreamerRemote {
   void OnRemoteQualityUpdateResponse(
       const boost::property_tree::ptree &response);
 
+  void HandleDisconnect(
+      const std::string &disconnect_type);
   void HandleError(
       const std::string &err_type,
       const websocketpp::lib::error_code &ec,
