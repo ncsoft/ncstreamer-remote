@@ -28,11 +28,23 @@ namespace {
 enum {
   WM_USER__REMOTE_CONNECTED = WM_USER + 1001,
   WM_USER__REMOTE_DISCONNECTED,
+  WM_USER__REMOTE_EVENT_START = WM_USER + 1011,
+  WM_USER__REMOTE_EVENT_STOP,
   WM_USER__REMOTE_RESPONSE_FAIL = WM_USER + 1234,
   WM_USER__REMOTE_RESPONSE_STATUS,
   WM_USER__REMOTE_RESPONSE_START,
   WM_USER__REMOTE_RESPONSE_STOP,
 };
+
+
+using StartInfoTuple = std::tuple<
+    std::wstring /*source_title*/,
+    std::wstring /*user_page*/,
+    std::wstring /*privacy*/,
+    std::wstring /*description*/,
+    std::wstring /*mic*/,
+    std::wstring /*service_provider*/,
+    std::wstring /*stream_url*/>;
 
 
 using StatusTuple = std::tuple<
@@ -192,6 +204,44 @@ void OnRemoteDisconnected(LPARAM /*lparam*/) {
 }
 
 
+void OnRemoteEventStart(LPARAM lparam) {
+  std::unique_ptr<StartInfoTuple> params{
+      reinterpret_cast<StartInfoTuple *>(lparam)};
+  const auto &source_title = std::get<0>(*params);
+  const auto &user_page = std::get<1>(*params);
+  const auto &privacy = std::get<2>(*params);
+  const auto &description = std::get<3>(*params);
+  const auto &mic = std::get<4>(*params);
+  const auto &service_provider = std::get<5>(*params);
+  const auto &stream_url = std::get<6>(*params);
+
+  std::wstringstream ss;
+  ss << L"Streaming started." << L"\r\n"
+     << L"source_title: " << source_title << L"\r\n"
+     << L"user_page: " << user_page << L"\r\n"
+     << L"privacy: " << privacy << L"\r\n"
+     << L"description: " << description << L"\r\n"
+     << L"mic: " << mic << L"\r\n"
+     << L"service_provider: " << service_provider << L"\r\n"
+     << L"stream_url: " << stream_url << L"\r\n";
+
+  SetMessage(ss.str());
+}
+
+
+void OnRemoteEventStop(LPARAM lparam) {
+  std::unique_ptr<std::tuple<std::wstring>> params{
+      reinterpret_cast<std::tuple<std::wstring> *>(lparam)};
+  const std::wstring &source_title = std::get<0>(*params);
+
+  std::wstringstream ss;
+  ss << L"Streaming stopped." << L"\r\n"
+     << L"source_title: " << source_title << L"\r\n";
+
+  SetMessage(ss.str());
+}
+
+
 void OnRemoteResponseFail(LPARAM lparam) {
   std::unique_ptr<std::wstring> err_msg{
       reinterpret_cast<std::wstring *>(lparam)};
@@ -298,6 +348,35 @@ HWND CreateMainDialog(
         (WPARAM) nullptr,
         (LPARAM) nullptr);
   });
+  ncstreamer_remote::NcStreamerRemote::Get()->RegisterStartEventHandler([](
+      const std::wstring &source_title,
+      const std::wstring &user_page,
+      const std::wstring &privacy,
+      const std::wstring &description,
+      const std::wstring &mic,
+      const std::wstring &service_provider,
+      const std::wstring &stream_url) {
+    ::PostMessage(
+        static_main_dialog,
+        WM_USER__REMOTE_EVENT_START,
+        (WPARAM) nullptr,
+        (LPARAM) new StartInfoTuple{
+            source_title,
+            user_page,
+            privacy,
+            description,
+            mic,
+            service_provider,
+            stream_url});
+  });
+  ncstreamer_remote::NcStreamerRemote::Get()->RegisterStopEventHandler([](
+      const std::wstring &source_title) {
+    ::PostMessage(
+        static_main_dialog,
+        WM_USER__REMOTE_EVENT_STOP,
+        (WPARAM) nullptr,
+        (LPARAM) new std::tuple<std::wstring>{source_title});
+  });
 
   ::ShowWindow(dlg, cmd_show);
   return dlg;
@@ -321,6 +400,10 @@ INT_PTR CALLBACK MainDialogProc(
         OnRemoteConnected(lparam); return TRUE;
     case WM_USER__REMOTE_DISCONNECTED:
         OnRemoteDisconnected(lparam); return TRUE;
+    case WM_USER__REMOTE_EVENT_START:
+        OnRemoteEventStart(lparam); return TRUE;
+    case WM_USER__REMOTE_EVENT_STOP:
+        OnRemoteEventStop(lparam); return TRUE;
     case WM_USER__REMOTE_RESPONSE_FAIL:
         OnRemoteResponseFail(lparam); return TRUE;
     case WM_USER__REMOTE_RESPONSE_STATUS:

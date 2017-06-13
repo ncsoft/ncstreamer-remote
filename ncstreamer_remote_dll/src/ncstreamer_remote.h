@@ -64,9 +64,19 @@ class NcStreamerRemote {
 
   using StartResponseHandler = std::function<void(
       bool success)>;
+  using StartEventHandler = std::function<void(
+      const std::wstring &source_title,
+      const std::wstring &user_page,
+      const std::wstring &privacy,
+      const std::wstring &description,
+      const std::wstring &mic,
+      const std::wstring &service_provider,
+      const std::wstring &stream_url)>;
 
   using StopResponseHandler = std::function<void(
       bool success)>;
+  using StopEventHandler = std::function<void(
+      const std::wstring &source_title)>;
 
   static NCSTREAMER_REMOTE_DLL_API void SetUp(uint16_t remote_port);
   static NCSTREAMER_REMOTE_DLL_API void SetUpDefault();
@@ -79,6 +89,12 @@ class NcStreamerRemote {
 
   void NCSTREAMER_REMOTE_DLL_API RegisterDisconnectHandler(
       const DisconnectHandler &disconnect_handler);
+
+  void NCSTREAMER_REMOTE_DLL_API RegisterStartEventHandler(
+      const StartEventHandler &start_event_handler);
+
+  void NCSTREAMER_REMOTE_DLL_API RegisterStopEventHandler(
+      const StopEventHandler &stop_event_handler);
 
   void NCSTREAMER_REMOTE_DLL_API RequestStatus(
       const ErrorHandler &error_handler,
@@ -133,6 +149,11 @@ class NcStreamerRemote {
       websocketpp::connection_hdl connection,
       websocketpp::connection<AsioClient>::message_ptr msg);
 
+  void OnRemoteStartEvent(
+      const boost::property_tree::ptree &evt);
+  void OnRemoteStopEvent(
+      const boost::property_tree::ptree &evt);
+
   void OnRemoteStatusResponse(
       const boost::property_tree::ptree &response);
   void OnRemoteStartResponse(
@@ -177,6 +198,8 @@ class NcStreamerRemote {
 
   ConnectHandler connect_handler_;
   DisconnectHandler disconnect_handler_;
+  StartEventHandler start_event_handler_;
+  StopEventHandler stop_event_handler_;
 
   ErrorHandler current_error_handler_;
   StatusResponseHandler current_status_response_handler_;

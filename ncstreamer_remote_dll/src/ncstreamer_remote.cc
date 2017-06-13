@@ -11,6 +11,7 @@
 #include <sstream>
 #include <unordered_map>
 
+#include "boost/algorithm/string.hpp"
 #include "boost/property_tree/json_parser.hpp"
 
 #include "Windows.h"  // NOLINT
@@ -57,6 +58,18 @@ void NcStreamerRemote::RegisterConnectHandler(
 void NcStreamerRemote::RegisterDisconnectHandler(
     const DisconnectHandler &disconnect_handler) {
   disconnect_handler_ = disconnect_handler;
+}
+
+
+void NcStreamerRemote::RegisterStartEventHandler(
+    const StartEventHandler &start_event_handler) {
+  start_event_handler_ = start_event_handler;
+}
+
+
+void NcStreamerRemote::RegisterStopEventHandler(
+    const StopEventHandler &stop_event_handler) {
+  stop_event_handler_ = stop_event_handler;
 }
 
 
@@ -188,6 +201,8 @@ NcStreamerRemote::NcStreamerRemote(uint16_t remote_port)
       busy_{},
       connect_handler_{},
       disconnect_handler_{},
+      start_event_handler_{},
+      stop_event_handler_{},
       current_error_handler_{},
       current_status_response_handler_{},
       current_start_response_handler_{},
@@ -432,6 +447,12 @@ void NcStreamerRemote::OnRemoteMessage(
       const boost::property_tree::ptree &/*response*/)>;
   static const std::unordered_map<ncstreamer::RemoteMessage::MessageType,
                                   MessageHandler> kMessageHandlers{
+      {ncstreamer::RemoteMessage::MessageType::kStreamingStartEvent,
+       std::bind(&NcStreamerRemote::OnRemoteStartEvent,
+           this, std::placeholders::_1)},
+      {ncstreamer::RemoteMessage::MessageType::kStreamingStopEvent,
+       std::bind(&NcStreamerRemote::OnRemoteStopEvent,
+           this, std::placeholders::_1)},
       {ncstreamer::RemoteMessage::MessageType::kStreamingStatusResponse,
        std::bind(&NcStreamerRemote::OnRemoteStatusResponse,
            this, std::placeholders::_1)},
@@ -452,6 +473,86 @@ void NcStreamerRemote::OnRemoteMessage(
     return;
   }
   i->second(response);
+}
+
+
+void NcStreamerRemote::OnRemoteStartEvent(
+    const boost::property_tree::ptree &evt) {
+  if (!start_event_handler_) {
+    return;
+  }
+
+  std::string source{};
+  std::string user_page{};
+  std::string privacy{};
+  std::string description{};
+  std::string mic{};
+  std::string service_provider{};
+  std::string stream_url{};
+  try {
+    source = evt.get<std::string>("source");
+    user_page = evt.get<std::string>("userPage");
+    privacy = evt.get<std::string>("privacy");
+    description = evt.get<std::string>("description");
+    mic = evt.get<std::string>("mic");
+    service_provider = evt.get<std::string>("serviceProvider");
+    stream_url = evt.get<std::string>("streamUrl");
+  } catch (const std::exception &/*e*/) {
+    source.clear();
+    user_page.clear();
+    privacy.clear();
+    description.clear();
+    mic.clear();
+    service_provider.clear();
+    stream_url.clear();
+  }
+
+  if (source.empty() == true) {
+    LogError("source.empty()");
+    return;
+  }
+
+  std::vector<std::string> tokens{};
+  boost::split(tokens, source, boost::is_any_of(":"));
+  const std::string &source_title = tokens.at(0);
+
+  static std::wstring_convert<std::codecvt_utf8_utf16<wchar_t>> converter;
+  start_event_handler_(
+      converter.from_bytes(source_title),
+      converter.from_bytes(user_page),
+      converter.from_bytes(privacy),
+      converter.from_bytes(description),
+      converter.from_bytes(mic),
+      converter.from_bytes(service_provider),
+      converter.from_bytes(stream_url));
+}
+
+
+void NcStreamerRemote::OnRemoteStopEvent(
+    const boost::property_tree::ptree &evt) {
+  if (!stop_event_handler_) {
+    return;
+  }
+
+  std::string source{};
+  try {
+    source = evt.get<std::string>("source");
+  } catch (const std::exception &/*e*/) {
+    source.clear();
+  }
+
+  if (source.empty() == true) {
+    LogError("source.empty()");
+    return;
+  }
+
+  std::vector<std::string> tokens{};
+  boost::algorithm::split(tokens, source, boost::is_any_of(":"));
+  const std::string &source_title = tokens.at(0);
+
+  static std::wstring_convert<std::codecvt_utf8_utf16<wchar_t>> converter;
+  stop_event_handler_(
+      converter.from_bytes(source_title));
 }
 
 
