@@ -165,7 +165,7 @@ void NcStreamerRemote::RequestExit(
 
 
 NcStreamerRemote::NcStreamerRemote(uint16_t remote_port)
-    : remote_uri_{new ws::uri{false, "localhost", remote_port, ""}},
+    : remote_uri_{new websocketpp::uri{false, "localhost", remote_port, ""}},
       io_service_{},
       io_service_work_{io_service_},
       remote_{},
@@ -181,12 +181,12 @@ NcStreamerRemote::NcStreamerRemote(uint16_t remote_port)
   busy_ = false;
 
   remote_log_.open("ncstreamer_remote.log");
-  remote_.set_access_channels(ws::log::alevel::all);
-  remote_.set_access_channels(ws::log::elevel::all);
+  remote_.set_access_channels(websocketpp::log::alevel::all);
+  remote_.set_access_channels(websocketpp::log::elevel::all);
   remote_.get_alog().set_ostream(&remote_log_);
   remote_.get_elog().set_ostream(&remote_log_);
 
-  ws::lib::error_code ec;
+  websocketpp::lib::error_code ec;
   remote_.init_asio(&io_service_, ec);
   if (ec) {
     HandleError("remote init_asio", ec);
@@ -194,11 +194,11 @@ NcStreamerRemote::NcStreamerRemote(uint16_t remote_port)
     return;
   }
 
-  remote_.set_fail_handler(ws::lib::bind(
+  remote_.set_fail_handler(websocketpp::lib::bind(
       &NcStreamerRemote::OnRemoteFail, this, placeholders::_1));
-  remote_.set_close_handler(ws::lib::bind(
+  remote_.set_close_handler(websocketpp::lib::bind(
       &NcStreamerRemote::OnRemoteClose, this, placeholders::_1));
-  remote_.set_message_handler(ws::lib::bind(
+  remote_.set_message_handler(websocketpp::lib::bind(
       &NcStreamerRemote::OnRemoteMessage, this,
           placeholders::_1, placeholders::_2));
 
@@ -241,7 +241,7 @@ void NcStreamerRemote::Connect(
     return;
   }
 
-  ws::lib::error_code ec;
+  websocketpp::lib::error_code ec;
   auto connection = remote_.get_connection(remote_uri_, ec);
   if (ec) {
     HandleError("remote connect", ec, error_handler);
@@ -250,7 +250,7 @@ void NcStreamerRemote::Connect(
 
   remote_.connect(connection);
   connection->set_open_handler([this, connect_handler](
-      ws::connection_hdl connection) {
+      websocketpp::connection_hdl connection) {
     remote_connection_ = connection;
     connect_handler();
   });
@@ -266,7 +266,7 @@ void NcStreamerRemote::SendStatusRequest() {
     boost::property_tree::write_json(msg, tree, false);
   }
 
-  ws::lib::error_code ec;
+  websocketpp::lib::error_code ec;
   remote_.send(
       remote_connection_, msg.str(), websocketpp::frame::opcode::text, ec);
   if (ec) {
@@ -288,7 +288,7 @@ void NcStreamerRemote::SendStartRequest(const std::wstring &title) {
     boost::property_tree::write_json(msg, tree, false);
   }
 
-  ws::lib::error_code ec;
+  websocketpp::lib::error_code ec;
   remote_.send(
       remote_connection_, msg.str(), websocketpp::frame::opcode::text, ec);
   if (ec) {
@@ -310,7 +310,7 @@ void NcStreamerRemote::SendStopRequest(const std::wstring &title) {
     boost::property_tree::write_json(msg, tree, false);
   }
 
-  ws::lib::error_code ec;
+  websocketpp::lib::error_code ec;
   remote_.send(
       remote_connection_, msg.str(), websocketpp::frame::opcode::text, ec);
   if (ec) {
@@ -332,7 +332,7 @@ void NcStreamerRemote::SendQualityUpdateRequest(const std::wstring &quality) {
     boost::property_tree::write_json(msg, tree, false);
   }
 
-  ws::lib::error_code ec;
+  websocketpp::lib::error_code ec;
   remote_.send(
       remote_connection_, msg.str(), websocketpp::frame::opcode::text, ec);
   if (ec) {
@@ -351,7 +351,7 @@ void NcStreamerRemote::SendExitRequest() {
     boost::property_tree::write_json(msg, tree, false);
   }
 
-  ws::lib::error_code ec;
+  websocketpp::lib::error_code ec;
   remote_.send(
       remote_connection_, msg.str(), websocketpp::frame::opcode::text, ec);
   if (ec) {
@@ -361,21 +361,21 @@ void NcStreamerRemote::SendExitRequest() {
 }
 
 
-void NcStreamerRemote::OnRemoteFail(ws::connection_hdl connection) {
+void NcStreamerRemote::OnRemoteFail(websocketpp::connection_hdl connection) {
   remote_connection_.reset();
   HandleError("on remote fail");
 }
 
 
-void NcStreamerRemote::OnRemoteClose(ws::connection_hdl connection) {
+void NcStreamerRemote::OnRemoteClose(websocketpp::connection_hdl connection) {
   remote_connection_.reset();
   HandleError("on remote close");
 }
 
 
 void NcStreamerRemote::OnRemoteMessage(
-    ws::connection_hdl connection,
-    ws::connection<AsioClient>::message_ptr msg) {
+    websocketpp::connection_hdl connection,
+    websocketpp::connection<AsioClient>::message_ptr msg) {
   busy_ = false;
 
   boost::property_tree::ptree response;
@@ -531,14 +531,14 @@ void NcStreamerRemote::OnRemoteQualityUpdateResponse(
 
 void NcStreamerRemote::HandleError(
     const std::string &err_type,
-    const ws::lib::error_code &ec) {
+    const websocketpp::lib::error_code &ec) {
   HandleError(err_type, ec, current_error_handler_);
 }
 
 
 void NcStreamerRemote::HandleError(
     const std::string &err_type,
-    const ws::lib::error_code &ec,
+    const websocketpp::lib::error_code &ec,
     const ErrorHandler &err_handler) {
   std::stringstream ss;
   ss << err_type << ": " << ec.message();
@@ -566,12 +566,12 @@ void NcStreamerRemote::HandleError(
 
 
 void NcStreamerRemote::LogWarning(const std::string &warn_msg) {
-  remote_.get_elog().write(ws::log::elevel::warn, warn_msg);
+  remote_.get_elog().write(websocketpp::log::elevel::warn, warn_msg);
 }
 
 
 void NcStreamerRemote::LogError(const std::string &err_msg) {
-  remote_.get_elog().write(ws::log::elevel::rerror, err_msg);
+  remote_.get_elog().write(websocketpp::log::elevel::rerror, err_msg);
 }
 
 

@@ -35,9 +35,6 @@
 
 
 namespace ncstreamer_remote {
-namespace ws = websocketpp;
-
-
 class NcStreamerRemote {
  public:
   using ErrorHandler = std::function<void(
@@ -88,7 +85,7 @@ class NcStreamerRemote {
       const ErrorHandler &error_handler);
 
  private:
-  using AsioClient = ws::config::asio_client;
+  using AsioClient = websocketpp::config::asio_client;
   using ConnectHandler = std::function<void()>;
 
   explicit NcStreamerRemote(uint16_t remote_port);
@@ -109,11 +106,11 @@ class NcStreamerRemote {
   void SendQualityUpdateRequest(const std::wstring &quality);
   void SendExitRequest();
 
-  void OnRemoteFail(ws::connection_hdl connection);
-  void OnRemoteClose(ws::connection_hdl connection);
+  void OnRemoteFail(websocketpp::connection_hdl connection);
+  void OnRemoteClose(websocketpp::connection_hdl connection);
   void OnRemoteMessage(
-      ws::connection_hdl connection,
-      ws::connection<AsioClient>::message_ptr msg);
+      websocketpp::connection_hdl connection,
+      websocketpp::connection<AsioClient>::message_ptr msg);
 
   void OnRemoteStatusResponse(
       const boost::property_tree::ptree &response);
@@ -126,11 +123,11 @@ class NcStreamerRemote {
 
   void HandleError(
       const std::string &err_type,
-      const ws::lib::error_code &ec,
+      const websocketpp::lib::error_code &ec,
       const ErrorHandler &err_handler);
   void HandleError(
       const std::string &err_type,
-      const ws::lib::error_code &ec);
+      const websocketpp::lib::error_code &ec);
   void HandleError(
       const std::string &err_msg,
       const ErrorHandler &err_handler);
@@ -144,13 +141,13 @@ class NcStreamerRemote {
 
   boost::asio::io_service io_service_;
   boost::asio::io_service::work io_service_work_;
-  ws::client<AsioClient> remote_;
+  websocketpp::client<AsioClient> remote_;
   std::vector<std::thread> remote_threads_;
   std::ofstream remote_log_;
 
-  ws::uri_ptr remote_uri_;
+  websocketpp::uri_ptr remote_uri_;
 
-  ws::connection_hdl remote_connection_;
+  websocketpp::connection_hdl remote_connection_;
 
   std::atomic_bool busy_;
 
