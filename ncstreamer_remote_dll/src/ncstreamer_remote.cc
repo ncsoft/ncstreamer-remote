@@ -229,15 +229,22 @@ bool NcStreamerRemote::ExistsNcStreamer() {
 
 void NcStreamerRemote::Connect(
     const ConnectHandler &connect_handler) {
+  Connect(current_error_handler_, connect_handler);
+}
+
+
+void NcStreamerRemote::Connect(
+    const ErrorHandler &error_handler,
+    const ConnectHandler &connect_handler) {
   if (ExistsNcStreamer() == false) {
-    HandleError("no ncstreamer");
+    HandleError("no ncstreamer", error_handler);
     return;
   }
 
   ws::lib::error_code ec;
   auto connection = remote_.get_connection(remote_uri_, ec);
   if (ec) {
-    HandleError("remote connect", ec);
+    HandleError("remote connect", ec, error_handler);
     return;
   }
 

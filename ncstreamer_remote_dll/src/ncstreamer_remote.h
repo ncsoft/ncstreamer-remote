@@ -97,6 +97,10 @@ class NcStreamerRemote {
   bool ExistsNcStreamer();
 
   void Connect(
+    const ErrorHandler &error_handler,
+    const ConnectHandler &connect_handler);
+
+  void Connect(
     const ConnectHandler &connect_handler);
 
   void SendStatusRequest();
