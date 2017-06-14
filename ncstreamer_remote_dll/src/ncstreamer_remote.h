@@ -22,6 +22,7 @@
 #include <vector>
 
 #include "boost/asio/io_service.hpp"
+#include "boost/asio/steady_timer.hpp"
 #include "boost/property_tree/ptree.hpp"
 
 #ifdef _MSC_VER
@@ -33,13 +34,21 @@
 #pragma warning(default: 4267)
 #endif
 
+#if _MSC_VER >= 1900
+#include <chrono>  // NOLINT
+namespace Chrono = std::chrono;
+#else
+#include "boost/chrono/include.hpp"
+namespace Chrono = boost::chrono;
+#endif  // _MSC_VER >= 1900
+
 
 namespace ncstreamer_remote {
-namespace ws = websocketpp;
-
-
 class NcStreamerRemote {
  public:
+  using ConnectHandler = std::function<void()>;
+  using DisconnectHandler = std::function<void()>;
+
   using ErrorHandler = std::function<void(
       const std::wstring &err_msg)>;
 
@@ -55,15 +64,37 @@ class NcStreamerRemote {
 
   using StartResponseHandler = std::function<void(
       bool success)>;
+  using StartEventHandler = std::function<void(
+      const std::wstring &source_title,
+      const std::wstring &user_page,
+      const std::wstring &privacy,
+      const std::wstring &description,
+      const std::wstring &mic,
+      const std::wstring &service_provider,
+      const std::wstring &stream_url)>;
 
   using StopResponseHandler = std::function<void(
       bool success)>;
+  using StopEventHandler = std::function<void(
+      const std::wstring &source_title)>;
 
   static NCSTREAMER_REMOTE_DLL_API void SetUp(uint16_t remote_port);
   static NCSTREAMER_REMOTE_DLL_API void SetUpDefault();
 
   static NCSTREAMER_REMOTE_DLL_API void ShutDown();
   static NCSTREAMER_REMOTE_DLL_API NcStreamerRemote *Get();
+
+  void NCSTREAMER_REMOTE_DLL_API RegisterConnectHandler(
+      const ConnectHandler &connect_handler);
+
+  void NCSTREAMER_REMOTE_DLL_API RegisterDisconnectHandler(
+      const DisconnectHandler &disconnect_handler);
+
+  void NCSTREAMER_REMOTE_DLL_API RegisterStartEventHandler(
+      const StartEventHandler &start_event_handler);
+
+  void NCSTREAMER_REMOTE_DLL_API RegisterStopEventHandler(
+      const StopEventHandler &stop_event_handler);
 
   void NCSTREAMER_REMOTE_DLL_API RequestStatus(
       const ErrorHandler &error_handler,
@@ -88,16 +119,23 @@ class NcStreamerRemote {
       const ErrorHandler &error_handler);
 
  private:
-  using AsioClient = ws::config::asio_client;
-  using ConnectHandler = std::function<void()>;
+  using SteadyTimer = boost::asio::basic_waitable_timer<Chrono::steady_clock>;
+  using AsioClient = websocketpp::config::asio_client;
+  using OpenHandler = std::function<void()>;
 
   explicit NcStreamerRemote(uint16_t remote_port);
   virtual ~NcStreamerRemote();
 
   bool ExistsNcStreamer();
 
+  void KeepConnected();
+
   void Connect(
-    const ConnectHandler &connect_handler);
+    const ErrorHandler &error_handler,
+    const OpenHandler &open_handler);
+
+  void Connect(
+    const OpenHandler &open_handler);
 
   void SendStatusRequest();
   void SendStartRequest(const std::wstring &title);
@@ -105,11 +143,16 @@ class NcStreamerRemote {
   void SendQualityUpdateRequest(const std::wstring &quality);
   void SendExitRequest();
 
-  void OnRemoteFail(ws::connection_hdl connection);
-  void OnRemoteClose(ws::connection_hdl connection);
+  void OnRemoteFail(websocketpp::connection_hdl connection);
+  void OnRemoteClose(websocketpp::connection_hdl connection);
   void OnRemoteMessage(
-      ws::connection_hdl connection,
-      ws::connection<AsioClient>::message_ptr msg);
+      websocketpp::connection_hdl connection,
+      websocketpp::connection<AsioClient>::message_ptr msg);
+
+  void OnRemoteStartEvent(
+      const boost::property_tree::ptree &evt);
+  void OnRemoteStopEvent(
+      const boost::property_tree::ptree &evt);
 
   void OnRemoteStatusResponse(
       const boost::property_tree::ptree &response);
@@ -120,27 +163,43 @@ class NcStreamerRemote {
   void OnRemoteQualityUpdateResponse(
       const boost::property_tree::ptree &response);
 
+  void HandleDisconnect(
+      const std::string &disconnect_type);
   void HandleError(
       const std::string &err_type,
-      const ws::lib::error_code &ec);
+      const websocketpp::lib::error_code &ec,
+      const ErrorHandler &err_handler);
+  void HandleError(
+      const std::string &err_type,
+      const websocketpp::lib::error_code &ec);
+  void HandleError(
+      const std::string &err_msg,
+      const ErrorHandler &err_handler);
   void HandleError(
       const std::string &err_msg);
 
+  void LogWarning(const std::string &warn_msg);
   void LogError(const std::string &err_msg);
 
   static NcStreamerRemote *static_instance;
 
   boost::asio::io_service io_service_;
   boost::asio::io_service::work io_service_work_;
-  ws::client<AsioClient> remote_;
+  websocketpp::client<AsioClient> remote_;
   std::vector<std::thread> remote_threads_;
   std::ofstream remote_log_;
 
-  ws::uri_ptr remote_uri_;
+  websocketpp::uri_ptr remote_uri_;
 
-  ws::connection_hdl remote_connection_;
+  websocketpp::connection_hdl remote_connection_;
+  SteadyTimer timer_to_keep_connected_;
 
   std::atomic_bool busy_;
+
+  ConnectHandler connect_handler_;
+  DisconnectHandler disconnect_handler_;
+  StartEventHandler start_event_handler_;
+  StopEventHandler stop_event_handler_;
 
   ErrorHandler current_error_handler_;
   StatusResponseHandler current_status_response_handler_;
