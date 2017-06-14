@@ -14,7 +14,6 @@ mkdir "%TargetRoot%\ncstreamer_remote"
 robocopy ^
  ..\ncstreamer_remote_dll\src ^
  "%TargetRoot%\ncstreamer_remote" ^
- ncstreamer_remote_message_types.h ^
  ncstreamer_remote.h ^
  /COPY:DAT
 echo ROBOCOPY RESULT: %ERRORLEVEL%
