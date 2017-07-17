@@ -489,6 +489,7 @@ void NcStreamerRemote::OnRemoteStartEvent(
   std::string mic{};
   std::string service_provider{};
   std::string stream_url{};
+  std::string post_url{};
   try {
     source = evt.get<std::string>("source");
     user_page = evt.get<std::string>("userPage");
@@ -497,6 +498,7 @@ void NcStreamerRemote::OnRemoteStartEvent(
     mic = evt.get<std::string>("mic");
     service_provider = evt.get<std::string>("serviceProvider");
     stream_url = evt.get<std::string>("streamUrl");
+    post_url = evt.get<std::string>("postUrl");
   } catch (const std::exception &/*e*/) {
     source.clear();
     user_page.clear();
@@ -505,6 +507,7 @@ void NcStreamerRemote::OnRemoteStartEvent(
     mic.clear();
     service_provider.clear();
     stream_url.clear();
+    post_url.clear();
   }
 
   if (source.empty() == true) {
@@ -524,7 +527,8 @@ void NcStreamerRemote::OnRemoteStartEvent(
       converter.from_bytes(description),
       converter.from_bytes(mic),
       converter.from_bytes(service_provider),
-      converter.from_bytes(stream_url));
+      converter.from_bytes(stream_url),
+      converter.from_bytes(post_url));
 }
 
 

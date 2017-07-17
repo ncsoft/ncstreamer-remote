@@ -44,7 +44,8 @@ using StartInfoTuple = std::tuple<
     std::wstring /*description*/,
     std::wstring /*mic*/,
     std::wstring /*service_provider*/,
-    std::wstring /*stream_url*/>;
+    std::wstring /*stream_url*/,
+    std::wstring /*post_url*/>;
 
 
 using StatusTuple = std::tuple<
@@ -214,6 +215,7 @@ void OnRemoteEventStart(LPARAM lparam) {
   const auto &mic = std::get<4>(*params);
   const auto &service_provider = std::get<5>(*params);
   const auto &stream_url = std::get<6>(*params);
+  const auto &post_url = std::get<7>(*params);
 
   std::wstringstream ss;
   ss << L"Streaming started." << L"\r\n"
@@ -223,7 +225,8 @@ void OnRemoteEventStart(LPARAM lparam) {
      << L"description: " << description << L"\r\n"
      << L"mic: " << mic << L"\r\n"
      << L"service_provider: " << service_provider << L"\r\n"
-     << L"stream_url: " << stream_url << L"\r\n";
+     << L"stream_url: " << stream_url << L"\r\n"
+     << L"post_url: " << post_url << L"\r\n";
 
   SetMessage(ss.str());
 }
@@ -355,7 +358,8 @@ HWND CreateMainDialog(
       const std::wstring &description,
       const std::wstring &mic,
       const std::wstring &service_provider,
-      const std::wstring &stream_url) {
+      const std::wstring &stream_url,
+      const std::wstring &post_url) {
     ::PostMessage(
         static_main_dialog,
         WM_USER__REMOTE_EVENT_START,
@@ -367,7 +371,8 @@ HWND CreateMainDialog(
             description,
             mic,
             service_provider,
-            stream_url});
+            stream_url,
+            post_url});
   });
   ncstreamer_remote::NcStreamerRemote::Get()->RegisterStopEventHandler([](
       const std::wstring &source_title) {
