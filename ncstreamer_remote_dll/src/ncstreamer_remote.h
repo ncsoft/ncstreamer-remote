@@ -71,7 +71,8 @@ class NcStreamerRemote {
       const std::wstring &description,
       const std::wstring &mic,
       const std::wstring &service_provider,
-      const std::wstring &stream_url)>;
+      const std::wstring &stream_url,
+      const std::wstring &post_url)>;
 
   using StopResponseHandler = std::function<void(
       bool success)>;
