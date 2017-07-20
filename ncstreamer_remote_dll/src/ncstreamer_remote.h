@@ -42,6 +42,8 @@ namespace Chrono = std::chrono;
 namespace Chrono = boost::chrono;
 #endif  // _MSC_VER >= 1900
 
+#include "ncstreamer_remote_dll/src/error/error_types.h"
+
 
 namespace ncstreamer_remote {
 class NcStreamerRemote {
@@ -50,6 +52,8 @@ class NcStreamerRemote {
   using DisconnectHandler = std::function<void()>;
 
   using ErrorHandler = std::function<void(
+      ErrorCategory category,
+      int err_code,
       const std::wstring &err_msg)>;
 
   using SuccessHandler = std::function<void(
@@ -165,19 +169,27 @@ class NcStreamerRemote {
       const boost::property_tree::ptree &response);
 
   void HandleDisconnect(
-      const std::string &disconnect_type);
+      Error::Connection err_code);
+  void HandleConnectionError(
+      Error::Connection err_code,
+      const ErrorHandler &err_handler);
+
   void HandleError(
-      const std::string &err_type,
+      Error::Connection err_code,
       const websocketpp::lib::error_code &ec,
       const ErrorHandler &err_handler);
   void HandleError(
-      const std::string &err_type,
+      Error::Connection err_code,
       const websocketpp::lib::error_code &ec);
   void HandleError(
+      Error::Connection err_code,
       const std::string &err_msg,
       const ErrorHandler &err_handler);
   void HandleError(
-      const std::string &err_msg);
+      Error::Connection err_code,
+      const ErrorHandler &err_handler);
+  void HandleError(
+      Error::Connection err_code);
 
   void LogWarning(const std::string &warn_msg);
   void LogError(const std::string &err_msg);

@@ -119,6 +119,8 @@ void OnStatusButton() {
   SetMessage(L"OnStatusButton");
 
   ncstreamer_remote::NcStreamerRemote::Get()->RequestStatus([](
+      ncstreamer_remote::ErrorCategory category,
+      int err_code,
       const std::wstring &err_msg) {
     ::PostMessage(
         static_main_dialog,
@@ -144,7 +146,9 @@ void OnStartButton() {
 
   const std::wstring &this_title = GetTitle(static_main_dialog);
   ncstreamer_remote::NcStreamerRemote::Get()->RequestStart(
-      this_title, [](const std::wstring &err_msg) {
+      this_title, [](ncstreamer_remote::ErrorCategory category,
+                     int err_code,
+                     const std::wstring &err_msg) {
     ::PostMessage(
         static_main_dialog,
         WM_USER__REMOTE_RESPONSE_FAIL,
@@ -165,7 +169,9 @@ void OnStopButton() {
 
   const std::wstring &this_title = GetTitle(static_main_dialog);
   ncstreamer_remote::NcStreamerRemote::Get()->RequestStop(
-      this_title, [](const std::wstring &err_msg) {
+      this_title, [](ncstreamer_remote::ErrorCategory category,
+                     int err_code,
+                     const std::wstring &err_msg) {
     ::PostMessage(
         static_main_dialog,
         WM_USER__REMOTE_RESPONSE_FAIL,
@@ -185,6 +191,8 @@ void OnExitButton() {
   SetMessage(L"OnExitButton");
 
   ncstreamer_remote::NcStreamerRemote::Get()->RequestExit([](
+      ncstreamer_remote::ErrorCategory category,
+      int err_code,
       const std::wstring &err_msg) {
     ::PostMessage(
         static_main_dialog,
