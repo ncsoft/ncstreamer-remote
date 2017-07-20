@@ -16,6 +16,7 @@
 
 #include "Windows.h"  // NOLINT
 
+#include "ncstreamer_remote_dll/src/error/error_converter.h"
 #include "ncstreamer_remote_dll/src/ncstreamer_remote_message_types.h"
 
 
@@ -77,7 +78,7 @@ void NcStreamerRemote::RequestStatus(
     const ErrorHandler &error_handler,
     const StatusResponseHandler &status_response_handler) {
   if (busy_ == true) {
-    error_handler(L"busy");
+    HandleConnectionError(Error::Connection::kBusy, error_handler);
     return;
   }
   busy_ = true;
@@ -101,7 +102,7 @@ void NcStreamerRemote::RequestStart(
     const ErrorHandler &error_handler,
     const StartResponseHandler &start_response_handler) {
   if (busy_ == true) {
-    error_handler(L"busy");
+    HandleConnectionError(Error::Connection::kBusy, error_handler);
     return;
   }
   busy_ = true;
@@ -125,7 +126,7 @@ void NcStreamerRemote::RequestStop(
     const ErrorHandler &error_handler,
     const StopResponseHandler &stop_response_handler) {
   if (busy_ == true) {
-    error_handler(L"busy");
+    HandleConnectionError(Error::Connection::kBusy, error_handler);
     return;
   }
   busy_ = true;
@@ -149,7 +150,7 @@ void NcStreamerRemote::RequestQualityUpdate(
     const ErrorHandler &error_handler,
     const SuccessHandler &quality_update_response_handler) {
   if (busy_ == true) {
-    error_handler(L"busy");
+    HandleConnectionError(Error::Connection::kBusy, error_handler);
     return;
   }
   busy_ = true;
@@ -171,7 +172,7 @@ void NcStreamerRemote::RequestQualityUpdate(
 void NcStreamerRemote::RequestExit(
     const ErrorHandler &error_handler) {
   if (busy_ == true) {
-    error_handler(L"busy");
+    HandleConnectionError(Error::Connection::kBusy, error_handler);
     return;
   }
   busy_ = true;
@@ -219,7 +220,7 @@ NcStreamerRemote::NcStreamerRemote(uint16_t remote_port)
   websocketpp::lib::error_code ec;
   remote_.init_asio(&io_service_, ec);
   if (ec) {
-    HandleError("remote init_asio", ec);
+    HandleError(Error::Connection::kRemoteInitAsio, ec);
     assert(false);
     return;
   }
@@ -264,7 +265,10 @@ void NcStreamerRemote::KeepConnected() {
     return;
   }
 
-  Connect([this](const std::wstring &err_msg) {
+  Connect([this](
+      ErrorCategory err_category,
+      int err_code,
+      const std::wstring &err_msg) {
     timer_to_keep_connected_.expires_from_now(Chrono::seconds{1});
     timer_to_keep_connected_.async_wait([this](
         const boost::system::error_code &ec) {
@@ -291,14 +295,14 @@ void NcStreamerRemote::Connect(
     const ErrorHandler &error_handler,
     const OpenHandler &open_handler) {
   if (ExistsNcStreamer() == false) {
-    HandleError("no ncstreamer", error_handler);
+    HandleError(Error::Connection::kNoNcStreamer, error_handler);
     return;
   }
 
   websocketpp::lib::error_code ec;
   auto connection = remote_.get_connection(remote_uri_, ec);
   if (ec) {
-    HandleError("remote connect", ec, error_handler);
+    HandleError(Error::Connection::kRemoteConnect, ec, error_handler);
     return;
   }
 
@@ -324,7 +328,7 @@ void NcStreamerRemote::SendStatusRequest() {
   remote_.send(
       remote_connection_, msg.str(), websocketpp::frame::opcode::text, ec);
   if (ec) {
-    HandleError("remote send", ec);
+    HandleError(Error::Connection::kRemoteSend, ec);
     return;
   }
 }
@@ -346,7 +350,7 @@ void NcStreamerRemote::SendStartRequest(const std::wstring &title) {
   remote_.send(
       remote_connection_, msg.str(), websocketpp::frame::opcode::text, ec);
   if (ec) {
-    HandleError("remote send", ec);
+    HandleError(Error::Connection::kRemoteSend, ec);
     return;
   }
 }
@@ -368,7 +372,7 @@ void NcStreamerRemote::SendStopRequest(const std::wstring &title) {
   remote_.send(
       remote_connection_, msg.str(), websocketpp::frame::opcode::text, ec);
   if (ec) {
-    HandleError("remote send", ec);
+    HandleError(Error::Connection::kRemoteSend, ec);
     return;
   }
 }
@@ -390,7 +394,7 @@ void NcStreamerRemote::SendQualityUpdateRequest(const std::wstring &quality) {
   remote_.send(
       remote_connection_, msg.str(), websocketpp::frame::opcode::text, ec);
   if (ec) {
-    HandleError("remote send", ec);
+    HandleError(Error::Connection::kRemoteSend, ec);
     return;
   }
 }
@@ -409,19 +413,19 @@ void NcStreamerRemote::SendExitRequest() {
   remote_.send(
       remote_connection_, msg.str(), websocketpp::frame::opcode::text, ec);
   if (ec) {
-    HandleError("remote send", ec);
+    HandleError(Error::Connection::kRemoteSend, ec);
     return;
   }
 }
 
 
 void NcStreamerRemote::OnRemoteFail(websocketpp::connection_hdl connection) {
-  HandleDisconnect("on remote fail");
+  HandleDisconnect(Error::Connection::kOnRemoteFail);
 }
 
 
 void NcStreamerRemote::OnRemoteClose(websocketpp::connection_hdl connection) {
-  HandleDisconnect("on remote close");
+  HandleDisconnect(Error::Connection::kOnRemoteClose);
 }
 
 
@@ -616,7 +620,12 @@ void NcStreamerRemote::OnRemoteStartResponse(
 
   if (error.empty() == false) {
     static std::wstring_convert<std::codecvt_utf8_utf16<wchar_t>> converter;
-    current_error_handler_(converter.from_bytes(error));
+    const auto &err_info = ErrorConverter::ToStartError(error);
+
+    current_error_handler_(
+        ErrorCategory::kStart,
+        static_cast<int>(err_info.first),
+        converter.from_bytes(err_info.second));
   } else {
     current_start_response_handler_(true);
   }
@@ -640,7 +649,12 @@ void NcStreamerRemote::OnRemoteStopResponse(
 
   if (error.empty() == false) {
     static std::wstring_convert<std::codecvt_utf8_utf16<wchar_t>> converter;
-    current_error_handler_(converter.from_bytes(error));
+    const auto &err_info = ErrorConverter::ToStopError(error);
+
+    current_error_handler_(
+        ErrorCategory::kStop,
+        static_cast<int>(err_info.first),
+        converter.from_bytes(err_info.second));
   } else {
     current_stop_response_handler_(true);
   }
@@ -664,7 +678,8 @@ void NcStreamerRemote::OnRemoteQualityUpdateResponse(
 
   if (error.empty() == false) {
     static std::wstring_convert<std::codecvt_utf8_utf16<wchar_t>> converter;
-    current_error_handler_(converter.from_bytes(error));
+    current_error_handler_(
+        ErrorCategory::kMisc, 0, converter.from_bytes(error));
   } else {
     current_quality_update_response_handler_(true);
   }
@@ -672,10 +687,10 @@ void NcStreamerRemote::OnRemoteQualityUpdateResponse(
 
 
 void NcStreamerRemote::HandleDisconnect(
-    const std::string &disconnect_type) {
+    Error::Connection err_code) {
   remote_connection_.reset();
   busy_ = false;
-  LogWarning(disconnect_type);
+  LogWarning(ErrorConverter::ToConnectionError(err_code));
 
   if (disconnect_handler_) {
     disconnect_handler_();
@@ -685,30 +700,45 @@ void NcStreamerRemote::HandleDisconnect(
 }
 
 
-void NcStreamerRemote::HandleError(
-    const std::string &err_type,
-    const websocketpp::lib::error_code &ec) {
-  HandleError(err_type, ec, current_error_handler_);
+void NcStreamerRemote::HandleConnectionError(
+    Error::Connection err_code,
+    const ErrorHandler &err_handler) {
+  std::wstring_convert<std::codecvt_utf8_utf16<wchar_t>> converter;
+
+  err_handler(
+      ErrorCategory::kConnection,
+      static_cast<int>(err_code),
+      converter.from_bytes(ErrorConverter::ToConnectionError(err_code)));
 }
 
 
 void NcStreamerRemote::HandleError(
-    const std::string &err_type,
+    Error::Connection err_code,
+    const websocketpp::lib::error_code &ec) {
+  HandleError(err_code, ec, current_error_handler_);
+}
+
+
+void NcStreamerRemote::HandleError(
+    Error::Connection err_code,
     const websocketpp::lib::error_code &ec,
     const ErrorHandler &err_handler) {
+  const auto &err_msg = ErrorConverter::ToConnectionError(err_code);
   std::stringstream ss;
-  ss << err_type << ": " << ec.message();
-  HandleError(ss.str(), err_handler);
+  ss << err_msg << ": " << ec.message();
+  HandleError(err_code, ss.str(), err_handler);
 }
 
 
 void NcStreamerRemote::HandleError(
-    const std::string &err_msg) {
-  HandleError(err_msg, current_error_handler_);
+    Error::Connection err_code) {
+  const auto &err_msg = ErrorConverter::ToConnectionError(err_code);
+  HandleError(err_code, err_msg, current_error_handler_);
 }
 
 
 void NcStreamerRemote::HandleError(
+    Error::Connection err_code,
     const std::string &err_msg,
     const ErrorHandler &err_handler) {
   busy_ = false;
@@ -716,8 +746,19 @@ void NcStreamerRemote::HandleError(
 
   if (err_handler) {
     static std::wstring_convert<std::codecvt_utf8_utf16<wchar_t>> converter;
-    err_handler(converter.from_bytes(err_msg));
+    err_handler(
+        ErrorCategory::kConnection,
+        static_cast<int>(err_code),
+        converter.from_bytes(err_msg));
   }
+}
+
+
+void NcStreamerRemote::HandleError(
+    Error::Connection err_code,
+    const ErrorHandler &err_handler) {
+  const auto &err_msg = ErrorConverter::ToConnectionError(err_code);
+  HandleError(err_code, err_msg, err_handler);
 }
 
 
