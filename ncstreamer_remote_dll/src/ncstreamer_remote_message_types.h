@@ -28,6 +28,27 @@ class RemoteMessage {
     kNcStreamerExitRequest = 901,
     kNcStreamerExitResponse,  // not used.
   };
+
+  class Error {
+   public:
+    class Start {
+     public:
+      static const char *const kNoUser;
+      static const char *const kNotStandbySelf;
+      static const char *const kNotStandbyOther;
+      static const char *const kUnknownTitle;
+      static const char *const kMePageSelectEmpty;
+      static const char *const kPrivacySelectEmpty;
+      static const char *const kOwnPageSelectEmpty;
+      static const char *const kObsInternal;
+      static const char *const kStreamingServiceFacebookLive;
+    };
+    class Stop {
+     public:
+      static const char *const kNotOnAir;
+      static const char *const kTitleMismatch;
+    };
+  };
 };
 }  // namespace ncstreamer
 
