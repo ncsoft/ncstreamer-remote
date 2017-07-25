@@ -10,7 +10,7 @@
 #include <string>
 #include <utility>
 
-#include "ncstreamer_remote_dll/src/error/error_types.h"
+#include "ncstreamer_remote_dll/include/ncstreamer_remote/error/error_types.h"
 
 
 namespace ncstreamer_remote {
