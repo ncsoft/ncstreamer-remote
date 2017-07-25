@@ -20,7 +20,7 @@ namespace Chrono = boost::chrono;
 #include <string>
 #include <tuple>
 
-#include "ncstreamer_remote_dll/include/ncstreamer_remote/ncstreamer_remote.h"
+#include "ncstreamer_remote/ncstreamer_remote.h"
 #include "ncstreamer_remote_reference/src_generated/resource.h"
 
 
