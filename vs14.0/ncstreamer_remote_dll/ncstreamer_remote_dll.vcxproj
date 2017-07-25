@@ -110,7 +110,7 @@
       <AdditionalLibraryDirectories>$(BOOST_ROOT)lib$(PlatformArchitecture)-msvc-$(VisualStudioVersion);%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
     </Link>
     <PreBuildEvent>
-      <Command>build_tools/cpplint/cpplint_directory.bat "$(GOOGLE_STYLEGUIDE_PATH)/cpplint" $(SolutionDir)../$(ProjectName)/src</Command>
+      <Command>"$(SolutionDir)../$(ProjectName)/build_events/pre_build_event.bat" "$(SolutionDir).."</Command>
     </PreBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='MTd|x64'">
@@ -130,7 +130,7 @@
       <AdditionalLibraryDirectories>$(BOOST_ROOT)lib$(PlatformArchitecture)-msvc-$(VisualStudioVersion);%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
     </Link>
     <PreBuildEvent>
-      <Command>build_tools/cpplint/cpplint_directory.bat "$(GOOGLE_STYLEGUIDE_PATH)/cpplint" $(SolutionDir)../$(ProjectName)/src</Command>
+      <Command>"$(SolutionDir)../$(ProjectName)/build_events/pre_build_event.bat" "$(SolutionDir).."</Command>
     </PreBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='MT|Win32'">
@@ -154,7 +154,7 @@
       <AdditionalLibraryDirectories>$(BOOST_ROOT)lib$(PlatformArchitecture)-msvc-$(VisualStudioVersion);%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
     </Link>
     <PreBuildEvent>
-      <Command>build_tools/cpplint/cpplint_directory.bat "$(GOOGLE_STYLEGUIDE_PATH)/cpplint" $(SolutionDir)../$(ProjectName)/src</Command>
+      <Command>"$(SolutionDir)../$(ProjectName)/build_events/pre_build_event.bat" "$(SolutionDir).."</Command>
     </PreBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='MT|x64'">
@@ -178,7 +178,7 @@
       <AdditionalLibraryDirectories>$(BOOST_ROOT)lib$(PlatformArchitecture)-msvc-$(VisualStudioVersion);%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
     </Link>
     <PreBuildEvent>
-      <Command>build_tools/cpplint/cpplint_directory.bat "$(GOOGLE_STYLEGUIDE_PATH)/cpplint" $(SolutionDir)../$(ProjectName)/src</Command>
+      <Command>"$(SolutionDir)../$(ProjectName)/build_events/pre_build_event.bat" "$(SolutionDir).."</Command>
     </PreBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup>
