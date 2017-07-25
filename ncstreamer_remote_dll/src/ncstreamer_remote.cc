@@ -3,7 +3,7 @@
  */
 
 
-#include "ncstreamer_remote_dll/src/ncstreamer_remote.h"
+#include "ncstreamer_remote_dll/include/ncstreamer_remote/ncstreamer_remote.h"
 
 #include <cassert>
 #include <codecvt>

@@ -10,12 +10,10 @@ if exist "%TargetRoot%" (
 )
 mkdir "%TargetRoot%"
 
-mkdir "%TargetRoot%\ncstreamer_remote"
 robocopy ^
- ..\..\ncstreamer_remote_dll\src ^
- "%TargetRoot%\ncstreamer_remote" ^
- ncstreamer_remote.h ^
- /COPY:DAT
+ ..\..\ncstreamer_remote_dll\include ^
+ "%TargetRoot%" ^
+ /E
 echo ROBOCOPY RESULT: %ERRORLEVEL%
 if %ERRORLEVEL% GEQ 8 (
 goto quit

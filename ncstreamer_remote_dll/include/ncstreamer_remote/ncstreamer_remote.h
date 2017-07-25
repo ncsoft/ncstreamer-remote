@@ -3,8 +3,8 @@
  */
 
 
-#ifndef NCSTREAMER_REMOTE_DLL_SRC_NCSTREAMER_REMOTE_H_
-#define NCSTREAMER_REMOTE_DLL_SRC_NCSTREAMER_REMOTE_H_
+#ifndef NCSTREAMER_REMOTE_DLL_INCLUDE_NCSTREAMER_REMOTE_NCSTREAMER_REMOTE_H_
+#define NCSTREAMER_REMOTE_DLL_INCLUDE_NCSTREAMER_REMOTE_NCSTREAMER_REMOTE_H_
 
 
 #ifdef NCSTREAMER_REMOTE_DLL_EXPORTS
@@ -42,7 +42,7 @@ namespace Chrono = std::chrono;
 namespace Chrono = boost::chrono;
 #endif  // _MSC_VER >= 1900
 
-#include "ncstreamer_remote_dll/src/error/error_types.h"
+#include "ncstreamer_remote_dll/include/ncstreamer_remote/error/error_types.h"
 
 
 namespace ncstreamer_remote {
@@ -223,4 +223,4 @@ class NcStreamerRemote {
 }  // namespace ncstreamer_remote
 
 
-#endif  // NCSTREAMER_REMOTE_DLL_SRC_NCSTREAMER_REMOTE_H_
+#endif  // NCSTREAMER_REMOTE_DLL_INCLUDE_NCSTREAMER_REMOTE_NCSTREAMER_REMOTE_H_
