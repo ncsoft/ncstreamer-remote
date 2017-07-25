@@ -12,7 +12,7 @@ mkdir "%TargetRoot%"
 
 mkdir "%TargetRoot%\ncstreamer_remote"
 robocopy ^
- ..\ncstreamer_remote_dll\src ^
+ ..\..\ncstreamer_remote_dll\src ^
  "%TargetRoot%\ncstreamer_remote" ^
  ncstreamer_remote.h ^
  /COPY:DAT
@@ -24,7 +24,7 @@ set ERRORLEVEL=0
  
 mkdir "%TargetRoot%\lib"
 for %%v in (12 14) do (
-  set FromDir=..\vs%%v.0\ncstreamer_remote_dll\build\vc_v%%v0
+  set FromDir=..\..\vs%%v.0\ncstreamer_remote_dll\build\vc_v%%v0
   set ToDir=!TargetRoot!\lib\vc_v%%v0
   
   robocopy /mir "!FromDir!" "!ToDir!" *.lib *.dll *.pdb
