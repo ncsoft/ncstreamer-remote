@@ -187,9 +187,9 @@
     <ClCompile Include="..\..\ncstreamer_remote_dll\src\ncstreamer_remote_message_types.cc" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="..\..\ncstreamer_remote_dll\include\ncstreamer_remote\ncstreamer_remote.h" />
     <ClInclude Include="..\..\ncstreamer_remote_dll\src\error\error_converter.h" />
     <ClInclude Include="..\..\ncstreamer_remote_dll\src\error\error_types.h" />
-    <ClInclude Include="..\..\ncstreamer_remote_dll\src\ncstreamer_remote.h" />
     <ClInclude Include="..\..\ncstreamer_remote_dll\src\ncstreamer_remote_message_types.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
