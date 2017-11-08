@@ -15,6 +15,7 @@ enum class ErrorCategory {
   kConnection = 101,
   kStart,
   kStop,
+  kComments,
 };
 
 
@@ -87,6 +88,14 @@ class Error {
 
     /// "NCStreamer is not on streaming your source"
     kTitleMismatch,
+  };
+
+  enum class Comments {
+    kNoError = 0,
+    kUnknownError,
+
+    /// "Getting facebook live video comments internal error"
+    kCommentsInternal = 101,
   };
 };
 }  // namespace ncstreamer_remote

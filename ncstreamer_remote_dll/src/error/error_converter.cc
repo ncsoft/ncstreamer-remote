@@ -102,4 +102,22 @@ std::pair<Error::Stop, std::string>
 
   return {Error::Stop::kUnknownError, error};
 }
+
+
+std::pair<Error::Comments, std::string>
+ErrorConverter::ToCommentsError(const std::string &error) {
+  using CommentsError = std::pair<Error::Comments, std::string>;
+  static const std::unordered_map<std::string, CommentsError>
+      kCommentsErrors {
+          {ncstreamer::RemoteMessage::Error::Comments::kCommentsInternal,
+           {Error::Comments::kCommentsInternal,
+            "Getting facebook live video comments internal error"}}};
+
+  auto i = kCommentsErrors.find(error);
+  if (i != kCommentsErrors.end()) {
+    return i->second;
+  }
+
+  return {Error::Comments::kCommentsInternal, error};
+}
 }  // namespace ncstreamer_remote

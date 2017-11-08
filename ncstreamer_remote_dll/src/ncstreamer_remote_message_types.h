@@ -25,6 +25,8 @@ class RemoteMessage {
     kStreamingStopEvent,
     kSettingsQualityUpdateRequest = 301,
     kSettingsQualityUpdateResponse,
+    kStreamingCommentsRequest = 401,
+    kStreamingCommentsResponse,
     kNcStreamerExitRequest = 901,
     kNcStreamerExitResponse,  // not used.
   };
@@ -47,6 +49,10 @@ class RemoteMessage {
      public:
       static const char *const kNotOnAir;
       static const char *const kTitleMismatch;
+    };
+    class Comments {
+     public:
+      static const char *const kCommentsInternal;
     };
   };
 };
