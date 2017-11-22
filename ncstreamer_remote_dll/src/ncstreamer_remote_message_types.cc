@@ -40,4 +40,8 @@ const char *const RemoteMessage::Error::
 
 const char *const RemoteMessage::Error::
     Stop::kTitleMismatch{"title mismatch"};
+
+
+const char *const RemoteMessage::Error::
+    Comments::kCommentsInternal{"comments error"};
 }  // namespace ncstreamer

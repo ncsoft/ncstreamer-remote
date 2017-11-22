@@ -30,6 +30,11 @@ class ErrorConverter {
   /// @return Pair of error code and description.
   static std::pair<Error::Stop, std::string>
       ToStopError(const std::string &error);
+
+  /// @param error Error ID from NCStreamer.
+  /// @return Pair of error code and description.
+  static std::pair<Error::Comments, std::string>
+      ToCommentsError(const std::string &error);
 };
 }  // namespace ncstreamer_remote
 

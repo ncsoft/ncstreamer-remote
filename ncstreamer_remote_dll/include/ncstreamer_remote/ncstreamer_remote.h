@@ -83,6 +83,9 @@ class NcStreamerRemote {
   using StopEventHandler = std::function<void(
       const std::wstring &source_title)>;
 
+  using CommentsResponseHandler = std::function<void(
+      const std::wstring &msg)>;
+
   static NCSTREAMER_REMOTE_DLL_API void SetUp(uint16_t remote_port);
   static NCSTREAMER_REMOTE_DLL_API void SetUpDefault();
 
@@ -123,6 +126,11 @@ class NcStreamerRemote {
   void NCSTREAMER_REMOTE_DLL_API RequestExit(
       const ErrorHandler &error_handler);
 
+  void NCSTREAMER_REMOTE_DLL_API RequstComments(
+      const std::wstring &created_time,
+      const ErrorHandler &error_handler,
+      const CommentsResponseHandler &comments_response_handler);
+
  private:
   using SteadyTimer = boost::asio::basic_waitable_timer<Chrono::steady_clock>;
   using AsioClient = websocketpp::config::asio_client;
@@ -147,6 +155,7 @@ class NcStreamerRemote {
   void SendStopRequest(const std::wstring &title);
   void SendQualityUpdateRequest(const std::wstring &quality);
   void SendExitRequest();
+  void SendCommentsRequest(const std::wstring &created_time);
 
   void OnRemoteFail(websocketpp::connection_hdl connection);
   void OnRemoteClose(websocketpp::connection_hdl connection);
@@ -166,6 +175,8 @@ class NcStreamerRemote {
   void OnRemoteStopResponse(
       const boost::property_tree::ptree &response);
   void OnRemoteQualityUpdateResponse(
+      const boost::property_tree::ptree &response);
+  void OnRemoteCommentsResponse(
       const boost::property_tree::ptree &response);
 
   void HandleDisconnect(
@@ -219,6 +230,7 @@ class NcStreamerRemote {
   StartResponseHandler current_start_response_handler_;
   StopResponseHandler current_stop_response_handler_;
   SuccessHandler current_quality_update_response_handler_;
+  CommentsResponseHandler current_comments_response_handler_;
 };
 }  // namespace ncstreamer_remote
 
