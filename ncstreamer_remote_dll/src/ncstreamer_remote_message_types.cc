@@ -44,4 +44,8 @@ const char *const RemoteMessage::Error::
 
 const char *const RemoteMessage::Error::
     Comments::kCommentsInternal{"comments error"};
+
+
+const char *const RemoteMessage::Error::
+    Webcam::kWebcamSearch{"search webcam error"};
 }  // namespace ncstreamer
