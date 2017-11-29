@@ -17,6 +17,7 @@ enum class ErrorCategory {
   kStop,
   kComments,
   kWebcamSearch,
+  kWebcamOn,
 };
 
 
@@ -106,6 +107,9 @@ class Error {
 
     /// "an error occurred from OBS internal"
     kWebcamSearch = 101,
+
+    /// "webcam on error"
+    kWebcamOn,
   };
 };
 }  // namespace ncstreamer_remote

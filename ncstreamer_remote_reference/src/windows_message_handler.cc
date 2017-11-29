@@ -36,6 +36,7 @@ enum {
   WM_USER__REMOTE_RESPONSE_START,
   WM_USER__REMOTE_RESPONSE_STOP,
   WM_USER__REMOTE_RESPONSE_WEBCAM_SEARCH,
+  WM_USER__REMOTE_RESPONSE_WEBCAM_ON,
 };
 
 
@@ -63,10 +64,12 @@ HWND static_status_button{NULL};
 HWND static_start_button{NULL};
 HWND static_stop_button{NULL};
 HWND static_webcam_searach_button{NULL};
+HWND static_webcam_on_button{NULL};
 HWND static_message_panel{NULL};
 
 HFONT static_clock_font{NULL};
 
+std::vector<ncstreamer_remote::NcStreamerRemote::WebcamDevice> static_webcams;
 
 void SetMessage(const std::wstring &msg) {
   ::SetWindowText(static_message_panel, msg.c_str());
@@ -195,8 +198,8 @@ void OnWebcamSearchButton() {
 
   ncstreamer_remote::NcStreamerRemote::Get()->RequestWebcamSearch(
       [](ncstreamer_remote::ErrorCategory category,
-                     int err_code,
-                     const std::wstring &err_msg) {
+         int err_code,
+         const std::wstring &err_msg) {
     ::PostMessage(
         static_main_dialog,
         WM_USER__REMOTE_RESPONSE_FAIL,
@@ -210,6 +213,45 @@ void OnWebcamSearchButton() {
         (WPARAM) nullptr,
         (LPARAM) new std::vector<ncstreamer_remote::NcStreamerRemote::
             WebcamDevice>{webcams});
+  });
+}
+
+
+void OnWebcamOnButton() {
+  SetMessage(L"OnWebcamOnButton");
+
+  if (static_webcams.size() == 0) {
+    std::wstringstream ss;
+    ss << L"error: there is no webcam." << L"\r\n";
+    ::SetWindowText(static_message_panel, ss.str().c_str());
+    return;
+  }
+  const std::wstring &id{static_webcams.at(0).id()};
+  const int &default_width{static_webcams.at(0).default_width()};
+  const int &default_height{static_webcams.at(0).default_height()};
+  const float &ratio{
+      static_cast<float>(default_width) / static_cast<float>(default_height)};
+  const float &normal_width{0.25f};
+  const float &normal_height{ratio * normal_width};
+  const float &normal_x{1.0f - normal_width};
+  const float &normal_y{1.0f - normal_height};
+
+  ncstreamer_remote::NcStreamerRemote::Get()->RequestWebcamOn(
+      id, normal_width, normal_height, normal_x, normal_y,
+      [](ncstreamer_remote::ErrorCategory category,
+         int err_code,
+         const std::wstring &err_msg) {
+    ::PostMessage(
+        static_main_dialog,
+        WM_USER__REMOTE_RESPONSE_FAIL,
+        (WPARAM) nullptr,
+        (LPARAM) new std::wstring{err_msg});
+  }, []() {
+    ::PostMessage(
+        static_main_dialog,
+        WM_USER__REMOTE_RESPONSE_WEBCAM_ON,
+        (WPARAM) nullptr,
+        (LPARAM) nullptr);
   });
 }
 
@@ -335,14 +377,23 @@ void OnRemoteResponseWebcamSearch(LPARAM lparam) {
       ncstreamer_remote::NcStreamerRemote::WebcamDevice>> params{
         reinterpret_cast<std::vector<
             ncstreamer_remote::NcStreamerRemote::WebcamDevice> *>(lparam)};
-
+  static_webcams.clear();
   std::wstringstream ss;
   ss << L"webcam list: " << L"\r\n";
   for (const auto &webcam : *params) {
+    static_webcams.emplace_back(webcam);
     ss << webcam.id() << L",\r\n" << "default size: (" <<
       webcam.default_width() << L", " << webcam.default_height() <<
         L")" << L"\r\n";
   }
+
+  ::SetWindowText(static_message_panel, ss.str().c_str());
+}
+
+
+void OnRemoteResponseWebcamOn(LPARAM /*lparam*/) {
+  std::wstringstream ss;
+  ss << L"webcam on success" << L"\r\n";
 
   ::SetWindowText(static_message_panel, ss.str().c_str());
 }
@@ -354,6 +405,7 @@ INT_PTR OnCommand(WPARAM wparam, LPARAM /*lparam*/) {
     case IDC_BUTTON_START: OnStartButton(); return TRUE;
     case IDC_BUTTON_STOP: OnStopButton(); return TRUE;
     case IDC_BUTTON_WEBCAM_SERACH: OnWebcamSearchButton(); return TRUE;
+    case IDC_BUTTON_WEBCAM_ON: OnWebcamOnButton(); return TRUE;
     case IDC_BUTTON_EXIT: OnExitButton(); return TRUE;
     default: break;
   }
@@ -474,6 +526,8 @@ INT_PTR CALLBACK MainDialogProc(
         OnRemoteResponseStop(lparam); return TRUE;
     case WM_USER__REMOTE_RESPONSE_WEBCAM_SEARCH:
         OnRemoteResponseWebcamSearch(lparam); return TRUE;
+    case WM_USER__REMOTE_RESPONSE_WEBCAM_ON:
+        OnRemoteResponseWebcamOn(lparam); return TRUE;
     case WM_CLOSE: DeleteMainDialog(); return TRUE;
     case WM_DESTROY: ::PostQuitMessage(/*exit code*/ 0); return TRUE;
     default: break;
