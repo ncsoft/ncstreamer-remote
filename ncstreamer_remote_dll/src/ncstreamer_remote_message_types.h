@@ -31,6 +31,8 @@ class RemoteMessage {
     kSettingsWebcamSearchResponse,
     kSettingsWebcamOnRequest = 511,
     kSettingsWebcamOnResponse,
+    kSettingsWebcamOffRequest = 521,
+    kSettingsWebcamOffResponse,
     kNcStreamerExitRequest = 901,
     kNcStreamerExitResponse,  // not used.
   };
@@ -62,6 +64,7 @@ class RemoteMessage {
      public:
       static const char *const kWebcamSearch;
       static const char *const kWebcamOn;
+      static const char *const kWebcamOff;
     };
   };
 };
