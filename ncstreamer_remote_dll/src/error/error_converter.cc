@@ -138,4 +138,22 @@ std::pair<Error::Webcam, std::string>
 
   return {Error::Webcam::kWebcamSearch, error};
 }
+
+
+std::pair<Error::Webcam, std::string>
+    ErrorConverter::ToWebcamOnError(const std::string &error) {
+  using WebcamOnError = std::pair<Error::Webcam, std::string>;
+  static const std::unordered_map<std::string, WebcamOnError>
+    kWebcamOnError{
+      {ncstreamer::RemoteMessage::Error::Webcam::kWebcamOn,
+       {Error::Webcam::kWebcamOn,
+        "incorrect arguments"}}};
+
+  auto i = kWebcamOnError.find(error);
+  if (i != kWebcamOnError.end()) {
+    return i->second;
+  }
+
+  return {Error::Webcam::kWebcamOn, error};
+}
 }  // namespace ncstreamer_remote
