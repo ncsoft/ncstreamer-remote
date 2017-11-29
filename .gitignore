@@ -4,6 +4,7 @@ vs14.0/*.VC.opendb
 vs14.0/.vs/
 vs14.0/*/*.vcxproj.user
 vs14.0/*/build/
+vs14.0/*.suo
 *.aps
 *.log
 
@@ -16,3 +17,6 @@ vs12.0/*/build/
 vs12.0/*.suo
 vs12.0/*.sdf
 vs12.0/*.opensdf
+
+# Output files
+build_tools/exporter/

@@ -19,6 +19,7 @@ namespace Chrono = boost::chrono;
 #include <sstream>
 #include <string>
 #include <tuple>
+#include <vector>
 
 #include "ncstreamer_remote/ncstreamer_remote.h"
 #include "ncstreamer_remote_reference/src_generated/resource.h"
@@ -34,6 +35,7 @@ enum {
   WM_USER__REMOTE_RESPONSE_STATUS,
   WM_USER__REMOTE_RESPONSE_START,
   WM_USER__REMOTE_RESPONSE_STOP,
+  WM_USER__REMOTE_RESPONSE_WEBCAM_SEARCH,
 };
 
 
@@ -60,6 +62,7 @@ HWND static_clock_panel{NULL};
 HWND static_status_button{NULL};
 HWND static_start_button{NULL};
 HWND static_stop_button{NULL};
+HWND static_webcam_searach_button{NULL};
 HWND static_message_panel{NULL};
 
 HFONT static_clock_font{NULL};
@@ -187,6 +190,30 @@ void OnStopButton() {
 }
 
 
+void OnWebcamSearchButton() {
+  SetMessage(L"OnWebcamSearchButton");
+
+  ncstreamer_remote::NcStreamerRemote::Get()->RequestWebcamSearch(
+      [](ncstreamer_remote::ErrorCategory category,
+                     int err_code,
+                     const std::wstring &err_msg) {
+    ::PostMessage(
+        static_main_dialog,
+        WM_USER__REMOTE_RESPONSE_FAIL,
+        (WPARAM) nullptr,
+        (LPARAM) new std::wstring{err_msg});
+  }, [](const std::vector<ncstreamer_remote::
+        NcStreamerRemote::WebcamDevice> webcams) {
+    ::PostMessage(
+        static_main_dialog,
+        WM_USER__REMOTE_RESPONSE_WEBCAM_SEARCH,
+        (WPARAM) nullptr,
+        (LPARAM) new std::vector<ncstreamer_remote::NcStreamerRemote::
+            WebcamDevice>{webcams});
+  });
+}
+
+
 void OnExitButton() {
   SetMessage(L"OnExitButton");
 
@@ -303,11 +330,30 @@ void OnRemoteResponseStop(LPARAM lparam) {
 }
 
 
+void OnRemoteResponseWebcamSearch(LPARAM lparam) {
+  std::unique_ptr<std::vector<
+      ncstreamer_remote::NcStreamerRemote::WebcamDevice>> params{
+        reinterpret_cast<std::vector<
+            ncstreamer_remote::NcStreamerRemote::WebcamDevice> *>(lparam)};
+
+  std::wstringstream ss;
+  ss << L"webcam list: " << L"\r\n";
+  for (const auto &webcam : *params) {
+    ss << webcam.id() << L",\r\n" << "default size: (" <<
+      webcam.default_width() << L", " << webcam.default_height() <<
+        L")" << L"\r\n";
+  }
+
+  ::SetWindowText(static_message_panel, ss.str().c_str());
+}
+
+
 INT_PTR OnCommand(WPARAM wparam, LPARAM /*lparam*/) {
   switch (LOWORD(wparam)) {
     case IDC_BUTTON_STATUS: OnStatusButton(); return TRUE;
     case IDC_BUTTON_START: OnStartButton(); return TRUE;
     case IDC_BUTTON_STOP: OnStopButton(); return TRUE;
+    case IDC_BUTTON_WEBCAM_SERACH: OnWebcamSearchButton(); return TRUE;
     case IDC_BUTTON_EXIT: OnExitButton(); return TRUE;
     default: break;
   }
@@ -334,6 +380,7 @@ HWND CreateMainDialog(
   static_status_button = ::GetDlgItem(dlg, IDC_BUTTON_STATUS);
   static_start_button = ::GetDlgItem(dlg, IDC_BUTTON_START);
   static_stop_button = ::GetDlgItem(dlg, IDC_BUTTON_STOP);
+  static_webcam_searach_button = ::GetDlgItem(dlg, IDC_BUTTON_WEBCAM_SERACH);
   static_message_panel = ::GetDlgItem(dlg, IDC_EDIT_MESSAGE);
 
   static_clock_font = SetUpFont(static_clock_panel, 36);
@@ -425,6 +472,8 @@ INT_PTR CALLBACK MainDialogProc(
         OnRemoteResponseStart(lparam); return TRUE;
     case WM_USER__REMOTE_RESPONSE_STOP:
         OnRemoteResponseStop(lparam); return TRUE;
+    case WM_USER__REMOTE_RESPONSE_WEBCAM_SEARCH:
+        OnRemoteResponseWebcamSearch(lparam); return TRUE;
     case WM_CLOSE: DeleteMainDialog(); return TRUE;
     case WM_DESTROY: ::PostQuitMessage(/*exit code*/ 0); return TRUE;
     default: break;

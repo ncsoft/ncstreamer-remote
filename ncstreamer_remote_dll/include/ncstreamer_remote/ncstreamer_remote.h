@@ -48,6 +48,8 @@ namespace Chrono = boost::chrono;
 namespace ncstreamer_remote {
 class NcStreamerRemote {
  public:
+  class WebcamDevice;
+
   using ConnectHandler = std::function<void()>;
   using DisconnectHandler = std::function<void()>;
 
@@ -85,6 +87,8 @@ class NcStreamerRemote {
 
   using CommentsResponseHandler = std::function<void(
       const std::wstring &msg)>;
+  using WebcamSearchResponseHandler = std::function<void(
+      const std::vector<NcStreamerRemote::WebcamDevice> &webcams)>;
 
   static NCSTREAMER_REMOTE_DLL_API void SetUp(uint16_t remote_port);
   static NCSTREAMER_REMOTE_DLL_API void SetUpDefault();
@@ -131,6 +135,10 @@ class NcStreamerRemote {
       const ErrorHandler &error_handler,
       const CommentsResponseHandler &comments_response_handler);
 
+  void NCSTREAMER_REMOTE_DLL_API RequestWebcamSearch(
+      const ErrorHandler &error_handler,
+      const WebcamSearchResponseHandler &webcam_search_response_handler);
+
  private:
   using SteadyTimer = boost::asio::basic_waitable_timer<Chrono::steady_clock>;
   using AsioClient = websocketpp::config::asio_client;
@@ -154,6 +162,7 @@ class NcStreamerRemote {
   void SendStartRequest(const std::wstring &title);
   void SendStopRequest(const std::wstring &title);
   void SendQualityUpdateRequest(const std::wstring &quality);
+  void SendWebcamSearchRequest();
   void SendExitRequest();
   void SendCommentsRequest(const std::wstring &created_time);
 
@@ -177,6 +186,8 @@ class NcStreamerRemote {
   void OnRemoteQualityUpdateResponse(
       const boost::property_tree::ptree &response);
   void OnRemoteCommentsResponse(
+      const boost::property_tree::ptree &response);
+  void OnRemoteWebcamSearchResponse(
       const boost::property_tree::ptree &response);
 
   void HandleDisconnect(
@@ -230,7 +241,28 @@ class NcStreamerRemote {
   StartResponseHandler current_start_response_handler_;
   StopResponseHandler current_stop_response_handler_;
   SuccessHandler current_quality_update_response_handler_;
+
   CommentsResponseHandler current_comments_response_handler_;
+  WebcamSearchResponseHandler current_webcam_search_response_handler_;
+};
+
+
+class NCSTREAMER_REMOTE_DLL_API NcStreamerRemote::WebcamDevice {
+ public:
+  WebcamDevice(
+      const std::wstring &id,
+      const int &default_width,
+      const int &default_height);
+  virtual ~WebcamDevice();
+
+  const std::wstring &id() const { return id_; }
+  const int &default_width() const { return default_width_; }
+  const int &default_height() const { return default_height_; }
+
+ private:
+  std::wstring id_;
+  int default_width_;
+  int default_height_;
 };
 }  // namespace ncstreamer_remote
 

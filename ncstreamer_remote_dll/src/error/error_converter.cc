@@ -120,4 +120,22 @@ ErrorConverter::ToCommentsError(const std::string &error) {
 
   return {Error::Comments::kCommentsInternal, error};
 }
+
+
+std::pair<Error::Webcam, std::string>
+ErrorConverter::ToWebcamSearchError(const std::string &error) {
+  using WebcamSearchError = std::pair<Error::Webcam, std::string>;
+  static const std::unordered_map<std::string, WebcamSearchError>
+      kWebcamSearchError {
+          {ncstreamer::RemoteMessage::Error::Webcam::kWebcamSearch,
+           {Error::Webcam::kWebcamSearch,
+            "an error occurred from OBS internal"}}};
+
+  auto i = kWebcamSearchError.find(error);
+  if (i != kWebcamSearchError.end()) {
+    return i->second;
+  }
+
+  return {Error::Webcam::kWebcamSearch, error};
+}
 }  // namespace ncstreamer_remote

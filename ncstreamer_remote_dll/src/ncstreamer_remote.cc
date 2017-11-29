@@ -214,6 +214,29 @@ void NcStreamerRemote::RequstComments(
 }
 
 
+void NcStreamerRemote::RequestWebcamSearch(
+    const ErrorHandler &error_handler,
+    const WebcamSearchResponseHandler &webcam_search_response_handler) {
+  if (busy_ == true) {
+    HandleConnectionError(Error::Connection::kBusy, error_handler);
+    return;
+  }
+  busy_ = true;
+
+  current_error_handler_ = error_handler;
+  current_webcam_search_response_handler_ = webcam_search_response_handler;
+
+  if (!remote_connection_.lock()) {
+    Connect([this]() {
+      SendWebcamSearchRequest();
+    });
+    return;
+  }
+
+  SendWebcamSearchRequest();
+}
+
+
 NcStreamerRemote::NcStreamerRemote(uint16_t remote_port)
     : remote_uri_{new websocketpp::uri{false, "localhost", remote_port, ""}},
       io_service_{},
@@ -233,7 +256,8 @@ NcStreamerRemote::NcStreamerRemote(uint16_t remote_port)
       current_start_response_handler_{},
       current_stop_response_handler_{},
       current_quality_update_response_handler_{},
-      current_comments_response_handler_{} {
+      current_comments_response_handler_{},
+      current_webcam_search_response_handler_{} {
   busy_ = false;
 
   remote_log_.open("ncstreamer_remote.log");
@@ -425,6 +449,27 @@ void NcStreamerRemote::SendQualityUpdateRequest(const std::wstring &quality) {
 }
 
 
+void NcStreamerRemote::SendWebcamSearchRequest() {
+  std::stringstream msg;
+  {
+    std::wstring_convert<std::codecvt_utf8_utf16<wchar_t>> converter;
+
+    boost::property_tree::ptree tree;
+    tree.put("type", static_cast<int>(
+        ncstreamer::RemoteMessage::MessageType::kSettingsWebcamSearchRequest));
+    boost::property_tree::write_json(msg, tree, false);
+  }
+
+  websocketpp::lib::error_code ec;
+  remote_.send(
+      remote_connection_, msg.str(), websocketpp::frame::opcode::text, ec);
+  if (ec) {
+    HandleError(Error::Connection::kRemoteSend, ec);
+    return;
+  }
+}
+
+
 void NcStreamerRemote::SendExitRequest() {
   std::stringstream msg;
   {
@@ -518,6 +563,9 @@ void NcStreamerRemote::OnRemoteMessage(
            this, std::placeholders::_1)},
       {ncstreamer::RemoteMessage::MessageType::kStreamingCommentsResponse,
        std::bind(&NcStreamerRemote::OnRemoteCommentsResponse,
+           this, std::placeholders::_1)},
+      {ncstreamer::RemoteMessage::MessageType::kSettingsWebcamSearchResponse,
+       std::bind(&NcStreamerRemote::OnRemoteWebcamSearchResponse,
            this, std::placeholders::_1)}};
 
   auto i = kMessageHandlers.find(msg_type);
@@ -766,6 +814,45 @@ void NcStreamerRemote::OnRemoteCommentsResponse(
 }
 
 
+void NcStreamerRemote::OnRemoteWebcamSearchResponse(
+    const boost::property_tree::ptree &response) {
+  bool exception_occurred{false};
+  std::string error{};
+  std::vector<NcStreamerRemote::WebcamDevice> webcams;
+  try {
+    static std::wstring_convert<std::codecvt_utf8_utf16<wchar_t>> converter;
+    error = response.get<std::string>("error");
+    const auto &webcam_list = response.get_child("webcamList");
+    for (const auto &webcam : webcam_list) {
+      const std::string &id = webcam.second.get<std::string>("id");
+      const int &default_width = webcam.second.get<int>("default_width");
+      const int &default_height = webcam.second.get<int>("default_height");
+      NcStreamerRemote::WebcamDevice device{
+          converter.from_bytes(id), default_width, default_height};
+      webcams.emplace_back(device);
+    }
+  } catch (const std::exception &/*e*/) {
+    exception_occurred = true;
+  }
+
+  if (exception_occurred == true) {
+    LogError("webcam search response broken");
+    return;
+  }
+
+  if (error.empty() == false) {
+    static std::wstring_convert<std::codecvt_utf8_utf16<wchar_t>> converter;
+    const auto &err_info = ErrorConverter::ToWebcamSearchError(error);
+    current_error_handler_(
+        ErrorCategory::kWebcamSearch,
+        static_cast<int>(err_info.first),
+        converter.from_bytes(err_info.second));
+  } else {
+    current_webcam_search_response_handler_(webcams);
+  }
+}
+
+
 void NcStreamerRemote::HandleDisconnect(
     Error::Connection err_code) {
   remote_connection_.reset();
@@ -853,4 +940,18 @@ void NcStreamerRemote::LogError(const std::string &err_msg) {
 
 
 NcStreamerRemote *NcStreamerRemote::static_instance{nullptr};
+
+
+NcStreamerRemote::WebcamDevice::WebcamDevice(
+    const std::wstring &id,
+    const int &default_width,
+    const int &default_height)
+    : default_width_{default_width},
+      default_height_{default_height} {
+  id_ = id;
+}
+
+
+NcStreamerRemote::WebcamDevice::~WebcamDevice() {
+}
 }  // namespace ncstreamer_remote

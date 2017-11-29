@@ -16,6 +16,7 @@ enum class ErrorCategory {
   kStart,
   kStop,
   kComments,
+  kWebcamSearch,
 };
 
 
@@ -96,6 +97,15 @@ class Error {
 
     /// "Getting facebook live video comments internal error"
     kCommentsInternal = 101,
+  };
+
+
+  enum class Webcam {
+    kNoError = 0,
+    kUnknownError,
+
+    /// "an error occurred from OBS internal"
+    kWebcamSearch = 101,
   };
 };
 }  // namespace ncstreamer_remote
