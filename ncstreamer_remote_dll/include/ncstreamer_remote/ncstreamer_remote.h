@@ -162,9 +162,9 @@ class NcStreamerRemote {
   void SendStartRequest(const std::wstring &title);
   void SendStopRequest(const std::wstring &title);
   void SendQualityUpdateRequest(const std::wstring &quality);
-  void SendWebcamSearchRequest();
   void SendExitRequest();
   void SendCommentsRequest(const std::wstring &created_time);
+  void SendWebcamSearchRequest();
 
   void OnRemoteFail(websocketpp::connection_hdl connection);
   void OnRemoteClose(websocketpp::connection_hdl connection);
@@ -241,7 +241,6 @@ class NcStreamerRemote {
   StartResponseHandler current_start_response_handler_;
   StopResponseHandler current_stop_response_handler_;
   SuccessHandler current_quality_update_response_handler_;
-
   CommentsResponseHandler current_comments_response_handler_;
   WebcamSearchResponseHandler current_webcam_search_response_handler_;
 };

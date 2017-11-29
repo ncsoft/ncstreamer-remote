@@ -105,7 +105,7 @@ std::pair<Error::Stop, std::string>
 
 
 std::pair<Error::Comments, std::string>
-ErrorConverter::ToCommentsError(const std::string &error) {
+    ErrorConverter::ToCommentsError(const std::string &error) {
   using CommentsError = std::pair<Error::Comments, std::string>;
   static const std::unordered_map<std::string, CommentsError>
       kCommentsErrors {
@@ -123,7 +123,7 @@ ErrorConverter::ToCommentsError(const std::string &error) {
 
 
 std::pair<Error::Webcam, std::string>
-ErrorConverter::ToWebcamSearchError(const std::string &error) {
+    ErrorConverter::ToWebcamSearchError(const std::string &error) {
   using WebcamSearchError = std::pair<Error::Webcam, std::string>;
   static const std::unordered_map<std::string, WebcamSearchError>
       kWebcamSearchError {

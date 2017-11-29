@@ -449,27 +449,6 @@ void NcStreamerRemote::SendQualityUpdateRequest(const std::wstring &quality) {
 }
 
 
-void NcStreamerRemote::SendWebcamSearchRequest() {
-  std::stringstream msg;
-  {
-    std::wstring_convert<std::codecvt_utf8_utf16<wchar_t>> converter;
-
-    boost::property_tree::ptree tree;
-    tree.put("type", static_cast<int>(
-        ncstreamer::RemoteMessage::MessageType::kSettingsWebcamSearchRequest));
-    boost::property_tree::write_json(msg, tree, false);
-  }
-
-  websocketpp::lib::error_code ec;
-  remote_.send(
-      remote_connection_, msg.str(), websocketpp::frame::opcode::text, ec);
-  if (ec) {
-    HandleError(Error::Connection::kRemoteSend, ec);
-    return;
-  }
-}
-
-
 void NcStreamerRemote::SendExitRequest() {
   std::stringstream msg;
   {
@@ -498,6 +477,27 @@ void NcStreamerRemote::SendCommentsRequest(const std::wstring &created_time) {
     tree.put("type", static_cast<int>(
         ncstreamer::RemoteMessage::MessageType::kStreamingCommentsRequest));
     tree.put("createdTime", converter.to_bytes(created_time));
+    boost::property_tree::write_json(msg, tree, false);
+  }
+
+  websocketpp::lib::error_code ec;
+  remote_.send(
+      remote_connection_, msg.str(), websocketpp::frame::opcode::text, ec);
+  if (ec) {
+    HandleError(Error::Connection::kRemoteSend, ec);
+    return;
+  }
+}
+
+
+void NcStreamerRemote::SendWebcamSearchRequest() {
+  std::stringstream msg;
+  {
+    std::wstring_convert<std::codecvt_utf8_utf16<wchar_t>> converter;
+
+    boost::property_tree::ptree tree;
+    tree.put("type", static_cast<int>(
+        ncstreamer::RemoteMessage::MessageType::kSettingsWebcamSearchRequest));
     boost::property_tree::write_json(msg, tree, false);
   }
 
