@@ -37,6 +37,7 @@ enum {
   WM_USER__REMOTE_RESPONSE_STOP,
   WM_USER__REMOTE_RESPONSE_WEBCAM_SEARCH,
   WM_USER__REMOTE_RESPONSE_WEBCAM_ON,
+  WM_USER__REMOTE_RESPONSE_WEBCAM_OFF,
 };
 
 
@@ -65,6 +66,7 @@ HWND static_start_button{NULL};
 HWND static_stop_button{NULL};
 HWND static_webcam_searach_button{NULL};
 HWND static_webcam_on_button{NULL};
+HWND static_webcam_off_button{NULL};
 HWND static_message_panel{NULL};
 
 HFONT static_clock_font{NULL};
@@ -256,6 +258,28 @@ void OnWebcamOnButton() {
 }
 
 
+void OnWebcamOffButton() {
+  SetMessage(L"OnWebcamOffButton");
+
+  ncstreamer_remote::NcStreamerRemote::Get()->RequestWebcamOff(
+      [](ncstreamer_remote::ErrorCategory category,
+         int err_code,
+         const std::wstring &err_msg) {
+    ::PostMessage(
+        static_main_dialog,
+        WM_USER__REMOTE_RESPONSE_FAIL,
+        (WPARAM) nullptr,
+        (LPARAM) new std::wstring{err_msg});
+  }, []() {
+    ::PostMessage(
+        static_main_dialog,
+        WM_USER__REMOTE_RESPONSE_WEBCAM_OFF,
+        (WPARAM) nullptr,
+        (LPARAM) nullptr);
+  });
+}
+
+
 void OnExitButton() {
   SetMessage(L"OnExitButton");
 
@@ -399,6 +423,14 @@ void OnRemoteResponseWebcamOn(LPARAM /*lparam*/) {
 }
 
 
+void OnRemoteResponseWebcamOff(LPARAM /*lparam*/) {
+  std::wstringstream ss;
+  ss << L"webcam off success" << L"\r\n";
+
+  ::SetWindowText(static_message_panel, ss.str().c_str());
+}
+
+
 INT_PTR OnCommand(WPARAM wparam, LPARAM /*lparam*/) {
   switch (LOWORD(wparam)) {
     case IDC_BUTTON_STATUS: OnStatusButton(); return TRUE;
@@ -406,6 +438,7 @@ INT_PTR OnCommand(WPARAM wparam, LPARAM /*lparam*/) {
     case IDC_BUTTON_STOP: OnStopButton(); return TRUE;
     case IDC_BUTTON_WEBCAM_SERACH: OnWebcamSearchButton(); return TRUE;
     case IDC_BUTTON_WEBCAM_ON: OnWebcamOnButton(); return TRUE;
+    case IDC_BUTTON_WEBCAM_OFF: OnWebcamOffButton(); return TRUE;
     case IDC_BUTTON_EXIT: OnExitButton(); return TRUE;
     default: break;
   }
@@ -528,6 +561,8 @@ INT_PTR CALLBACK MainDialogProc(
         OnRemoteResponseWebcamSearch(lparam); return TRUE;
     case WM_USER__REMOTE_RESPONSE_WEBCAM_ON:
         OnRemoteResponseWebcamOn(lparam); return TRUE;
+    case WM_USER__REMOTE_RESPONSE_WEBCAM_OFF:
+        OnRemoteResponseWebcamOff(lparam); return TRUE;
     case WM_CLOSE: DeleteMainDialog(); return TRUE;
     case WM_DESTROY: ::PostQuitMessage(/*exit code*/ 0); return TRUE;
     default: break;

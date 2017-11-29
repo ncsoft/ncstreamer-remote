@@ -18,6 +18,7 @@ enum class ErrorCategory {
   kComments,
   kWebcamSearch,
   kWebcamOn,
+  kWebcamOff,
 };
 
 
@@ -110,6 +111,9 @@ class Error {
 
     /// "webcam on error"
     kWebcamOn,
+
+    /// "webcam off error"
+    kWebcamOff,
   };
 };
 }  // namespace ncstreamer_remote

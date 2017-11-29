@@ -156,4 +156,22 @@ std::pair<Error::Webcam, std::string>
 
   return {Error::Webcam::kWebcamOn, error};
 }
+
+
+std::pair<Error::Webcam, std::string>
+    ErrorConverter::ToWebcamOffError(const std::string &error) {
+  using WebcamOffError = std::pair<Error::Webcam, std::string>;
+  static const std::unordered_map<std::string, WebcamOffError>
+    kWebcamOffError{
+      {ncstreamer::RemoteMessage::Error::Webcam::kWebcamOff,
+       {Error::Webcam::kWebcamOff,
+        "webcam off error"}}};
+
+  auto i = kWebcamOffError.find(error);
+  if (i != kWebcamOffError.end()) {
+    return i->second;
+  }
+
+  return {Error::Webcam::kWebcamOff, error};
+}
 }  // namespace ncstreamer_remote
