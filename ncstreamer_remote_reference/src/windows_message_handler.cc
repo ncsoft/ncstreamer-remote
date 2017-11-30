@@ -466,6 +466,8 @@ HWND CreateMainDialog(
   static_start_button = ::GetDlgItem(dlg, IDC_BUTTON_START);
   static_stop_button = ::GetDlgItem(dlg, IDC_BUTTON_STOP);
   static_webcam_searach_button = ::GetDlgItem(dlg, IDC_BUTTON_WEBCAM_SERACH);
+  static_webcam_on_button = ::GetDlgItem(dlg, IDC_BUTTON_WEBCAM_ON);
+  static_webcam_off_button = ::GetDlgItem(dlg, IDC_BUTTON_WEBCAM_OFF);
   static_message_panel = ::GetDlgItem(dlg, IDC_EDIT_MESSAGE);
 
   static_clock_font = SetUpFont(static_clock_panel, 36);
