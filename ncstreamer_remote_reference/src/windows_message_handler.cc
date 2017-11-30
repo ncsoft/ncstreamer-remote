@@ -232,7 +232,7 @@ void OnWebcamOnButton() {
   const int &default_width{static_webcams.at(0).default_width()};
   const int &default_height{static_webcams.at(0).default_height()};
   const float &ratio{
-      static_cast<float>(default_width) / static_cast<float>(default_height)};
+      static_cast<float>(default_height) / static_cast<float>(default_width)};
   const float &normal_width{0.25f};
   const float &normal_height{ratio * normal_width};
   const float &normal_x{1.0f - normal_width};
@@ -466,6 +466,8 @@ HWND CreateMainDialog(
   static_start_button = ::GetDlgItem(dlg, IDC_BUTTON_START);
   static_stop_button = ::GetDlgItem(dlg, IDC_BUTTON_STOP);
   static_webcam_searach_button = ::GetDlgItem(dlg, IDC_BUTTON_WEBCAM_SERACH);
+  static_webcam_on_button = ::GetDlgItem(dlg, IDC_BUTTON_WEBCAM_ON);
+  static_webcam_off_button = ::GetDlgItem(dlg, IDC_BUTTON_WEBCAM_OFF);
   static_message_panel = ::GetDlgItem(dlg, IDC_EDIT_MESSAGE);
 
   static_clock_font = SetUpFont(static_clock_panel, 36);

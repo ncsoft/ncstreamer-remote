@@ -50,6 +50,11 @@ class ErrorConverter {
   /// @return Pair of error code and description.
   static std::pair<Error::Webcam, std::string>
       ToWebcamOffError(const std::string &error);
+
+  /// @param error Error ID from NCStreamer.
+  /// @return Pair of error code and description.
+  static std::pair<Error::Webcam, std::string>
+      ToWebcamSizeError(const std::string &error);
 };
 }  // namespace ncstreamer_remote
 
