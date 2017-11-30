@@ -1051,8 +1051,8 @@ void NcStreamerRemote::OnRemoteWebcamSearchResponse(
     const auto &webcam_list = response.get_child("webcamList");
     for (const auto &webcam : webcam_list) {
       const std::string &id = webcam.second.get<std::string>("id");
-      const int &default_width = webcam.second.get<int>("default_width");
-      const int &default_height = webcam.second.get<int>("default_height");
+      const int &default_width = webcam.second.get<int>("defaultWidth");
+      const int &default_height = webcam.second.get<int>("defaultHeight");
       NcStreamerRemote::WebcamDevice device{
           converter.from_bytes(id), default_width, default_height};
       webcams.emplace_back(device);
