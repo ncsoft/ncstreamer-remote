@@ -89,8 +89,7 @@ class NcStreamerRemote {
       const std::wstring &msg)>;
   using WebcamSearchResponseHandler = std::function<void(
       const std::vector<NcStreamerRemote::WebcamDevice> &webcams)>;
-  using WebcamOnResponseHandler = std::function<void()>;
-  using WebcamOffResponseHandler = std::function<void()>;
+  using WebcamResponseHandler = std::function<void()>;
 
   static NCSTREAMER_REMOTE_DLL_API void SetUp(uint16_t remote_port);
   static NCSTREAMER_REMOTE_DLL_API void SetUpDefault();
@@ -148,11 +147,11 @@ class NcStreamerRemote {
       const float &normal_x,
       const float &normal_y,
       const ErrorHandler &error_handler,
-      const WebcamOnResponseHandler &webcam_on_response_handler);
+      const WebcamResponseHandler &webcam_on_response_handler);
 
   void NCSTREAMER_REMOTE_DLL_API RequestWebcamOff(
       const ErrorHandler &error_handler,
-      const WebcamOffResponseHandler &webcam_off_response_handler);
+      const WebcamResponseHandler &webcam_off_response_handler);
 
  private:
   using SteadyTimer = boost::asio::basic_waitable_timer<Chrono::steady_clock>;
@@ -269,8 +268,8 @@ class NcStreamerRemote {
   SuccessHandler current_quality_update_response_handler_;
   CommentsResponseHandler current_comments_response_handler_;
   WebcamSearchResponseHandler current_webcam_search_response_handler_;
-  WebcamOnResponseHandler current_webcam_on_response_handler_;
-  WebcamOffResponseHandler current_webcam_off_response_handler_;
+  WebcamResponseHandler current_webcam_on_response_handler_;
+  WebcamResponseHandler current_webcam_off_response_handler_;
 };
 
 

@@ -244,7 +244,7 @@ void NcStreamerRemote::RequestWebcamOn(
     const float &normal_x,
     const float &normal_y,
     const ErrorHandler &error_handler,
-    const WebcamOnResponseHandler &webcam_on_response_handler) {
+    const WebcamResponseHandler &webcam_on_response_handler) {
   if (busy_ == true) {
     HandleConnectionError(Error::Connection::kBusy, error_handler);
     return;
@@ -270,7 +270,7 @@ void NcStreamerRemote::RequestWebcamOn(
 
 void NcStreamerRemote::RequestWebcamOff(
     const ErrorHandler &error_handler,
-    const WebcamOffResponseHandler &webcam_off_response_handler) {
+    const WebcamResponseHandler &webcam_off_response_handler) {
   if (busy_ == true) {
     HandleConnectionError(Error::Connection::kBusy, error_handler);
     return;
