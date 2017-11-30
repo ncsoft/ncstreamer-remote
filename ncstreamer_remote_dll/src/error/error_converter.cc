@@ -174,4 +174,22 @@ std::pair<Error::Webcam, std::string>
 
   return {Error::Webcam::kWebcamOff, error};
 }
+
+
+std::pair<Error::Webcam, std::string>
+    ErrorConverter::ToWebcamSizeError(const std::string &error) {
+  using WebcamSizeError = std::pair<Error::Webcam, std::string>;
+  static const std::unordered_map<std::string, WebcamSizeError>
+    kWebcamSizeError{
+      {ncstreamer::RemoteMessage::Error::Webcam::kWebcamSize,
+       {Error::Webcam::kWebcamSize,
+        "webcam size error"}}};
+
+  auto i = kWebcamSizeError.find(error);
+  if (i != kWebcamSizeError.end()) {
+    return i->second;
+  }
+
+  return {Error::Webcam::kWebcamSize, error};
+}
 }  // namespace ncstreamer_remote

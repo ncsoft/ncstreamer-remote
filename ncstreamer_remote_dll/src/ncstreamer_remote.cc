@@ -291,6 +291,31 @@ void NcStreamerRemote::RequestWebcamOff(
 }
 
 
+void NcStreamerRemote::RequestWebcamSize(
+    const float &normal_width,
+    const float &normal_height,
+    const ErrorHandler &error_handler,
+    const WebcamResponseHandler &webcam_size_response_handler) {
+  if (busy_ == true) {
+    HandleConnectionError(Error::Connection::kBusy, error_handler);
+    return;
+  }
+  busy_ = true;
+
+  current_error_handler_ = error_handler;
+  current_webcam_size_response_handler_ = webcam_size_response_handler;
+
+  if (!remote_connection_.lock()) {
+    Connect([normal_width, normal_height, this]() {
+      SendWebcamSizeRequest(normal_width, normal_height);
+    });
+    return;
+  }
+
+  SendWebcamSizeRequest(normal_width, normal_height);
+}
+
+
 NcStreamerRemote::NcStreamerRemote(uint16_t remote_port)
     : remote_uri_{new websocketpp::uri{false, "localhost", remote_port, ""}},
       io_service_{},
@@ -313,7 +338,8 @@ NcStreamerRemote::NcStreamerRemote(uint16_t remote_port)
       current_comments_response_handler_{},
       current_webcam_search_response_handler_{},
       current_webcam_on_response_handler_{},
-      current_webcam_off_response_handler_{} {
+      current_webcam_off_response_handler_{},
+      current_webcam_size_response_handler_{} {
   busy_ = false;
 
   remote_log_.open("ncstreamer_remote.log");
@@ -620,6 +646,32 @@ void NcStreamerRemote::SendWebcamOffRequest() {
 }
 
 
+void NcStreamerRemote::SendWebcamSizeRequest(
+    const float &normal_width,
+    const float &normal_height) {
+  std::stringstream msg;
+  {
+    std::wstring_convert<std::codecvt_utf8_utf16<wchar_t>> converter;
+
+    boost::property_tree::ptree tree;
+    tree.put("type", static_cast<int>(
+        ncstreamer::RemoteMessage::MessageType::kSettingsWebcamSizeRequest));
+    tree.put("normal_width", normal_width);
+    tree.put("normal_height", normal_height);
+
+    boost::property_tree::write_json(msg, tree, false);
+  }
+
+  websocketpp::lib::error_code ec;
+  remote_.send(
+      remote_connection_, msg.str(), websocketpp::frame::opcode::text, ec);
+  if (ec) {
+    HandleError(Error::Connection::kRemoteSend, ec);
+    return;
+  }
+}
+
+
 void NcStreamerRemote::OnRemoteFail(websocketpp::connection_hdl connection) {
   HandleDisconnect(Error::Connection::kOnRemoteFail);
 }
@@ -681,6 +733,9 @@ void NcStreamerRemote::OnRemoteMessage(
            this, std::placeholders::_1)},
       {ncstreamer::RemoteMessage::MessageType::kSettingsWebcamOffResponse,
        std::bind(&NcStreamerRemote::OnRemoteWebcamOffResponse,
+           this, std::placeholders::_1)},
+      {ncstreamer::RemoteMessage::MessageType::kSettingsWebcamSizeResponse,
+       std::bind(&NcStreamerRemote::OnRemoteWebcamSizeResponse,
            this, std::placeholders::_1)}};
 
   auto i = kMessageHandlers.find(msg_type);
@@ -1022,6 +1077,35 @@ void NcStreamerRemote::OnRemoteWebcamOffResponse(
         converter.from_bytes(err_info.second));
   } else {
     current_webcam_off_response_handler_();
+  }
+}
+
+
+void NcStreamerRemote::OnRemoteWebcamSizeResponse(
+    const boost::property_tree::ptree &response) {
+  bool exception_occurred{false};
+  std::string error{};
+  try {
+    static std::wstring_convert<std::codecvt_utf8_utf16<wchar_t>> converter;
+    error = response.get<std::string>("error");
+  } catch (const std::exception &/*e*/) {
+    exception_occurred = true;
+  }
+
+  if (exception_occurred == true) {
+    LogError("webcam size response broken");
+    return;
+  }
+
+  if (error.empty() == false) {
+    static std::wstring_convert<std::codecvt_utf8_utf16<wchar_t>> converter;
+    const auto &err_info = ErrorConverter::ToWebcamSizeError(error);
+    current_error_handler_(
+        ErrorCategory::kWebcamSize,
+        static_cast<int>(err_info.first),
+        converter.from_bytes(err_info.second));
+  } else {
+    current_webcam_size_response_handler_();
   }
 }
 

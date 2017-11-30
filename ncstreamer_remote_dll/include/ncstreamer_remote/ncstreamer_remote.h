@@ -153,6 +153,12 @@ class NcStreamerRemote {
       const ErrorHandler &error_handler,
       const WebcamResponseHandler &webcam_off_response_handler);
 
+  void NCSTREAMER_REMOTE_DLL_API RequestWebcamSize(
+      const float &normal_width,
+      const float &normal_height,
+      const ErrorHandler &error_handler,
+      const WebcamResponseHandler &webcam_size_response_handler);
+
  private:
   using SteadyTimer = boost::asio::basic_waitable_timer<Chrono::steady_clock>;
   using AsioClient = websocketpp::config::asio_client;
@@ -186,6 +192,9 @@ class NcStreamerRemote {
       const float &normal_x,
       const float &normal_y);
   void SendWebcamOffRequest();
+  void SendWebcamSizeRequest(
+      const float &normal_width,
+      const float &normal_height);
 
   void OnRemoteFail(websocketpp::connection_hdl connection);
   void OnRemoteClose(websocketpp::connection_hdl connection);
@@ -213,6 +222,8 @@ class NcStreamerRemote {
   void OnRemoteWebcamOnResponse(
       const boost::property_tree::ptree &response);
   void OnRemoteWebcamOffResponse(
+      const boost::property_tree::ptree &response);
+  void OnRemoteWebcamSizeResponse(
       const boost::property_tree::ptree &response);
 
   void HandleDisconnect(
@@ -270,6 +281,7 @@ class NcStreamerRemote {
   WebcamSearchResponseHandler current_webcam_search_response_handler_;
   WebcamResponseHandler current_webcam_on_response_handler_;
   WebcamResponseHandler current_webcam_off_response_handler_;
+  WebcamResponseHandler current_webcam_size_response_handler_;
 };
 
 
