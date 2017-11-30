@@ -57,4 +57,7 @@ const char *const RemoteMessage::Error::
 
 const char *const RemoteMessage::Error::
     Webcam::kWebcamSize{"webcam size error"};
+
+const char *const RemoteMessage::Error::
+    Webcam::kWebcamPosition{"webcam position error"};
 }  // namespace ncstreamer

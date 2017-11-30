@@ -192,4 +192,22 @@ std::pair<Error::Webcam, std::string>
 
   return {Error::Webcam::kWebcamSize, error};
 }
+
+
+std::pair<Error::Webcam, std::string>
+    ErrorConverter::ToWebcamPositionError(const std::string &error) {
+  using WebcamPositionError = std::pair<Error::Webcam, std::string>;
+  static const std::unordered_map<std::string, WebcamPositionError>
+      kWebcamPositionError{
+          {ncstreamer::RemoteMessage::Error::Webcam::kWebcamPosition,
+           {Error::Webcam::kWebcamPosition,
+            "webcam position error"}}};
+
+  auto i = kWebcamPositionError.find(error);
+  if (i != kWebcamPositionError.end()) {
+    return i->second;
+  }
+
+  return {Error::Webcam::kWebcamPosition, error};
+}
 }  // namespace ncstreamer_remote
