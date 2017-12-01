@@ -70,6 +70,7 @@ class RemoteMessage {
     };
     class Comments {
      public:
+      static const char *const kCommentsNotReady;
       static const char *const kCommentsInternal;
     };
     class Webcam {

@@ -96,8 +96,11 @@ class Error {
     kNoError = 0,
     kUnknownError,
 
-    /// "Getting facebook live video comments internal error"
-    kCommentsInternal = 101,
+    /// "Live video comments not ready"
+    kCommentsNotReady = 101,
+
+    /// "Live video comments internal error"
+    kCommentsInternal,
   };
 
   enum class Webcam {
