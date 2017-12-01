@@ -37,6 +37,14 @@ class RemoteMessage {
     kSettingsWebcamSizeResponse,
     kSettingsWebcamPositionRequest = 541,
     kSettingsWebcamPositionResponse,
+    kSettingsChromaKeyOnRequest = 601,
+    kSettingsChromaKeyOnResponse,
+    kSettingsChromaKeyOffRequest = 611,
+    kSettingsChromaKeyOffResponse,
+    kSettingsChromaKeyColorRequest = 621,
+    kSettingsChromaKeyColorResponse,
+    kSettingsChromaKeySimilarityRequest = 631,
+    kSettingsChromaKeySimilarityResponse,
     kNcStreamerExitRequest = 901,
     kNcStreamerExitResponse,  // not used.
   };
@@ -71,6 +79,13 @@ class RemoteMessage {
       static const char *const kWebcamOff;
       static const char *const kWebcamSize;
       static const char *const kWebcamPosition;
+    };
+    class ChromaKey {
+     public:
+      static const char *const kChromaKeyOn;
+      static const char *const kChromaKeyOff;
+      static const char *const kChromaKeyColor;
+      static const char *const kChromaKeySimilarity;
     };
   };
 };

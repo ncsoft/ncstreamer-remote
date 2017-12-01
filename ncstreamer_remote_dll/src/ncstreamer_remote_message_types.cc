@@ -60,4 +60,17 @@ const char *const RemoteMessage::Error::
 
 const char *const RemoteMessage::Error::
     Webcam::kWebcamPosition{"webcam position error"};
+
+
+const char *const RemoteMessage::Error::
+    ChromaKey::kChromaKeyOn{"chroma key on error"};
+
+const char *const RemoteMessage::Error::
+    ChromaKey::kChromaKeyOff{"chroma key off error"};
+
+const char *const RemoteMessage::Error::
+    ChromaKey::kChromaKeyColor{"chroma key color error"};
+
+const char *const RemoteMessage::Error::
+    ChromaKey::kChromaKeySimilarity{"chroma key similarity error"};
 }  // namespace ncstreamer

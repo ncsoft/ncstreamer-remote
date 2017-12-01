@@ -90,6 +90,7 @@ class NcStreamerRemote {
   using WebcamSearchResponseHandler = std::function<void(
       const std::vector<NcStreamerRemote::WebcamDevice> &webcams)>;
   using WebcamResponseHandler = std::function<void()>;
+  using ChromaKeyResponseHandler = std::function<void()>;
 
   static NCSTREAMER_REMOTE_DLL_API void SetUp(uint16_t remote_port);
   static NCSTREAMER_REMOTE_DLL_API void SetUpDefault();
@@ -165,6 +166,26 @@ class NcStreamerRemote {
       const ErrorHandler &error_handler,
       const WebcamResponseHandler &webcam_position_response_handler);
 
+  void NCSTREAMER_REMOTE_DLL_API RequestChromaKeyOn(
+      const uint32_t &color,
+      const int &similarity,
+      const ErrorHandler &error_handler,
+      const ChromaKeyResponseHandler &chroma_key_on_response_handler);
+
+  void NCSTREAMER_REMOTE_DLL_API RequestChromaKeyOff(
+      const ErrorHandler &error_handler,
+      const ChromaKeyResponseHandler &chroma_key_off_response_handler);
+
+  void NCSTREAMER_REMOTE_DLL_API RequestChromaKeyColor(
+      const uint32_t &color,
+      const ErrorHandler &error_handler,
+      const ChromaKeyResponseHandler &chroma_key_color_response_handler);
+
+  void NCSTREAMER_REMOTE_DLL_API RequestChromaKeySimilarity(
+      const int &similarity,
+      const ErrorHandler &error_handler,
+      const ChromaKeyResponseHandler &chroma_key_similarity_response_handler);
+
  private:
   using SteadyTimer = boost::asio::basic_waitable_timer<Chrono::steady_clock>;
   using AsioClient = websocketpp::config::asio_client;
@@ -204,6 +225,12 @@ class NcStreamerRemote {
   void SendWebcamPositionRequest(
       const float &normal_x,
       const float &normal_y);
+  void SendChromaKeyOnRequest(
+      const uint32_t &color,
+      const int &similarity);
+  void SendChromaKeyOffRequest();
+  void SendChromaKeyColorRequest(const uint32_t &color);
+  void SendChromaKeySimilarityRequest(const int &similarity);
 
   void OnRemoteFail(websocketpp::connection_hdl connection);
   void OnRemoteClose(websocketpp::connection_hdl connection);
@@ -235,6 +262,14 @@ class NcStreamerRemote {
   void OnRemoteWebcamSizeResponse(
       const boost::property_tree::ptree &response);
   void OnRemoteWebcamPositionResponse(
+      const boost::property_tree::ptree &response);
+  void OnRemoteChromaKeyOnResponse(
+      const boost::property_tree::ptree &response);
+  void OnRemoteChromaKeyOffResponse(
+      const boost::property_tree::ptree &response);
+  void OnRemoteChromaKeyColorResponse(
+      const boost::property_tree::ptree &response);
+  void OnRemoteChromaKeySimilarityResponse(
       const boost::property_tree::ptree &response);
 
   void HandleDisconnect(
@@ -294,6 +329,10 @@ class NcStreamerRemote {
   WebcamResponseHandler current_webcam_off_response_handler_;
   WebcamResponseHandler current_webcam_size_response_handler_;
   WebcamResponseHandler current_webcam_position_response_handler_;
+  ChromaKeyResponseHandler current_chroma_key_on_response_handler_;
+  ChromaKeyResponseHandler current_chroma_key_off_response_handler_;
+  ChromaKeyResponseHandler current_chroma_key_color_response_handler_;
+  ChromaKeyResponseHandler current_chroma_key_similarity_response_handler_;
 };
 
 
