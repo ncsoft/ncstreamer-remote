@@ -17,6 +17,7 @@ enum class ErrorCategory {
   kStop,
   kComments,
   kWebcam,
+  kChromaKey,
 };
 
 
@@ -99,7 +100,6 @@ class Error {
     kCommentsInternal = 101,
   };
 
-
   enum class Webcam {
     kNoError = 0,
     kUnknownError,
@@ -118,6 +118,23 @@ class Error {
 
     /// "webcam position error"
     kWebcamPosition,
+  };
+
+  enum class ChromaKey {
+    kNoError = 0,
+    kUnknownError,
+
+    /// "chroma key on error"
+    kChromaKeyOn = 101,
+
+    /// "chroma key off error"
+    kChromaKeyOff,
+
+    /// "chroma key color error"
+    kChromaKeyColor,
+
+    /// "chroma key similarity error"
+    kChromaKeySimilarity,
   };
 };
 }  // namespace ncstreamer_remote

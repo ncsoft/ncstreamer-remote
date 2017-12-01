@@ -341,6 +341,104 @@ void NcStreamerRemote::RequestWebcamPosition(
 }
 
 
+void NcStreamerRemote::RequestChromaKeyOn(
+    const uint32_t &color,
+    const int &similarity,
+    const ErrorHandler &error_handler,
+    const ChromaKeyResponseHandler &chroma_key_on_response_handler) {
+  if (busy_ == true) {
+    HandleConnectionError(Error::Connection::kBusy, error_handler);
+    return;
+  }
+  busy_ = true;
+
+  current_error_handler_ = error_handler;
+  current_chroma_key_on_response_handler_ = chroma_key_on_response_handler;
+
+  if (!remote_connection_.lock()) {
+    Connect([color, similarity, this]() {
+      SendChromaKeyOnRequest(color, similarity);
+    });
+    return;
+  }
+
+  SendChromaKeyOnRequest(color, similarity);
+}
+
+
+void NcStreamerRemote::RequestChromaKeyOff(
+    const ErrorHandler &error_handler,
+    const ChromaKeyResponseHandler &chroma_key_off_response_handler) {
+  if (busy_ == true) {
+    HandleConnectionError(Error::Connection::kBusy, error_handler);
+    return;
+  }
+  busy_ = true;
+
+  current_error_handler_ = error_handler;
+  current_chroma_key_off_response_handler_ = chroma_key_off_response_handler;
+
+  if (!remote_connection_.lock()) {
+    Connect([this]() {
+      SendChromaKeyOffRequest();
+    });
+    return;
+  }
+
+  SendChromaKeyOffRequest();
+}
+
+
+void NcStreamerRemote::RequestChromaKeyColor(
+    const uint32_t &color,
+    const ErrorHandler &error_handler,
+    const ChromaKeyResponseHandler &chroma_key_color_response_handler) {
+  if (busy_ == true) {
+    HandleConnectionError(Error::Connection::kBusy, error_handler);
+    return;
+  }
+  busy_ = true;
+
+  current_error_handler_ = error_handler;
+  current_chroma_key_color_response_handler_ =
+      chroma_key_color_response_handler;
+
+  if (!remote_connection_.lock()) {
+    Connect([color, this]() {
+      SendChromaKeyColorRequest(color);
+    });
+    return;
+  }
+
+  SendChromaKeyColorRequest(color);
+}
+
+
+void NcStreamerRemote::RequestChromaKeySimilarity(
+    const int &similarity,
+    const ErrorHandler &error_handler,
+    const ChromaKeyResponseHandler &chroma_key_similarity_response_handler) {
+  if (busy_ == true) {
+    HandleConnectionError(Error::Connection::kBusy, error_handler);
+    return;
+  }
+  busy_ = true;
+
+  current_error_handler_ = error_handler;
+  current_chroma_key_similarity_response_handler_ =
+      chroma_key_similarity_response_handler;
+
+  if (!remote_connection_.lock()) {
+    Connect([similarity, this]() {
+      SendChromaKeyColorRequest(similarity);
+    });
+    return;
+  }
+
+  SendChromaKeyColorRequest(similarity);
+}
+
+
 NcStreamerRemote::NcStreamerRemote(uint16_t remote_port)
     : remote_uri_{new websocketpp::uri{false, "localhost", remote_port, ""}},
       io_service_{},
@@ -365,7 +463,11 @@ NcStreamerRemote::NcStreamerRemote(uint16_t remote_port)
       current_webcam_on_response_handler_{},
       current_webcam_off_response_handler_{},
       current_webcam_size_response_handler_{},
-      current_webcam_position_response_handler_{} {
+      current_webcam_position_response_handler_{},
+      current_chroma_key_on_response_handler_{},
+      current_chroma_key_off_response_handler_{},
+      current_chroma_key_color_response_handler_{},
+      current_chroma_key_similarity_response_handler_{} {
   busy_ = false;
 
   remote_log_.open("ncstreamer_remote.log");
@@ -725,6 +827,104 @@ void NcStreamerRemote::SendWebcamPositionRequest(
 }
 
 
+void NcStreamerRemote::SendChromaKeyOnRequest(
+    const uint32_t &color,
+    const int &similarity) {
+  std::stringstream msg;
+  {
+    std::wstring_convert<std::codecvt_utf8_utf16<wchar_t>> converter;
+
+    boost::property_tree::ptree tree;
+    tree.put("type", static_cast<int>(
+        ncstreamer::RemoteMessage::MessageType::
+            kSettingsChromaKeyOnRequest));
+    tree.put("color", color);
+    tree.put("similarity", similarity);
+
+    boost::property_tree::write_json(msg, tree, false);
+  }
+
+  websocketpp::lib::error_code ec;
+  remote_.send(
+      remote_connection_, msg.str(), websocketpp::frame::opcode::text, ec);
+  if (ec) {
+    HandleError(Error::Connection::kRemoteSend, ec);
+    return;
+  }
+}
+
+
+void NcStreamerRemote::SendChromaKeyOffRequest() {
+  std::stringstream msg;
+  {
+    std::wstring_convert<std::codecvt_utf8_utf16<wchar_t>> converter;
+
+    boost::property_tree::ptree tree;
+    tree.put("type", static_cast<int>(
+        ncstreamer::RemoteMessage::MessageType::
+            kSettingsChromaKeyOffRequest));
+
+    boost::property_tree::write_json(msg, tree, false);
+  }
+
+  websocketpp::lib::error_code ec;
+  remote_.send(
+      remote_connection_, msg.str(), websocketpp::frame::opcode::text, ec);
+  if (ec) {
+    HandleError(Error::Connection::kRemoteSend, ec);
+    return;
+  }
+}
+
+
+void NcStreamerRemote::SendChromaKeyColorRequest(const uint32_t &color) {
+  std::stringstream msg;
+  {
+    std::wstring_convert<std::codecvt_utf8_utf16<wchar_t>> converter;
+
+    boost::property_tree::ptree tree;
+    tree.put("type", static_cast<int>(
+        ncstreamer::RemoteMessage::MessageType::
+            kSettingsChromaKeyColorRequest));
+    tree.put("color", color);
+
+    boost::property_tree::write_json(msg, tree, false);
+  }
+
+  websocketpp::lib::error_code ec;
+  remote_.send(
+      remote_connection_, msg.str(), websocketpp::frame::opcode::text, ec);
+  if (ec) {
+    HandleError(Error::Connection::kRemoteSend, ec);
+    return;
+  }
+}
+
+
+void NcStreamerRemote::SendChromaKeySimilarityRequest(const int &similarity) {
+  std::stringstream msg;
+  {
+    std::wstring_convert<std::codecvt_utf8_utf16<wchar_t>> converter;
+
+    boost::property_tree::ptree tree;
+    tree.put("type", static_cast<int>(
+        ncstreamer::RemoteMessage::MessageType::
+            kSettingsChromaKeySimilarityRequest));
+    tree.put("similarity", similarity);
+
+    boost::property_tree::write_json(msg, tree, false);
+  }
+
+  websocketpp::lib::error_code ec;
+  remote_.send(
+      remote_connection_, msg.str(), websocketpp::frame::opcode::text, ec);
+  if (ec) {
+    HandleError(Error::Connection::kRemoteSend, ec);
+    return;
+  }
+}
+
+
 void NcStreamerRemote::OnRemoteFail(websocketpp::connection_hdl connection) {
   HandleDisconnect(Error::Connection::kOnRemoteFail);
 }
@@ -792,6 +992,19 @@ void NcStreamerRemote::OnRemoteMessage(
            this, std::placeholders::_1)},
       {ncstreamer::RemoteMessage::MessageType::kSettingsWebcamPositionResponse,
        std::bind(&NcStreamerRemote::OnRemoteWebcamPositionResponse,
+           this, std::placeholders::_1)},
+      {ncstreamer::RemoteMessage::MessageType::kSettingsChromaKeyOnResponse,
+       std::bind(&NcStreamerRemote::OnRemoteChromaKeyOnResponse,
+           this, std::placeholders::_1)},
+      {ncstreamer::RemoteMessage::MessageType::kSettingsChromaKeyOffResponse,
+       std::bind(&NcStreamerRemote::OnRemoteChromaKeyOffResponse,
+           this, std::placeholders::_1)},
+      {ncstreamer::RemoteMessage::MessageType::kSettingsChromaKeyColorResponse,
+       std::bind(&NcStreamerRemote::OnRemoteChromaKeyColorResponse,
+           this, std::placeholders::_1)},
+      {ncstreamer::RemoteMessage::MessageType::
+          kSettingsChromaKeySimilarityResponse,
+       std::bind(&NcStreamerRemote::OnRemoteChromaKeySimilarityResponse,
            this, std::placeholders::_1)}};
 
   auto i = kMessageHandlers.find(msg_type);
@@ -1191,6 +1404,122 @@ void NcStreamerRemote::OnRemoteWebcamPositionResponse(
         converter.from_bytes(err_info.second));
   } else {
     current_webcam_position_response_handler_();
+  }
+}
+
+
+void NcStreamerRemote::OnRemoteChromaKeyOnResponse(
+    const boost::property_tree::ptree &response) {
+  bool exception_occurred{false};
+  std::string error{};
+  try {
+    static std::wstring_convert<std::codecvt_utf8_utf16<wchar_t>> converter;
+    error = response.get<std::string>("error");
+  } catch (const std::exception &/*e*/) {
+    exception_occurred = true;
+  }
+
+  if (exception_occurred == true) {
+    LogError("chroma key on response broken");
+    return;
+  }
+
+  if (error.empty() == false) {
+    static std::wstring_convert<std::codecvt_utf8_utf16<wchar_t>> converter;
+    const auto &err_info = ErrorConverter::ToChromaKeyError(error);
+    current_error_handler_(
+        ErrorCategory::kChromaKey,
+        static_cast<int>(err_info.first),
+        converter.from_bytes(err_info.second));
+  } else {
+    current_chroma_key_on_response_handler_();
+  }
+}
+
+
+void NcStreamerRemote::OnRemoteChromaKeyOffResponse(
+    const boost::property_tree::ptree &response) {
+  bool exception_occurred{false};
+  std::string error{};
+  try {
+    static std::wstring_convert<std::codecvt_utf8_utf16<wchar_t>> converter;
+    error = response.get<std::string>("error");
+  } catch (const std::exception &/*e*/) {
+    exception_occurred = true;
+  }
+
+  if (exception_occurred == true) {
+    LogError("chroma key off response broken");
+    return;
+  }
+
+  if (error.empty() == false) {
+    static std::wstring_convert<std::codecvt_utf8_utf16<wchar_t>> converter;
+    const auto &err_info = ErrorConverter::ToChromaKeyError(error);
+    current_error_handler_(
+        ErrorCategory::kChromaKey,
+        static_cast<int>(err_info.first),
+        converter.from_bytes(err_info.second));
+  } else {
+    current_chroma_key_off_response_handler_();
+  }
+}
+
+
+void NcStreamerRemote::OnRemoteChromaKeyColorResponse(
+    const boost::property_tree::ptree &response) {
+  bool exception_occurred{false};
+  std::string error{};
+  try {
+    static std::wstring_convert<std::codecvt_utf8_utf16<wchar_t>> converter;
+    error = response.get<std::string>("error");
+  } catch (const std::exception &/*e*/) {
+    exception_occurred = true;
+  }
+
+  if (exception_occurred == true) {
+    LogError("chroma key color response broken");
+    return;
+  }
+
+  if (error.empty() == false) {
+    static std::wstring_convert<std::codecvt_utf8_utf16<wchar_t>> converter;
+    const auto &err_info = ErrorConverter::ToChromaKeyError(error);
+    current_error_handler_(
+        ErrorCategory::kChromaKey,
+        static_cast<int>(err_info.first),
+        converter.from_bytes(err_info.second));
+  } else {
+    current_chroma_key_on_response_handler_();
+  }
+}
+
+
+void NcStreamerRemote::OnRemoteChromaKeySimilarityResponse(
+    const boost::property_tree::ptree &response) {
+  bool exception_occurred{false};
+  std::string error{};
+  try {
+    static std::wstring_convert<std::codecvt_utf8_utf16<wchar_t>> converter;
+    error = response.get<std::string>("error");
+  } catch (const std::exception &/*e*/) {
+    exception_occurred = true;
+  }
+
+  if (exception_occurred == true) {
+    LogError("chroma key similarity response broken");
+    return;
+  }
+
+  if (error.empty() == false) {
+    static std::wstring_convert<std::codecvt_utf8_utf16<wchar_t>> converter;
+    const auto &err_info = ErrorConverter::ToChromaKeyError(error);
+    current_error_handler_(
+        ErrorCategory::kChromaKey,
+        static_cast<int>(err_info.first),
+        converter.from_bytes(err_info.second));
+  } else {
+    current_chroma_key_on_response_handler_();
   }
 }
 

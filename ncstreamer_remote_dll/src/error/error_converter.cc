@@ -150,4 +150,31 @@ std::pair<Error::Webcam, std::string>
 
   return {Error::Webcam::kUnknownError, error};
 }
+
+
+std::pair<Error::ChromaKey, std::string>
+    ErrorConverter::ToChromaKeyError(const std::string &error) {
+  using ChromaKeyError = std::pair<Error::ChromaKey, std::string>;
+  static const std::unordered_map<std::string, ChromaKeyError>
+      kChromaKeyError{
+          {ncstreamer::RemoteMessage::Error::ChromaKey::kChromaKeyOn,
+           {Error::ChromaKey::kChromaKeyOn,
+            "chroma key on error"}},
+          {ncstreamer::RemoteMessage::Error::ChromaKey::kChromaKeyOff,
+           {Error::ChromaKey::kChromaKeyOff,
+            "chroma key off error"}},
+          {ncstreamer::RemoteMessage::Error::ChromaKey::kChromaKeyColor,
+           {Error::ChromaKey::kChromaKeyColor,
+            "chroma key color error"}},
+          {ncstreamer::RemoteMessage::Error::ChromaKey::kChromaKeySimilarity,
+           {Error::ChromaKey::kChromaKeySimilarity,
+            "chroma key on error"}}};
+
+  auto i = kChromaKeyError.find(error);
+  if (i != kChromaKeyError.end()) {
+    return i->second;
+  }
+
+  return {Error::ChromaKey::kUnknownError, error};
+}
 }  // namespace ncstreamer_remote
