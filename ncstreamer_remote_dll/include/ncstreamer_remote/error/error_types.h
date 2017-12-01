@@ -16,11 +16,7 @@ enum class ErrorCategory {
   kStart,
   kStop,
   kComments,
-  kWebcamSearch,
-  kWebcamOn,
-  kWebcamOff,
-  kWebcamSize,
-  kWebcamPosition,
+  kWebcam,
 };
 
 

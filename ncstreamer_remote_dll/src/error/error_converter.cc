@@ -123,91 +123,31 @@ std::pair<Error::Comments, std::string>
 
 
 std::pair<Error::Webcam, std::string>
-    ErrorConverter::ToWebcamSearchError(const std::string &error) {
-  using WebcamSearchError = std::pair<Error::Webcam, std::string>;
-  static const std::unordered_map<std::string, WebcamSearchError>
-      kWebcamSearchError {
+    ErrorConverter::ToWebcamError(const std::string &error) {
+  using WebcamError = std::pair<Error::Webcam, std::string>;
+  static const std::unordered_map<std::string, WebcamError>
+      kWebcamError {
           {ncstreamer::RemoteMessage::Error::Webcam::kWebcamSearch,
            {Error::Webcam::kWebcamSearch,
-            "an error occurred from OBS internal"}}};
-
-  auto i = kWebcamSearchError.find(error);
-  if (i != kWebcamSearchError.end()) {
-    return i->second;
-  }
-
-  return {Error::Webcam::kWebcamSearch, error};
-}
-
-
-std::pair<Error::Webcam, std::string>
-    ErrorConverter::ToWebcamOnError(const std::string &error) {
-  using WebcamOnError = std::pair<Error::Webcam, std::string>;
-  static const std::unordered_map<std::string, WebcamOnError>
-      kWebcamOnError{
+            "an error occurred from OBS internal"}},
           {ncstreamer::RemoteMessage::Error::Webcam::kWebcamOn,
            {Error::Webcam::kWebcamOn,
-            "incorrect arguments"}}};
-
-  auto i = kWebcamOnError.find(error);
-  if (i != kWebcamOnError.end()) {
-    return i->second;
-  }
-
-  return {Error::Webcam::kWebcamOn, error};
-}
-
-
-std::pair<Error::Webcam, std::string>
-    ErrorConverter::ToWebcamOffError(const std::string &error) {
-  using WebcamOffError = std::pair<Error::Webcam, std::string>;
-  static const std::unordered_map<std::string, WebcamOffError>
-      kWebcamOffError{
+            "incorrect arguments"}},
           {ncstreamer::RemoteMessage::Error::Webcam::kWebcamOff,
            {Error::Webcam::kWebcamOff,
-            "webcam off error"}}};
-
-  auto i = kWebcamOffError.find(error);
-  if (i != kWebcamOffError.end()) {
-    return i->second;
-  }
-
-  return {Error::Webcam::kWebcamOff, error};
-}
-
-
-std::pair<Error::Webcam, std::string>
-    ErrorConverter::ToWebcamSizeError(const std::string &error) {
-  using WebcamSizeError = std::pair<Error::Webcam, std::string>;
-  static const std::unordered_map<std::string, WebcamSizeError>
-      kWebcamSizeError{
+            "webcam off error"}},
           {ncstreamer::RemoteMessage::Error::Webcam::kWebcamSize,
            {Error::Webcam::kWebcamSize,
-            "webcam size error"}}};
-
-  auto i = kWebcamSizeError.find(error);
-  if (i != kWebcamSizeError.end()) {
-    return i->second;
-  }
-
-  return {Error::Webcam::kWebcamSize, error};
-}
-
-
-std::pair<Error::Webcam, std::string>
-    ErrorConverter::ToWebcamPositionError(const std::string &error) {
-  using WebcamPositionError = std::pair<Error::Webcam, std::string>;
-  static const std::unordered_map<std::string, WebcamPositionError>
-      kWebcamPositionError{
+            "webcam size error"}},
           {ncstreamer::RemoteMessage::Error::Webcam::kWebcamPosition,
            {Error::Webcam::kWebcamPosition,
             "webcam position error"}}};
 
-  auto i = kWebcamPositionError.find(error);
-  if (i != kWebcamPositionError.end()) {
+  auto i = kWebcamError.find(error);
+  if (i != kWebcamError.end()) {
     return i->second;
   }
 
-  return {Error::Webcam::kWebcamPosition, error};
+  return {Error::Webcam::kUnknownError, error};
 }
 }  // namespace ncstreamer_remote

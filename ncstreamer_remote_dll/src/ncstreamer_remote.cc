@@ -1068,9 +1068,9 @@ void NcStreamerRemote::OnRemoteWebcamSearchResponse(
 
   if (error.empty() == false) {
     static std::wstring_convert<std::codecvt_utf8_utf16<wchar_t>> converter;
-    const auto &err_info = ErrorConverter::ToWebcamSearchError(error);
+    const auto &err_info = ErrorConverter::ToWebcamError(error);
     current_error_handler_(
-        ErrorCategory::kWebcamSearch,
+        ErrorCategory::kWebcam,
         static_cast<int>(err_info.first),
         converter.from_bytes(err_info.second));
   } else {
@@ -1097,9 +1097,9 @@ void NcStreamerRemote::OnRemoteWebcamOnResponse(
 
   if (error.empty() == false) {
     static std::wstring_convert<std::codecvt_utf8_utf16<wchar_t>> converter;
-    const auto &err_info = ErrorConverter::ToWebcamOnError(error);
+    const auto &err_info = ErrorConverter::ToWebcamError(error);
     current_error_handler_(
-        ErrorCategory::kWebcamOn,
+        ErrorCategory::kWebcam,
         static_cast<int>(err_info.first),
         converter.from_bytes(err_info.second));
   } else {
@@ -1126,9 +1126,9 @@ void NcStreamerRemote::OnRemoteWebcamOffResponse(
 
   if (error.empty() == false) {
     static std::wstring_convert<std::codecvt_utf8_utf16<wchar_t>> converter;
-    const auto &err_info = ErrorConverter::ToWebcamOffError(error);
+    const auto &err_info = ErrorConverter::ToWebcamError(error);
     current_error_handler_(
-        ErrorCategory::kWebcamOff,
+        ErrorCategory::kWebcam,
         static_cast<int>(err_info.first),
         converter.from_bytes(err_info.second));
   } else {
@@ -1155,9 +1155,9 @@ void NcStreamerRemote::OnRemoteWebcamSizeResponse(
 
   if (error.empty() == false) {
     static std::wstring_convert<std::codecvt_utf8_utf16<wchar_t>> converter;
-    const auto &err_info = ErrorConverter::ToWebcamSizeError(error);
+    const auto &err_info = ErrorConverter::ToWebcamError(error);
     current_error_handler_(
-        ErrorCategory::kWebcamSize,
+        ErrorCategory::kWebcam,
         static_cast<int>(err_info.first),
         converter.from_bytes(err_info.second));
   } else {
@@ -1184,9 +1184,9 @@ void NcStreamerRemote::OnRemoteWebcamPositionResponse(
 
   if (error.empty() == false) {
     static std::wstring_convert<std::codecvt_utf8_utf16<wchar_t>> converter;
-    const auto &err_info = ErrorConverter::ToWebcamPositionError(error);
+    const auto &err_info = ErrorConverter::ToWebcamError(error);
     current_error_handler_(
-        ErrorCategory::kWebcamPosition,
+        ErrorCategory::kWebcam,
         static_cast<int>(err_info.first),
         converter.from_bytes(err_info.second));
   } else {
