@@ -43,6 +43,9 @@ const char *const RemoteMessage::Error::
 
 
 const char *const RemoteMessage::Error::
+    Comments::kCommentsNotReady{"comments not ready"};
+
+const char *const RemoteMessage::Error::
     Comments::kCommentsInternal{"comments error"};
 
 

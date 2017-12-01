@@ -109,16 +109,19 @@ std::pair<Error::Comments, std::string>
   using CommentsError = std::pair<Error::Comments, std::string>;
   static const std::unordered_map<std::string, CommentsError>
       kCommentsErrors {
+          {ncstreamer::RemoteMessage::Error::Comments::kCommentsNotReady,
+           {Error::Comments::kCommentsNotReady,
+            "Live video comments not ready"}},
           {ncstreamer::RemoteMessage::Error::Comments::kCommentsInternal,
            {Error::Comments::kCommentsInternal,
-            "Getting facebook live video comments internal error"}}};
+            "Live video comments internal error"}}};
 
   auto i = kCommentsErrors.find(error);
   if (i != kCommentsErrors.end()) {
     return i->second;
   }
 
-  return {Error::Comments::kCommentsInternal, error};
+  return{ Error::Comments::kUnknownError, error };
 }
 
 
