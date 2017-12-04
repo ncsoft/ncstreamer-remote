@@ -336,17 +336,23 @@ class NcStreamerRemote {
 };
 
 
-class NCSTREAMER_REMOTE_DLL_API NcStreamerRemote::WebcamDevice {
+class NcStreamerRemote::WebcamDevice {
  public:
-  WebcamDevice(
+  NCSTREAMER_REMOTE_DLL_API WebcamDevice(
       const std::wstring &id,
       const int &default_width,
       const int &default_height);
-  virtual ~WebcamDevice();
+  virtual NCSTREAMER_REMOTE_DLL_API ~WebcamDevice();
 
-  const std::wstring &id() const { return id_; }
-  const int &default_width() const { return default_width_; }
-  const int &default_height() const { return default_height_; }
+  const std::wstring NCSTREAMER_REMOTE_DLL_API &id() const {
+    return id_;
+  }
+  const int NCSTREAMER_REMOTE_DLL_API &default_width() const {
+    return default_width_;
+  }
+  const int NCSTREAMER_REMOTE_DLL_API &default_height() const {
+    return default_height_;
+  }
 
  private:
   std::wstring id_;
