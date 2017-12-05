@@ -47,6 +47,8 @@ class RemoteMessage {
     kSettingsChromaKeySimilarityResponse,
     kSettingsMicOnRequest = 701,
     kSettingsMicOnResponse,
+    kSettingsMicOffRequest = 711,
+    kSettingsMicOffResponse,
     kNcStreamerExitRequest = 901,
     kNcStreamerExitResponse,  // not used.
   };
@@ -93,6 +95,7 @@ class RemoteMessage {
     class Mic {
      public:
       static const char *const kMicOn;
+      static const char *const kMicOff;
     };
   };
 };

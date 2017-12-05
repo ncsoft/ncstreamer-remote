@@ -147,6 +147,9 @@ class Error {
 
     /// "mic on error"
     kMicOn = 101,
+
+    /// "mic off error"
+    kMicOff,
   };
 };
 }  // namespace ncstreamer_remote

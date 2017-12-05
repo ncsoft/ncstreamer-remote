@@ -462,6 +462,29 @@ void NcStreamerRemote::RequestMicOn(
 }
 
 
+void NcStreamerRemote::RequestMicOff(
+    const ErrorHandler &error_handler,
+    const MicResponseHandler &mic_off_response_handler) {
+  if (busy_ == true) {
+    HandleConnectionError(Error::Connection::kBusy, error_handler);
+    return;
+  }
+  busy_ = true;
+
+  current_error_handler_ = error_handler;
+  current_mic_off_response_handler_ = mic_off_response_handler;
+
+  if (!remote_connection_.lock()) {
+    Connect([this]() {
+      SendMicOffRequest();
+    });
+    return;
+  }
+
+  SendMicOffRequest();
+}
+
+
 NcStreamerRemote::NcStreamerRemote(uint16_t remote_port)
     : remote_uri_{new websocketpp::uri{false, "localhost", remote_port, ""}},
       io_service_{},
@@ -491,7 +514,8 @@ NcStreamerRemote::NcStreamerRemote(uint16_t remote_port)
       current_chroma_key_off_response_handler_{},
       current_chroma_key_color_response_handler_{},
       current_chroma_key_similarity_response_handler_{},
-      current_mic_on_response_handler_{} {
+      current_mic_on_response_handler_{},
+      current_mic_off_response_handler_{} {
   busy_ = false;
 
   remote_log_.open("ncstreamer_remote.log");
@@ -972,6 +996,29 @@ void NcStreamerRemote::SendMicOnRequest() {
 }
 
 
+void NcStreamerRemote::SendMicOffRequest() {
+  std::stringstream msg;
+  {
+    std::wstring_convert<std::codecvt_utf8_utf16<wchar_t>> converter;
+
+    boost::property_tree::ptree tree;
+    tree.put("type", static_cast<int>(
+        ncstreamer::RemoteMessage::MessageType::
+            kSettingsMicOffRequest));
+
+    boost::property_tree::write_json(msg, tree, false);
+  }
+
+  websocketpp::lib::error_code ec;
+  remote_.send(
+      remote_connection_, msg.str(), websocketpp::frame::opcode::text, ec);
+  if (ec) {
+    HandleError(Error::Connection::kRemoteSend, ec);
+    return;
+  }
+}
+
+
 void NcStreamerRemote::OnRemoteFail(websocketpp::connection_hdl connection) {
   HandleDisconnect(Error::Connection::kOnRemoteFail);
 }
@@ -1051,6 +1098,9 @@ void NcStreamerRemote::OnRemoteMessage(
            this, std::placeholders::_1)},
       {ncstreamer::RemoteMessage::MessageType::kSettingsMicOnRequest,
        std::bind(&NcStreamerRemote::OnRemoteMicOnResponse,
+           this, std::placeholders::_1)},
+      {ncstreamer::RemoteMessage::MessageType::kSettingsMicOffRequest,
+       std::bind(&NcStreamerRemote::OnRemoteMicOffResponse,
            this, std::placeholders::_1)},
       {ncstreamer::RemoteMessage::MessageType::
           kSettingsChromaKeySimilarityResponse,
@@ -1599,6 +1649,35 @@ void NcStreamerRemote::OnRemoteMicOnResponse(
         converter.from_bytes(err_info.second));
   } else {
     current_mic_on_response_handler_();
+  }
+}
+
+
+void NcStreamerRemote::OnRemoteMicOffResponse(
+    const boost::property_tree::ptree &response) {
+  bool exception_occurred{false};
+  std::string error{};
+  try {
+    static std::wstring_convert<std::codecvt_utf8_utf16<wchar_t>> converter;
+    error = response.get<std::string>("error");
+  } catch (const std::exception &/*e*/) {
+    exception_occurred = true;
+  }
+
+  if (exception_occurred == true) {
+    LogError("mic off response broken");
+    return;
+  }
+
+  if (error.empty() == false) {
+    static std::wstring_convert<std::codecvt_utf8_utf16<wchar_t>> converter;
+    const auto &err_info = ErrorConverter::ToMicError(error);
+    current_error_handler_(
+        ErrorCategory::kMic,
+        static_cast<int>(err_info.first),
+        converter.from_bytes(err_info.second));
+  } else {
+    current_mic_off_response_handler_();
   }
 }
 

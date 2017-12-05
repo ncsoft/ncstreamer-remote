@@ -189,7 +189,10 @@ std::pair<Error::Mic, std::string>
       kMicError{
           {ncstreamer::RemoteMessage::Error::Mic::kMicOn,
            {Error::Mic::kMicOn,
-            "mic on error"}}};
+            "mic on error"}},
+          {ncstreamer::RemoteMessage::Error::Mic::kMicOff,
+           {Error::Mic::kMicOff,
+            "mic off error"}}};
 
   auto i = kMicError.find(error);
   if (i != kMicError.end()) {

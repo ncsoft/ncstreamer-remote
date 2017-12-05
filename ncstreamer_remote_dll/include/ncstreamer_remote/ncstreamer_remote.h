@@ -191,6 +191,10 @@ class NcStreamerRemote {
       const ErrorHandler &error_handler,
       const MicResponseHandler &mic_on_response_handler);
 
+  void NCSTREAMER_REMOTE_DLL_API RequestMicOff(
+      const ErrorHandler &error_handler,
+      const MicResponseHandler &mic_off_response_handler);
+
  private:
   using SteadyTimer = boost::asio::basic_waitable_timer<Chrono::steady_clock>;
   using AsioClient = websocketpp::config::asio_client;
@@ -237,6 +241,7 @@ class NcStreamerRemote {
   void SendChromaKeyColorRequest(const uint32_t &color);
   void SendChromaKeySimilarityRequest(const int &similarity);
   void SendMicOnRequest();
+  void SendMicOffRequest();
 
   void OnRemoteFail(websocketpp::connection_hdl connection);
   void OnRemoteClose(websocketpp::connection_hdl connection);
@@ -278,6 +283,8 @@ class NcStreamerRemote {
   void OnRemoteChromaKeySimilarityResponse(
       const boost::property_tree::ptree &response);
   void OnRemoteMicOnResponse(
+      const boost::property_tree::ptree &response);
+  void OnRemoteMicOffResponse(
       const boost::property_tree::ptree &response);
 
   void HandleDisconnect(
@@ -342,6 +349,7 @@ class NcStreamerRemote {
   ChromaKeyResponseHandler current_chroma_key_color_response_handler_;
   ChromaKeyResponseHandler current_chroma_key_similarity_response_handler_;
   MicResponseHandler current_mic_on_response_handler_;
+  MicResponseHandler current_mic_off_response_handler_;
 };
 
 
