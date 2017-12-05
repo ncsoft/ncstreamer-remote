@@ -180,4 +180,22 @@ std::pair<Error::ChromaKey, std::string>
 
   return {Error::ChromaKey::kUnknownError, error};
 }
+
+
+std::pair<Error::Mic, std::string>
+    ErrorConverter::ToMicError(const std::string &error) {
+  using MicError = std::pair<Error::Mic, std::string>;
+  static const std::unordered_map<std::string, MicError>
+      kMicError{
+          {ncstreamer::RemoteMessage::Error::Mic::kMicOn,
+           {Error::Mic::kMicOn,
+            "mic on error"}}};
+
+  auto i = kMicError.find(error);
+  if (i != kMicError.end()) {
+    return i->second;
+  }
+
+  return {Error::Mic::kUnknownError, error};
+}
 }  // namespace ncstreamer_remote

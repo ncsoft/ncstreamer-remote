@@ -76,4 +76,8 @@ const char *const RemoteMessage::Error::
 
 const char *const RemoteMessage::Error::
     ChromaKey::kChromaKeySimilarity{"chroma key similarity error"};
+
+
+const char *const RemoteMessage::Error::
+    Mic::kMicOn{"mic on error"};
 }  // namespace ncstreamer
