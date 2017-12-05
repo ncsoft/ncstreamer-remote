@@ -430,12 +430,12 @@ void NcStreamerRemote::RequestChromaKeySimilarity(
 
   if (!remote_connection_.lock()) {
     Connect([similarity, this]() {
-      SendChromaKeyColorRequest(similarity);
+      SendChromaKeySimilarityRequest(similarity);
     });
     return;
   }
 
-  SendChromaKeyColorRequest(similarity);
+  SendChromaKeySimilarityRequest(similarity);
 }
 
 
