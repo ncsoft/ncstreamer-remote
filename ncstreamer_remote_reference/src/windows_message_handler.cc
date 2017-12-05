@@ -41,6 +41,7 @@ enum {
   WM_USER__REMOTE_RESPONSE_CHROMA_KEY_ON,
   WM_USER__REMOTE_RESPONSE_CHROMA_KEY_OFF,
   WM_USER__REMOTE_RESPONSE_MIC_ON,
+  WM_USER__REMOTE_RESPONSE_MIC_OFF,
 };
 
 
@@ -73,6 +74,7 @@ HWND static_webcam_off_button{NULL};
 HWND static_chroma_key_on_button{NULL};
 HWND static_chroma_key_off_button{NULL};
 HWND static_mic_on_button{NULL};
+HWND static_mic_off_button{NULL};
 HWND static_message_panel{NULL};
 
 HFONT static_clock_font{NULL};
@@ -355,6 +357,28 @@ void OnMicOnButton() {
 }
 
 
+void OnMicOffButton() {
+  SetMessage(L"OnMicOffButton");
+
+  ncstreamer_remote::NcStreamerRemote::Get()->RequestMicOff(
+    [](ncstreamer_remote::ErrorCategory category,
+    int err_code,
+    const std::wstring &err_msg) {
+    ::PostMessage(
+      static_main_dialog,
+      WM_USER__REMOTE_RESPONSE_FAIL,
+      (WPARAM) nullptr,
+      (LPARAM) new std::wstring{ err_msg });
+  }, []() {
+    ::PostMessage(
+      static_main_dialog,
+      WM_USER__REMOTE_RESPONSE_MIC_OFF,
+      (WPARAM) nullptr,
+      (LPARAM) nullptr);
+  });
+}
+
+
 void OnExitButton() {
   SetMessage(L"OnExitButton");
 
@@ -530,6 +554,14 @@ void OnRemoteResponseMicOn(LPARAM /*lparam*/) {
 }
 
 
+void OnRemoteResponseMicOff(LPARAM /*lparam*/) {
+  std::wstringstream ss;
+  ss << L"mic off success" << L"\r\n";
+
+  ::SetWindowText(static_message_panel, ss.str().c_str());
+}
+
+
 INT_PTR OnCommand(WPARAM wparam, LPARAM /*lparam*/) {
   switch (LOWORD(wparam)) {
     case IDC_BUTTON_STATUS: OnStatusButton(); return TRUE;
@@ -541,6 +573,7 @@ INT_PTR OnCommand(WPARAM wparam, LPARAM /*lparam*/) {
     case IDC_BUTTON_CHROMA_KEY_ON: OnChromaKeyOnButton(); return TRUE;
     case IDC_BUTTON_CHROMA_KEY_OFF: OnChromaKeyOffButton(); return TRUE;
     case IDC_BUTTON_MIC_ON: OnMicOnButton(); return TRUE;
+    case IDC_BUTTON_MIC_OFF: OnMicOffButton(); return TRUE;
     case IDC_BUTTON_EXIT: OnExitButton(); return TRUE;
     default: break;
   }
@@ -573,6 +606,7 @@ HWND CreateMainDialog(
   static_chroma_key_on_button = ::GetDlgItem(dlg, IDC_BUTTON_CHROMA_KEY_ON);
   static_chroma_key_off_button = ::GetDlgItem(dlg, IDC_BUTTON_CHROMA_KEY_OFF);
   static_mic_on_button = ::GetDlgItem(dlg, IDC_BUTTON_MIC_ON);
+  static_mic_off_button = ::GetDlgItem(dlg, IDC_BUTTON_MIC_OFF);
   static_message_panel = ::GetDlgItem(dlg, IDC_EDIT_MESSAGE);
 
   static_clock_font = SetUpFont(static_clock_panel, 36);
@@ -676,6 +710,8 @@ INT_PTR CALLBACK MainDialogProc(
         OnRemoteResponseChromaKeyOff(lparam); return TRUE;
     case WM_USER__REMOTE_RESPONSE_MIC_ON:
         OnRemoteResponseMicOn(lparam); return TRUE;
+    case WM_USER__REMOTE_RESPONSE_MIC_OFF:
+        OnRemoteResponseMicOff(lparam); return TRUE;
     case WM_CLOSE: DeleteMainDialog(); return TRUE;
     case WM_DESTROY: ::PostQuitMessage(/*exit code*/ 0); return TRUE;
     default: break;
