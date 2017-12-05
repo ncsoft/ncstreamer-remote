@@ -18,6 +18,7 @@ enum class ErrorCategory {
   kComments,
   kWebcam,
   kChromaKey,
+  kMic,
 };
 
 
@@ -138,6 +139,17 @@ class Error {
 
     /// "chroma key similarity error"
     kChromaKeySimilarity,
+  };
+
+  enum class Mic {
+    kNoError = 0,
+    kUnknownError,
+
+    /// "mic on error"
+    kMicOn = 101,
+
+    /// "mic off error"
+    kMicOff,
   };
 };
 }  // namespace ncstreamer_remote

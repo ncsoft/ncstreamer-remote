@@ -45,6 +45,11 @@ class ErrorConverter {
   /// @return Pair of error code and description.
   static std::pair<Error::ChromaKey, std::string>
       ToChromaKeyError(const std::string &error);
+
+  /// @param error Error ID from NCStreamer.
+  /// @return Pair of error code and description.
+  static std::pair<Error::Mic, std::string>
+      ToMicError(const std::string &error);
 };
 }  // namespace ncstreamer_remote
 
