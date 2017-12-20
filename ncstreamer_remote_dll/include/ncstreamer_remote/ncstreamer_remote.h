@@ -87,6 +87,9 @@ class NcStreamerRemote {
 
   using CommentsResponseHandler = std::function<void(
       const std::wstring &msg)>;
+  using ViewersResponseHandler = std::function<void(
+      const std::wstring &viewers)>;
+
   using WebcamSearchResponseHandler = std::function<void(
       const std::vector<NcStreamerRemote::WebcamDevice> &webcams)>;
   using WebcamResponseHandler = std::function<void()>;
@@ -137,6 +140,10 @@ class NcStreamerRemote {
       const std::wstring &created_time,
       const ErrorHandler &error_handler,
       const CommentsResponseHandler &comments_response_handler);
+
+  void NCSTREAMER_REMOTE_DLL_API RequestViewers(
+      const ErrorHandler &error_handler,
+      const ViewersResponseHandler &viewers_response_handler);
 
   void NCSTREAMER_REMOTE_DLL_API RequestWebcamSearch(
       const ErrorHandler &error_handler,
@@ -220,6 +227,7 @@ class NcStreamerRemote {
   void SendQualityUpdateRequest(const std::wstring &quality);
   void SendExitRequest();
   void SendCommentsRequest(const std::wstring &created_time);
+  void SendViewersRequest();
   void SendWebcamSearchRequest();
   void SendWebcamOnRequest(
       const std::wstring &device_id,
@@ -263,6 +271,8 @@ class NcStreamerRemote {
   void OnRemoteQualityUpdateResponse(
       const boost::property_tree::ptree &response);
   void OnRemoteCommentsResponse(
+      const boost::property_tree::ptree &response);
+  void OnRemoteViewersResponse(
       const boost::property_tree::ptree &response);
   void OnRemoteWebcamSearchResponse(
       const boost::property_tree::ptree &response);
@@ -339,6 +349,7 @@ class NcStreamerRemote {
   StopResponseHandler current_stop_response_handler_;
   SuccessHandler current_quality_update_response_handler_;
   CommentsResponseHandler current_comments_response_handler_;
+  ViewersResponseHandler current_viewers_response_handler_;
   WebcamSearchResponseHandler current_webcam_search_response_handler_;
   WebcamResponseHandler current_webcam_on_response_handler_;
   WebcamResponseHandler current_webcam_off_response_handler_;

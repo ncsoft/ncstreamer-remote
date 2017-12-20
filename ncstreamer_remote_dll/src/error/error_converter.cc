@@ -121,7 +121,24 @@ std::pair<Error::Comments, std::string>
     return i->second;
   }
 
-  return{ Error::Comments::kUnknownError, error };
+  return {Error::Comments::kUnknownError, error};
+}
+
+
+std::pair<Error::Viewers, std::string>
+    ErrorConverter::ToViewersError(const std::string &error) {
+  using ViewersError = std::pair<Error::Viewers, std::string>;
+  static const std::unordered_map<std::string, ViewersError> kViewersErrors {
+      {ncstreamer::RemoteMessage::Error::Viewers::kViewersInternal,
+       {Error::Viewers::kViewersInternal,
+        "Get viewers internal error"}}};
+
+  auto i = kViewersErrors.find(error);
+  if (i != kViewersErrors.end()) {
+    return i->second;
+  }
+
+  return {Error::Viewers::kUnknownError, error};
 }
 
 

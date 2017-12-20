@@ -214,6 +214,29 @@ void NcStreamerRemote::RequstComments(
 }
 
 
+void NcStreamerRemote::RequestViewers(
+    const ErrorHandler &error_handler,
+    const ViewersResponseHandler &viewers_response_handler) {
+  if (busy_ == true) {
+    HandleConnectionError(Error::Connection::kBusy, error_handler);
+    return;
+  }
+  busy_ = true;
+
+  current_error_handler_ = error_handler;
+  current_viewers_response_handler_ = viewers_response_handler;
+
+  if (!remote_connection_.lock()) {
+    Connect([this]() {
+      SendViewersRequest();
+    });
+    return;
+  }
+
+  SendViewersRequest();
+}
+
+
 void NcStreamerRemote::RequestWebcamSearch(
     const ErrorHandler &error_handler,
     const WebcamSearchResponseHandler &webcam_search_response_handler) {
@@ -505,6 +528,7 @@ NcStreamerRemote::NcStreamerRemote(uint16_t remote_port)
       current_stop_response_handler_{},
       current_quality_update_response_handler_{},
       current_comments_response_handler_{},
+      current_viewers_response_handler_{},
       current_webcam_search_response_handler_{},
       current_webcam_on_response_handler_{},
       current_webcam_off_response_handler_{},
@@ -735,6 +759,27 @@ void NcStreamerRemote::SendCommentsRequest(const std::wstring &created_time) {
     tree.put("type", static_cast<int>(
         ncstreamer::RemoteMessage::MessageType::kStreamingCommentsRequest));
     tree.put("createdTime", converter.to_bytes(created_time));
+    boost::property_tree::write_json(msg, tree, false);
+  }
+
+  websocketpp::lib::error_code ec;
+  remote_.send(
+      remote_connection_, msg.str(), websocketpp::frame::opcode::text, ec);
+  if (ec) {
+    HandleError(Error::Connection::kRemoteSend, ec);
+    return;
+  }
+}
+
+
+void NcStreamerRemote::SendViewersRequest() {
+  std::stringstream msg;
+  {
+    std::wstring_convert<std::codecvt_utf8_utf16<wchar_t>> converter;
+
+    boost::property_tree::ptree tree;
+    tree.put("type", static_cast<int>(
+        ncstreamer::RemoteMessage::MessageType::kStreamingViewersRequest));
     boost::property_tree::write_json(msg, tree, false);
   }
 
@@ -1072,6 +1117,9 @@ void NcStreamerRemote::OnRemoteMessage(
       {ncstreamer::RemoteMessage::MessageType::kStreamingCommentsResponse,
        std::bind(&NcStreamerRemote::OnRemoteCommentsResponse,
            this, std::placeholders::_1)},
+      {ncstreamer::RemoteMessage::MessageType::kStreamingViewersResponse,
+       std::bind(&NcStreamerRemote::OnRemoteViewersResponse,
+           this, std::placeholders::_1)},
       {ncstreamer::RemoteMessage::MessageType::kSettingsWebcamSearchResponse,
        std::bind(&NcStreamerRemote::OnRemoteWebcamSearchResponse,
            this, std::placeholders::_1)},
@@ -1325,7 +1373,7 @@ void NcStreamerRemote::OnRemoteQualityUpdateResponse(
 
 void NcStreamerRemote::OnRemoteCommentsResponse(
     const boost::property_tree::ptree &response) {
-  bool exception_occurred{ false };
+  bool exception_occurred{false};
   std::string error{};
   std::string chat_message{};
   try {
@@ -1351,6 +1399,38 @@ void NcStreamerRemote::OnRemoteCommentsResponse(
       current_comments_response_handler_(converter.from_bytes(chat_message));
     }
 }
+
+
+void NcStreamerRemote::OnRemoteViewersResponse(
+    const boost::property_tree::ptree &response) {
+  bool exception_occurred{false};
+  std::string error{};
+  std::string viewers_message{};
+  try {
+    error = response.get<std::string>("error");
+    viewers_message = response.get<std::string>("viewers");
+  } catch (const std::exception &/*e*/) {
+    exception_occurred = true;
+  }
+
+  if (exception_occurred == true) {
+    LogError("viewers response broken");
+    return;
+  }
+
+  static std::wstring_convert<std::codecvt_utf8_utf16<wchar_t>> converter;
+  if (error.empty() == false) {
+    const auto &err_info = ErrorConverter::ToViewersError(error);
+    current_error_handler_(
+        ErrorCategory::kViewers,
+        static_cast<int>(err_info.first),
+        converter.from_bytes(err_info.second));
+  } else {
+    current_viewers_response_handler_(
+        converter.from_bytes(viewers_message));
+  }
+}
+
 
 
 void NcStreamerRemote::OnRemoteWebcamSearchResponse(

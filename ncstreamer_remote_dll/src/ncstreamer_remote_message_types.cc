@@ -50,6 +50,10 @@ const char *const RemoteMessage::Error::
 
 
 const char *const RemoteMessage::Error::
+    Viewers::kViewersInternal{"viewers error"};
+
+
+const char *const RemoteMessage::Error::
     Webcam::kWebcamSearch{"search webcam error"};
 
 const char *const RemoteMessage::Error::

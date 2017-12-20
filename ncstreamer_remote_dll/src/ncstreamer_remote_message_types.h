@@ -49,6 +49,8 @@ class RemoteMessage {
     kSettingsMicOnResponse,
     kSettingsMicOffRequest = 711,
     kSettingsMicOffResponse,
+    kStreamingViewersRequest = 801,
+    kStreamingViewersResponse,
     kNcStreamerExitRequest = 901,
     kNcStreamerExitResponse,  // not used.
   };
@@ -76,6 +78,10 @@ class RemoteMessage {
      public:
       static const char *const kCommentsNotReady;
       static const char *const kCommentsInternal;
+    };
+    class Viewers {
+     public:
+      static const char *const kViewersInternal;
     };
     class Webcam {
      public:

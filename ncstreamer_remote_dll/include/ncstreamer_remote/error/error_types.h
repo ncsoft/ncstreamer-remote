@@ -16,6 +16,7 @@ enum class ErrorCategory {
   kStart,
   kStop,
   kComments,
+  kViewers,
   kWebcam,
   kChromaKey,
   kMic,
@@ -102,6 +103,14 @@ class Error {
 
     /// "Live video comments internal error"
     kCommentsInternal,
+  };
+
+  enum class Viewers {
+      kNoError = 0,
+      kUnknownError,
+
+      /// "get viewers internal error"
+      kViewersInternal,
   };
 
   enum class Webcam {
