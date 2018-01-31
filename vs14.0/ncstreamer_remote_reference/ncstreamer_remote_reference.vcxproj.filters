@@ -29,4 +29,7 @@
       <Filter>src</Filter>
     </ClInclude>
   </ItemGroup>
+  <ItemGroup>
+    <Image Include="..\..\ncstreamer_remote_reference\res\clock.ico" />
+  </ItemGroup>
 </Project>

@@ -204,6 +204,9 @@
     <ClCompile Include="..\..\ncstreamer_remote_reference\src\main.cc" />
     <ClCompile Include="..\..\ncstreamer_remote_reference\src\windows_message_handler.cc" />
   </ItemGroup>
+  <ItemGroup>
+    <Image Include="..\..\ncstreamer_remote_reference\res\clock.ico" />
+  </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
   </ImportGroup>
