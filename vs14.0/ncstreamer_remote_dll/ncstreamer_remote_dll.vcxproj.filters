@@ -7,6 +7,15 @@
     <Filter Include="src\error">
       <UniqueIdentifier>{b372c53d-e138-4830-ad6e-559d6cb3c69d}</UniqueIdentifier>
     </Filter>
+    <Filter Include="include">
+      <UniqueIdentifier>{c434ae1d-61b0-485d-a246-e65608a9d4d1}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="include\ncstreamer_remote">
+      <UniqueIdentifier>{6846b222-29aa-4f32-9ba1-e2d607c1aedd}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="include\ncstreamer_remote\error">
+      <UniqueIdentifier>{2fa1707b-aa7c-4c20-ac8e-0b58511f388e}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\..\ncstreamer_remote_dll\src\ncstreamer_remote.cc">
@@ -26,11 +35,11 @@
     <ClInclude Include="..\..\ncstreamer_remote_dll\src\error\error_converter.h">
       <Filter>src\error</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\ncstreamer_remote_dll\src\error\error_types.h">
-      <Filter>src\error</Filter>
+    <ClInclude Include="..\..\ncstreamer_remote_dll\include\ncstreamer_remote\error\error_types.h">
+      <Filter>include\ncstreamer_remote\error</Filter>
     </ClInclude>
     <ClInclude Include="..\..\ncstreamer_remote_dll\include\ncstreamer_remote\ncstreamer_remote.h">
-      <Filter>src</Filter>
+      <Filter>include\ncstreamer_remote</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

@@ -83,6 +83,9 @@ const char *const RemoteMessage::Error::
 
 
 const char *const RemoteMessage::Error::
+    Mic::kMicSearch{"mic search error"};
+
+const char *const RemoteMessage::Error::
     Mic::kMicOn{"mic on error"};
 
 const char *const RemoteMessage::Error::

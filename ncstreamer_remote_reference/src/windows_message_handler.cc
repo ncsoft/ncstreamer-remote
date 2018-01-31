@@ -40,6 +40,7 @@ enum {
   WM_USER__REMOTE_RESPONSE_WEBCAM_OFF,
   WM_USER__REMOTE_RESPONSE_CHROMA_KEY_ON,
   WM_USER__REMOTE_RESPONSE_CHROMA_KEY_OFF,
+  WM_USER__REMOTE_RESPONSE_MIC_SEARCH,
   WM_USER__REMOTE_RESPONSE_MIC_ON,
   WM_USER__REMOTE_RESPONSE_MIC_OFF,
 };
@@ -73,6 +74,7 @@ HWND static_webcam_on_button{NULL};
 HWND static_webcam_off_button{NULL};
 HWND static_chroma_key_on_button{NULL};
 HWND static_chroma_key_off_button{NULL};
+HWND static_mic_search_button{NULL};
 HWND static_mic_on_button{NULL};
 HWND static_mic_off_button{NULL};
 HWND static_message_panel{NULL};
@@ -80,6 +82,7 @@ HWND static_message_panel{NULL};
 HFONT static_clock_font{NULL};
 
 std::vector<ncstreamer_remote::NcStreamerRemote::WebcamDevice> static_webcams;
+std::vector<std::wstring> static_mic_devices;
 
 void SetMessage(const std::wstring &msg) {
   ::SetWindowText(static_message_panel, msg.c_str());
@@ -335,10 +338,36 @@ void OnChromaKeyOffButton() {
   });
 }
 
+
+void OnMicSearchButton() {
+  SetMessage(L"OnMicSearchButton");
+
+  ncstreamer_remote::NcStreamerRemote::Get()->RequestMicSearch(
+      [](ncstreamer_remote::ErrorCategory category,
+         int err_code,
+         const std::wstring &err_msg) {
+    ::PostMessage(
+        static_main_dialog,
+        WM_USER__REMOTE_RESPONSE_FAIL,
+        (WPARAM) nullptr,
+        (LPARAM) new std::wstring{err_msg});
+  }, [](const std::vector<std::wstring> mic_devices) {
+    ::PostMessage(
+        static_main_dialog,
+        WM_USER__REMOTE_RESPONSE_MIC_SEARCH,
+        (WPARAM) nullptr,
+        (LPARAM) new std::vector<std::wstring>{mic_devices});
+  });
+}
+
+
 void OnMicOnButton() {
   SetMessage(L"OnMicOnButton");
-
+  const std::wstring &device_id{L"default"};
+  const float &volume{0.5};
   ncstreamer_remote::NcStreamerRemote::Get()->RequestMicOn(
+      device_id,
+      volume,
       [](ncstreamer_remote::ErrorCategory category,
          int err_code,
          const std::wstring &err_msg) {
@@ -546,6 +575,21 @@ void OnRemoteResponseChromaKeyOff(LPARAM /*lparam*/) {
 }
 
 
+void OnRemoteResponseMicSearch(LPARAM lparam) {
+  std::unique_ptr<std::vector<std::wstring>> params{
+        reinterpret_cast<std::vector<std::wstring> *>(lparam)};
+  static_mic_devices.clear();
+  std::wstringstream ss;
+  ss << L"mic list: " << L"\r\n";
+  for (const auto &mic : *params) {
+    static_mic_devices.emplace_back(mic);
+    ss << mic << L"\r\n";
+  }
+
+  ::SetWindowText(static_message_panel, ss.str().c_str());
+}
+
+
 void OnRemoteResponseMicOn(LPARAM /*lparam*/) {
   std::wstringstream ss;
   ss << L"mic on success" << L"\r\n";
@@ -572,6 +616,7 @@ INT_PTR OnCommand(WPARAM wparam, LPARAM /*lparam*/) {
     case IDC_BUTTON_WEBCAM_OFF: OnWebcamOffButton(); return TRUE;
     case IDC_BUTTON_CHROMA_KEY_ON: OnChromaKeyOnButton(); return TRUE;
     case IDC_BUTTON_CHROMA_KEY_OFF: OnChromaKeyOffButton(); return TRUE;
+    case IDC_BUTTON_MIC_SEARCH: OnMicSearchButton(); return TRUE;
     case IDC_BUTTON_MIC_ON: OnMicOnButton(); return TRUE;
     case IDC_BUTTON_MIC_OFF: OnMicOffButton(); return TRUE;
     case IDC_BUTTON_EXIT: OnExitButton(); return TRUE;
@@ -605,6 +650,7 @@ HWND CreateMainDialog(
   static_webcam_off_button = ::GetDlgItem(dlg, IDC_BUTTON_WEBCAM_OFF);
   static_chroma_key_on_button = ::GetDlgItem(dlg, IDC_BUTTON_CHROMA_KEY_ON);
   static_chroma_key_off_button = ::GetDlgItem(dlg, IDC_BUTTON_CHROMA_KEY_OFF);
+  static_mic_search_button = ::GetDlgItem(dlg, IDC_BUTTON_MIC_SEARCH);
   static_mic_on_button = ::GetDlgItem(dlg, IDC_BUTTON_MIC_ON);
   static_mic_off_button = ::GetDlgItem(dlg, IDC_BUTTON_MIC_OFF);
   static_message_panel = ::GetDlgItem(dlg, IDC_EDIT_MESSAGE);
@@ -708,6 +754,8 @@ INT_PTR CALLBACK MainDialogProc(
         OnRemoteResponseChromaKeyOn(lparam); return TRUE;
     case WM_USER__REMOTE_RESPONSE_CHROMA_KEY_OFF:
         OnRemoteResponseChromaKeyOff(lparam); return TRUE;
+    case WM_USER__REMOTE_RESPONSE_MIC_SEARCH:
+        OnRemoteResponseMicSearch(lparam); return TRUE;
     case WM_USER__REMOTE_RESPONSE_MIC_ON:
         OnRemoteResponseMicOn(lparam); return TRUE;
     case WM_USER__REMOTE_RESPONSE_MIC_OFF:
