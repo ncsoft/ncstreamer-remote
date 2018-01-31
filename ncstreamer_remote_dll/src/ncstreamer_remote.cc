@@ -463,6 +463,8 @@ void NcStreamerRemote::RequestChromaKeySimilarity(
 
 
 void NcStreamerRemote::RequestMicOn(
+    const std::wstring &device_id,
+    const float &volume,
     const ErrorHandler &error_handler,
     const MicResponseHandler &mic_on_response_handler) {
   if (busy_ == true) {
@@ -475,13 +477,13 @@ void NcStreamerRemote::RequestMicOn(
   current_mic_on_response_handler_ = mic_on_response_handler;
 
   if (!remote_connection_.lock()) {
-    Connect([this]() {
-      SendMicOnRequest();
+    Connect([this, device_id, volume]() {
+      SendMicOnRequest(device_id, volume);
     });
     return;
   }
 
-  SendMicOnRequest();
+  SendMicOnRequest(device_id, volume);
 }
 
 
@@ -1000,7 +1002,9 @@ void NcStreamerRemote::SendChromaKeySimilarityRequest(const int &similarity) {
 }
 
 
-void NcStreamerRemote::SendMicOnRequest() {
+void NcStreamerRemote::SendMicOnRequest(
+    const std::wstring &device_id,
+    const float &volume) {
   std::stringstream msg;
   {
     std::wstring_convert<std::codecvt_utf8_utf16<wchar_t>> converter;
@@ -1009,6 +1013,8 @@ void NcStreamerRemote::SendMicOnRequest() {
     tree.put("type", static_cast<int>(
         ncstreamer::RemoteMessage::MessageType::
             kSettingsMicOnRequest));
+    tree.put("device_id", converter.to_bytes(device_id));
+    tree.put("volume", volume);
 
     boost::property_tree::write_json(msg, tree, false);
   }

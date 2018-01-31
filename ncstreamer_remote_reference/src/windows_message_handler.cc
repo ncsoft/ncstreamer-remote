@@ -337,8 +337,11 @@ void OnChromaKeyOffButton() {
 
 void OnMicOnButton() {
   SetMessage(L"OnMicOnButton");
-
+  const std::wstring &device_id{L"default"};
+  const float &volume{0.5};
   ncstreamer_remote::NcStreamerRemote::Get()->RequestMicOn(
+      device_id,
+      volume,
       [](ncstreamer_remote::ErrorCategory category,
          int err_code,
          const std::wstring &err_msg) {

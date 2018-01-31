@@ -195,6 +195,8 @@ class NcStreamerRemote {
       const ChromaKeyResponseHandler &chroma_key_similarity_response_handler);
 
   void NCSTREAMER_REMOTE_DLL_API RequestMicOn(
+      const std::wstring &device_id,
+      const float &volume,
       const ErrorHandler &error_handler,
       const MicResponseHandler &mic_on_response_handler);
 
@@ -248,7 +250,9 @@ class NcStreamerRemote {
   void SendChromaKeyOffRequest();
   void SendChromaKeyColorRequest(const uint32_t &color);
   void SendChromaKeySimilarityRequest(const int &similarity);
-  void SendMicOnRequest();
+  void SendMicOnRequest(
+      const std::wstring &device_id,
+      const float &volume);
   void SendMicOffRequest();
 
   void OnRemoteFail(websocketpp::connection_hdl connection);
