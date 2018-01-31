@@ -1130,10 +1130,10 @@ void NcStreamerRemote::OnRemoteMessage(
       {ncstreamer::RemoteMessage::MessageType::kSettingsChromaKeyColorResponse,
        std::bind(&NcStreamerRemote::OnRemoteChromaKeyColorResponse,
            this, std::placeholders::_1)},
-      {ncstreamer::RemoteMessage::MessageType::kSettingsMicOnRequest,
+      {ncstreamer::RemoteMessage::MessageType::kSettingsMicOnResponse,
        std::bind(&NcStreamerRemote::OnRemoteMicOnResponse,
            this, std::placeholders::_1)},
-      {ncstreamer::RemoteMessage::MessageType::kSettingsMicOffRequest,
+      {ncstreamer::RemoteMessage::MessageType::kSettingsMicOffResponse,
        std::bind(&NcStreamerRemote::OnRemoteMicOffResponse,
            this, std::placeholders::_1)},
       {ncstreamer::RemoteMessage::MessageType::
