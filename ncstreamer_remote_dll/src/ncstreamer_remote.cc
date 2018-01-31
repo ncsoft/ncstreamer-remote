@@ -775,8 +775,6 @@ void NcStreamerRemote::SendCommentsRequest(const std::wstring &created_time) {
 void NcStreamerRemote::SendViewersRequest() {
   std::stringstream msg;
   {
-    std::wstring_convert<std::codecvt_utf8_utf16<wchar_t>> converter;
-
     boost::property_tree::ptree tree;
     tree.put("type", static_cast<int>(
         ncstreamer::RemoteMessage::MessageType::kStreamingViewersRequest));
@@ -796,8 +794,6 @@ void NcStreamerRemote::SendViewersRequest() {
 void NcStreamerRemote::SendWebcamSearchRequest() {
   std::stringstream msg;
   {
-    std::wstring_convert<std::codecvt_utf8_utf16<wchar_t>> converter;
-
     boost::property_tree::ptree tree;
     tree.put("type", static_cast<int>(
         ncstreamer::RemoteMessage::MessageType::kSettingsWebcamSearchRequest));
@@ -849,8 +845,6 @@ void NcStreamerRemote::SendWebcamOnRequest(
 void NcStreamerRemote::SendWebcamOffRequest() {
   std::stringstream msg;
   {
-    std::wstring_convert<std::codecvt_utf8_utf16<wchar_t>> converter;
-
     boost::property_tree::ptree tree;
     tree.put("type", static_cast<int>(
         ncstreamer::RemoteMessage::MessageType::kSettingsWebcamOffRequest));
@@ -872,8 +866,6 @@ void NcStreamerRemote::SendWebcamSizeRequest(
     const float &normal_height) {
   std::stringstream msg;
   {
-    std::wstring_convert<std::codecvt_utf8_utf16<wchar_t>> converter;
-
     boost::property_tree::ptree tree;
     tree.put("type", static_cast<int>(
         ncstreamer::RemoteMessage::MessageType::kSettingsWebcamSizeRequest));
@@ -898,8 +890,6 @@ void NcStreamerRemote::SendWebcamPositionRequest(
     const float &normal_y) {
   std::stringstream msg;
   {
-    std::wstring_convert<std::codecvt_utf8_utf16<wchar_t>> converter;
-
     boost::property_tree::ptree tree;
     tree.put("type", static_cast<int>(
         ncstreamer::RemoteMessage::MessageType::
@@ -925,8 +915,6 @@ void NcStreamerRemote::SendChromaKeyOnRequest(
     const int &similarity) {
   std::stringstream msg;
   {
-    std::wstring_convert<std::codecvt_utf8_utf16<wchar_t>> converter;
-
     boost::property_tree::ptree tree;
     tree.put("type", static_cast<int>(
         ncstreamer::RemoteMessage::MessageType::
@@ -950,8 +938,6 @@ void NcStreamerRemote::SendChromaKeyOnRequest(
 void NcStreamerRemote::SendChromaKeyOffRequest() {
   std::stringstream msg;
   {
-    std::wstring_convert<std::codecvt_utf8_utf16<wchar_t>> converter;
-
     boost::property_tree::ptree tree;
     tree.put("type", static_cast<int>(
         ncstreamer::RemoteMessage::MessageType::
@@ -973,8 +959,6 @@ void NcStreamerRemote::SendChromaKeyOffRequest() {
 void NcStreamerRemote::SendChromaKeyColorRequest(const uint32_t &color) {
   std::stringstream msg;
   {
-    std::wstring_convert<std::codecvt_utf8_utf16<wchar_t>> converter;
-
     boost::property_tree::ptree tree;
     tree.put("type", static_cast<int>(
         ncstreamer::RemoteMessage::MessageType::
@@ -997,8 +981,6 @@ void NcStreamerRemote::SendChromaKeyColorRequest(const uint32_t &color) {
 void NcStreamerRemote::SendChromaKeySimilarityRequest(const int &similarity) {
   std::stringstream msg;
   {
-    std::wstring_convert<std::codecvt_utf8_utf16<wchar_t>> converter;
-
     boost::property_tree::ptree tree;
     tree.put("type", static_cast<int>(
         ncstreamer::RemoteMessage::MessageType::
@@ -1044,8 +1026,6 @@ void NcStreamerRemote::SendMicOnRequest() {
 void NcStreamerRemote::SendMicOffRequest() {
   std::stringstream msg;
   {
-    std::wstring_convert<std::codecvt_utf8_utf16<wchar_t>> converter;
-
     boost::property_tree::ptree tree;
     tree.put("type", static_cast<int>(
         ncstreamer::RemoteMessage::MessageType::
