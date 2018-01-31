@@ -204,6 +204,9 @@ std::pair<Error::Mic, std::string>
   using MicError = std::pair<Error::Mic, std::string>;
   static const std::unordered_map<std::string, MicError>
       kMicError{
+          {ncstreamer::RemoteMessage::Error::Mic::kMicSearch,
+           {Error::Mic::kMicSearch,
+            "mic search error"}},
           {ncstreamer::RemoteMessage::Error::Mic::kMicOn,
            {Error::Mic::kMicOn,
             "mic on error"}},

@@ -94,6 +94,8 @@ class NcStreamerRemote {
       const std::vector<NcStreamerRemote::WebcamDevice> &webcams)>;
   using WebcamResponseHandler = std::function<void()>;
   using ChromaKeyResponseHandler = std::function<void()>;
+  using MicSearchResponseHandler = std::function<void(
+      const std::vector<std::wstring> &mic_devices)>;
   using MicResponseHandler = std::function<void()>;
 
   static NCSTREAMER_REMOTE_DLL_API void SetUp(uint16_t remote_port);
@@ -194,6 +196,10 @@ class NcStreamerRemote {
       const ErrorHandler &error_handler,
       const ChromaKeyResponseHandler &chroma_key_similarity_response_handler);
 
+  void NCSTREAMER_REMOTE_DLL_API RequestMicSearch(
+      const ErrorHandler &error_handler,
+      const MicSearchResponseHandler &mic_search_response_handler);
+
   void NCSTREAMER_REMOTE_DLL_API RequestMicOn(
       const std::wstring &device_id,
       const float &volume,
@@ -250,6 +256,7 @@ class NcStreamerRemote {
   void SendChromaKeyOffRequest();
   void SendChromaKeyColorRequest(const uint32_t &color);
   void SendChromaKeySimilarityRequest(const int &similarity);
+  void SendMicSearchRequest();
   void SendMicOnRequest(
       const std::wstring &device_id,
       const float &volume);
@@ -295,6 +302,8 @@ class NcStreamerRemote {
   void OnRemoteChromaKeyColorResponse(
       const boost::property_tree::ptree &response);
   void OnRemoteChromaKeySimilarityResponse(
+      const boost::property_tree::ptree &response);
+  void OnRemoteMicSearchResponse(
       const boost::property_tree::ptree &response);
   void OnRemoteMicOnResponse(
       const boost::property_tree::ptree &response);
@@ -363,6 +372,7 @@ class NcStreamerRemote {
   ChromaKeyResponseHandler current_chroma_key_off_response_handler_;
   ChromaKeyResponseHandler current_chroma_key_color_response_handler_;
   ChromaKeyResponseHandler current_chroma_key_similarity_response_handler_;
+  MicSearchResponseHandler current_mic_search_response_handler_;
   MicResponseHandler current_mic_on_response_handler_;
   MicResponseHandler current_mic_off_response_handler_;
 };

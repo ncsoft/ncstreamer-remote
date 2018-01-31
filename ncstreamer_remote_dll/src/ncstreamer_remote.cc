@@ -462,6 +462,29 @@ void NcStreamerRemote::RequestChromaKeySimilarity(
 }
 
 
+void NcStreamerRemote::RequestMicSearch(
+    const ErrorHandler &error_handler,
+    const MicSearchResponseHandler &mic_search_response_handler) {
+  if (busy_ == true) {
+    HandleConnectionError(Error::Connection::kBusy, error_handler);
+    return;
+  }
+  busy_ = true;
+
+  current_error_handler_ = error_handler;
+  current_mic_search_response_handler_ = mic_search_response_handler;
+
+  if (!remote_connection_.lock()) {
+    Connect([this]() {
+      SendMicSearchRequest();
+    });
+    return;
+  }
+
+  SendMicSearchRequest();
+}
+
+
 void NcStreamerRemote::RequestMicOn(
     const std::wstring &device_id,
     const float &volume,
@@ -540,6 +563,7 @@ NcStreamerRemote::NcStreamerRemote(uint16_t remote_port)
       current_chroma_key_off_response_handler_{},
       current_chroma_key_color_response_handler_{},
       current_chroma_key_similarity_response_handler_{},
+      current_mic_search_response_handler_{},
       current_mic_on_response_handler_{},
       current_mic_off_response_handler_{} {
   busy_ = false;
@@ -1002,6 +1026,25 @@ void NcStreamerRemote::SendChromaKeySimilarityRequest(const int &similarity) {
 }
 
 
+void NcStreamerRemote::SendMicSearchRequest() {
+  std::stringstream msg;
+  {
+    boost::property_tree::ptree tree;
+    tree.put("type", static_cast<int>(
+        ncstreamer::RemoteMessage::MessageType::kSettingsMicSearchRequest));
+    boost::property_tree::write_json(msg, tree, false);
+  }
+
+  websocketpp::lib::error_code ec;
+  remote_.send(
+      remote_connection_, msg.str(), websocketpp::frame::opcode::text, ec);
+  if (ec) {
+    HandleError(Error::Connection::kRemoteSend, ec);
+    return;
+  }
+}
+
+
 void NcStreamerRemote::SendMicOnRequest(
     const std::wstring &device_id,
     const float &volume) {
@@ -1129,6 +1172,9 @@ void NcStreamerRemote::OnRemoteMessage(
            this, std::placeholders::_1)},
       {ncstreamer::RemoteMessage::MessageType::kSettingsChromaKeyColorResponse,
        std::bind(&NcStreamerRemote::OnRemoteChromaKeyColorResponse,
+           this, std::placeholders::_1)},
+      {ncstreamer::RemoteMessage::MessageType::kSettingsMicSearchResponse,
+       std::bind(&NcStreamerRemote::OnRemoteMicSearchResponse,
            this, std::placeholders::_1)},
       {ncstreamer::RemoteMessage::MessageType::kSettingsMicOnResponse,
        std::bind(&NcStreamerRemote::OnRemoteMicOnResponse,
@@ -1686,6 +1732,44 @@ void NcStreamerRemote::OnRemoteChromaKeySimilarityResponse(
         converter.from_bytes(err_info.second));
   } else {
     current_chroma_key_on_response_handler_();
+  }
+}
+
+
+void NcStreamerRemote::OnRemoteMicSearchResponse(
+    const boost::property_tree::ptree &response) {
+  bool exception_occurred{false};
+  std::string error{};
+  std::vector<std::wstring> mic_devices;
+  try {
+    static std::wstring_convert<std::codecvt_utf8_utf16<wchar_t>> converter;
+    error = response.get<std::string>("error");
+    const auto &mic_list = response.get_child("micList");
+    for (const auto &mic : mic_list) {
+      const std::string &id = mic.second.get<std::string>("id");
+      const std::string &name = mic.second.get<std::string>("name");
+      std::wstring device{
+          converter.from_bytes(id) + L":" + converter.from_bytes(name)};
+      mic_devices.emplace_back(device);
+    }
+  } catch (const std::exception &/*e*/) {
+    exception_occurred = true;
+  }
+
+  if (exception_occurred == true) {
+    LogError("mic search response broken");
+    return;
+  }
+
+  if (error.empty() == false) {
+    static std::wstring_convert<std::codecvt_utf8_utf16<wchar_t>> converter;
+    const auto &err_info = ErrorConverter::ToMicError(error);
+    current_error_handler_(
+        ErrorCategory::kMic,
+        static_cast<int>(err_info.first),
+        converter.from_bytes(err_info.second));
+  } else {
+    current_mic_search_response_handler_(mic_devices);
   }
 }
 

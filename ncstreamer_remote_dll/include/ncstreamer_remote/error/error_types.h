@@ -154,8 +154,11 @@ class Error {
     kNoError = 0,
     kUnknownError,
 
+    /// "mic search error"
+    kMicSearch = 101,
+
     /// "mic on error"
-    kMicOn = 101,
+    kMicOn ,
 
     /// "mic off error"
     kMicOff,

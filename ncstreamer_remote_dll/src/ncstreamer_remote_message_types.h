@@ -49,6 +49,8 @@ class RemoteMessage {
     kSettingsMicOnResponse,
     kSettingsMicOffRequest = 711,
     kSettingsMicOffResponse,
+    kSettingsMicSearchRequest = 721,
+    kSettingsMicSearchResponse,
     kStreamingViewersRequest = 801,
     kStreamingViewersResponse,
     kNcStreamerExitRequest = 901,
@@ -100,6 +102,7 @@ class RemoteMessage {
     };
     class Mic {
      public:
+      static const char *const kMicSearch;
       static const char *const kMicOn;
       static const char *const kMicOff;
     };
