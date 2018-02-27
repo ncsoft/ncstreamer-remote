@@ -1469,17 +1469,14 @@ void NcStreamerRemote::OnRemoteWebcamSearchResponse(
     const boost::property_tree::ptree &response) {
   bool exception_occurred{false};
   std::string error{};
-  std::vector<NcStreamerRemote::WebcamDevice> webcams;
+  std::vector<std::wstring> webcams;
   try {
     static std::wstring_convert<std::codecvt_utf8_utf16<wchar_t>> converter;
     error = response.get<std::string>("error");
     const auto &webcam_list = response.get_child("webcamList");
     for (const auto &webcam : webcam_list) {
       const std::string &id = webcam.second.get<std::string>("id");
-      const int &default_width = webcam.second.get<int>("defaultWidth");
-      const int &default_height = webcam.second.get<int>("defaultHeight");
-      NcStreamerRemote::WebcamDevice device{
-          converter.from_bytes(id), default_width, default_height};
+      std::wstring device{converter.from_bytes(id)};
       webcams.emplace_back(device);
     }
   } catch (const std::exception &/*e*/) {
@@ -1919,18 +1916,4 @@ void NcStreamerRemote::LogError(const std::string &err_msg) {
 
 
 NcStreamerRemote *NcStreamerRemote::static_instance{nullptr};
-
-
-NcStreamerRemote::WebcamDevice::WebcamDevice(
-    const std::wstring &id,
-    const int &default_width,
-    const int &default_height)
-    : default_width_{default_width},
-      default_height_{default_height} {
-  id_ = id;
-}
-
-
-NcStreamerRemote::WebcamDevice::~WebcamDevice() {
-}
 }  // namespace ncstreamer_remote

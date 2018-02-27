@@ -48,8 +48,6 @@ namespace Chrono = boost::chrono;
 namespace ncstreamer_remote {
 class NcStreamerRemote {
  public:
-  class WebcamDevice;
-
   using ConnectHandler = std::function<void()>;
   using DisconnectHandler = std::function<void()>;
 
@@ -91,7 +89,7 @@ class NcStreamerRemote {
       const std::wstring &viewers)>;
 
   using WebcamSearchResponseHandler = std::function<void(
-      const std::vector<NcStreamerRemote::WebcamDevice> &webcams)>;
+      const std::vector<std::wstring> &webcams)>;
   using WebcamResponseHandler = std::function<void()>;
   using ChromaKeyResponseHandler = std::function<void()>;
   using MicSearchResponseHandler = std::function<void(
@@ -375,31 +373,6 @@ class NcStreamerRemote {
   MicSearchResponseHandler current_mic_search_response_handler_;
   MicResponseHandler current_mic_on_response_handler_;
   MicResponseHandler current_mic_off_response_handler_;
-};
-
-
-class NcStreamerRemote::WebcamDevice {
- public:
-  NCSTREAMER_REMOTE_DLL_API WebcamDevice(
-      const std::wstring &id,
-      const int &default_width,
-      const int &default_height);
-  virtual NCSTREAMER_REMOTE_DLL_API ~WebcamDevice();
-
-  const std::wstring NCSTREAMER_REMOTE_DLL_API &id() const {
-    return id_;
-  }
-  const int NCSTREAMER_REMOTE_DLL_API &default_width() const {
-    return default_width_;
-  }
-  const int NCSTREAMER_REMOTE_DLL_API &default_height() const {
-    return default_height_;
-  }
-
- private:
-  std::wstring id_;
-  int default_width_;
-  int default_height_;
 };
 }  // namespace ncstreamer_remote
 

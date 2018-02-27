@@ -81,7 +81,7 @@ HWND static_message_panel{NULL};
 
 HFONT static_clock_font{NULL};
 
-std::vector<ncstreamer_remote::NcStreamerRemote::WebcamDevice> static_webcams;
+std::vector<std::wstring> static_webcams;
 std::vector<std::wstring> static_mic_devices;
 
 void SetMessage(const std::wstring &msg) {
@@ -218,14 +218,12 @@ void OnWebcamSearchButton() {
         WM_USER__REMOTE_RESPONSE_FAIL,
         (WPARAM) nullptr,
         (LPARAM) new std::wstring{err_msg});
-  }, [](const std::vector<ncstreamer_remote::
-        NcStreamerRemote::WebcamDevice> webcams) {
+  }, [](const std::vector<std::wstring> webcams) {
     ::PostMessage(
         static_main_dialog,
         WM_USER__REMOTE_RESPONSE_WEBCAM_SEARCH,
         (WPARAM) nullptr,
-        (LPARAM) new std::vector<ncstreamer_remote::NcStreamerRemote::
-            WebcamDevice>{webcams});
+        (LPARAM) new std::vector<std::wstring>{webcams});
   });
 }
 
@@ -239,9 +237,9 @@ void OnWebcamOnButton() {
     ::SetWindowText(static_message_panel, ss.str().c_str());
     return;
   }
-  const std::wstring &id{static_webcams.at(0).id()};
-  const int &default_width{static_webcams.at(0).default_width()};
-  const int &default_height{static_webcams.at(0).default_height()};
+  const std::wstring &id{static_webcams.at(0)};
+  const int &default_width{1280};
+  const int &default_height{720};
   const float &ratio{
       static_cast<float>(default_height) / static_cast<float>(default_width)};
   const float &normal_width{0.25f};
@@ -525,18 +523,14 @@ void OnRemoteResponseStop(LPARAM lparam) {
 
 
 void OnRemoteResponseWebcamSearch(LPARAM lparam) {
-  std::unique_ptr<std::vector<
-      ncstreamer_remote::NcStreamerRemote::WebcamDevice>> params{
-        reinterpret_cast<std::vector<
-            ncstreamer_remote::NcStreamerRemote::WebcamDevice> *>(lparam)};
+  std::unique_ptr<std::vector<std::wstring>> params{
+        reinterpret_cast<std::vector<std::wstring> *>(lparam)};
   static_webcams.clear();
   std::wstringstream ss;
   ss << L"webcam list: " << L"\r\n";
   for (const auto &webcam : *params) {
     static_webcams.emplace_back(webcam);
-    ss << webcam.id() << L",\r\n" << "default size: (" <<
-      webcam.default_width() << L", " << webcam.default_height() <<
-        L")" << L"\r\n";
+    ss << webcam << L"\r\n";
   }
 
   ::SetWindowText(static_message_panel, ss.str().c_str());
