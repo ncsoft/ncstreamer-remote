@@ -33,7 +33,7 @@ void NcStreamerRemote::SetUp(uint16_t remote_port) {
 
 
 void NcStreamerRemote::SetUpDefault() {
-  SetUp(9002);
+  SetUp(9003);
 }
 
 
@@ -534,7 +534,7 @@ void NcStreamerRemote::RequestMicOff(
 
 
 NcStreamerRemote::NcStreamerRemote(uint16_t remote_port)
-    : remote_uri_{new websocketpp::uri{false, "localhost", remote_port, ""}},
+    : remote_uri_{new websocketpp::uri{false, "::1", remote_port, ""}},
       io_service_{},
       io_service_work_{io_service_},
       remote_{},
